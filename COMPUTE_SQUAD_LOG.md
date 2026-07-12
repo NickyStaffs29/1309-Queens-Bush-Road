@@ -27,3 +27,9 @@ Blocked until real footage is supplied: inspect its resolution, orientation, dur
 Modified `app/page.tsx`, `app/globals.css`, `tests/rendered-html.test.mjs`, and five new 1600×1200 WebP derivatives in `public/property/`; production commit `f1a480a` expands the gallery to 18 distinct images, closes the 3/2/1-column grids, and fills the story/detail image cells.
 
 Evidence: build, lint, focused rendered/source tests, and 1600×1200 media audit pass; browser audits/screenshots at 1440/768/390 confirm 18 items, 3/2/1 columns, uniform 1.33 ratios, and no horizontal overflow. Variance: the dev runtime reports one unrelated 404 resource; drone video remains blocked on licensed footage and SEO/hosting were untouched.
+
+## Verifier Revision — Gallery Density
+
+FAIL — upstream stage: Executor Revision — Gallery Density. The gallery itself passes: 18 unique paths and hashes, 3/2/1 columns at 1440/768/390, six/nine/eighteen complete rows, consistent 4:3 geometry, descriptive alt text, lazy loading, no overflow, and five distinct 1600×1200 WebP additions; build, lint, and both focused tests pass, with no video, SEO/hosting, framework, or unrelated tracked changes.
+
+Acceptance still fails because desktop CSS retains `.story-approach { width: 72%; }` and `.interior-detail { width: 60%; }`; the 1440 screenshot visibly renders the approach image as a small partial-width tile, contrary to the approved full-width-at-every-breakpoint requirement. The localhost:3000 dev server was unavailable during verification, so the noted runtime 404 could not be reproduced; it does not explain or change this deterministic CSS failure, and original source photos remain unmodified/untracked.
