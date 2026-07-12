@@ -28,6 +28,12 @@ Modified `app/page.tsx`, `app/globals.css`, `tests/rendered-html.test.mjs`, and 
 
 Evidence: build, lint, focused rendered/source tests, and 1600×1200 media audit pass; browser audits/screenshots at 1440/768/390 confirm 18 items, 3/2/1 columns, uniform 1.33 ratios, and no horizontal overflow. Variance: the dev runtime reports one unrelated 404 resource; drone video remains blocked on licensed footage and SEO/hosting were untouched.
 
+## Executor Fix — Gallery Density
+
+Commit `f55185d` changes the base `.story-approach` and `.interior-detail` widths to 100%, removes redundant breakpoint width overrides, and strengthens the focused CSS regression check against any partial-width declaration.
+
+Build, lint, and focused rendered/source tests pass; browser screenshots and audits at 1440/768/390 show full widths of 462/768 px, 661/661 px, and 335/335 px respectively, with 18 gallery items, 3/2/1 columns, uniform 1.33 ratios, and no overflow. No other scope changed.
+
 ## Verifier Revision — Gallery Density
 
 FAIL — upstream stage: Executor Revision — Gallery Density. The gallery itself passes: 18 unique paths and hashes, 3/2/1 columns at 1440/768/390, six/nine/eighteen complete rows, consistent 4:3 geometry, descriptive alt text, lazy loading, no overflow, and five distinct 1600×1200 WebP additions; build, lint, and both focused tests pass, with no video, SEO/hosting, framework, or unrelated tracked changes.
