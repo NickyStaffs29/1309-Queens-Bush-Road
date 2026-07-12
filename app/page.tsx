@@ -22,6 +22,11 @@ const gallery = [
   ["/property/primary-suite.webp", "Primary suite sitting area"],
   ["/property/lower-level-gallery.webp", "Finished lower-level gallery"],
   ["/property/garage-loft.webp", "Finished heated and cooled garage loft"],
+  ["/property/wine-cellar.webp", "Wood-lined wine storage room"],
+  ["/property/library.webp", "Library with built-in shelving and garden views"],
+  ["/property/porch-seating.webp", "Covered porch seating overlooking the gardens"],
+  ["/property/aerial-site-plan.webp", "Top-down aerial view of the residence and grounds"],
+  ["/property/aerial-neighbourhood.webp", "Wide aerial view of the property within its rural setting"],
 ];
 
 export default function Home() {
