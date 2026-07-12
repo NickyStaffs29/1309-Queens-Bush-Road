@@ -33,11 +33,11 @@ a { color: inherit; }
   width: 100%;
   z-index: 10;
 }
-.wordmark { font: 500 16px/1 var(--serif); letter-spacing: .03em; text-decoration: none; }
+.wordmark { align-items: center; display: inline-flex; font: 500 16px/1 var(--serif); letter-spacing: .03em; min-height: 44px; text-decoration: none; }
 .wordmark span { color: var(--copper); font-style: italic; margin-right: 4px; }
 nav { align-items: center; display: flex; gap: clamp(20px, 3vw, 46px); }
-nav a { font-size: 11px; letter-spacing: .14em; text-decoration: none; text-transform: uppercase; }
-.nav-inquire { border-bottom: 1px solid var(--copper); padding: 10px 0 8px; }
+nav a { align-items: center; display: inline-flex; font-size: 11px; letter-spacing: .14em; min-height: 44px; text-decoration: none; text-transform: uppercase; }
+.nav-inquire { border-bottom: 1px solid var(--copper); padding: 1px 0 0; }
 
 .hero { color: white; height: max(720px, 100svh); min-height: 650px; overflow: hidden; position: relative; }
 .hero > img { object-position: center 52%; }
