@@ -45,6 +45,7 @@ test("keeps gallery rows and story images complete at every breakpoint", async (
   assert.match(css, /\.gallery-item \{[^}]*aspect-ratio: 4 \/ 3/);
   assert.match(css, /@media \(max-width: 900px\)[\s\S]*\.gallery-grid \{ grid-template-columns: repeat\(2, 1fr\); \}/);
   assert.match(css, /@media \(max-width: 640px\)[\s\S]*\.gallery-grid \{ grid-template-columns: 1fr; \}/);
-  assert.doesNotMatch(css, /\.story-approach \{[^}]*width: (?:60|78)%/);
-  assert.doesNotMatch(css, /\.interior-detail \{[^}]*width: (?:50|68)%/);
+  assert.match(css, /\.story-approach \{[^}]*width: 100%/);
+  assert.match(css, /\.interior-detail \{[^}]*width: 100%/);
+  assert.doesNotMatch(css, /\.(?:story-approach|interior-detail) \{[^}]*width: (?!100%)[^;}]+/);
 });
