@@ -102,6 +102,16 @@ test("keeps media complete and truthful at every breakpoint", async () => {
   assert.equal(new Set(ids).size, ids.length);
   assert.match(html, />Wellesley, Ontario</);
   assert.doesNotMatch(html, /St\. Jacobs|wine cellar|lower-level gallery|garage loft/i);
+  assert.match(
+    html,
+    /alt="Bedroom with stone fireplace, television and windows"/,
+    "primary bedroom alt text should describe the visible fireplace, television and windows",
+  );
+  assert.doesNotMatch(
+    html,
+    /alt="Bedroom with stone fireplace, garden door and burgundy bedding"/,
+    "primary bedroom alt text should not claim details absent from the image",
+  );
   assert.match(css, /\.gallery-group-grid \{[^}]*grid-template-columns: repeat\(12, 1fr\)/);
   assert.match(css, /\.gallery-item\.landscape \{[^}]*grid-column: span 4/);
   assert.match(css, /\.gallery-item\.portrait \{[^}]*grid-column: span 3/);

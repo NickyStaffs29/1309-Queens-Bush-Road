@@ -181,7 +181,7 @@ export default function Home() {
         </section>
 
         <section className="suite-band" aria-label="Primary suite">
-          <StoryImage name="primary-bedroom" alt="Bedroom with stone fireplace, garden door and burgundy bedding" />
+          <StoryImage name="primary-bedroom" alt="Bedroom with stone fireplace, television and windows" />
           <div>
             <p className="eyebrow gold">The primary suite</p>
             <h2>A private room<br />within the home</h2>
