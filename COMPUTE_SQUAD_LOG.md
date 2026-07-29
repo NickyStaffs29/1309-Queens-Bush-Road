@@ -16,6 +16,10 @@ RED: `npm test` built the old page and failed all 5 focused tests on the absent 
 
 Browser QA passed at 1440, 900, and 390 pixels with complete 12/2/2-column group geometry, no horizontal overflow, 0 broken or pending images after scrolling, the correct single desktop/mobile MP4 request, working pause control, and still fallbacks for reduced motion, save-data, and simulated media failure; the clean session had no failed request or console error. The only media variance is a frame-accurate 12.045-second duration at 29.97 fps around the approved 12-second target; the complementary film remains deferred, and price/status/lot/MLS/contact/legal confirmations remain blockers for a later phase.
 
+Route-back RED: the focused rendered-HTML assertion failed on the original F88 alt text, with 4/5 tests passing and the new visible-description check failing as intended.
+
+Route-back GREEN: commit `f2ac4fd` changes only the F88 alt text and regression test; `npm test` passes 5/5, lint exits 0, and browser inspection confirms one visible, loaded 844×633 image described as “Bedroom with stone fireplace, television and windows,” with zero console errors.
+
 ## Verifier
 
 FAIL — I verified `cd4b4b6`/`24e60b3`, all 92 derivative counts/dimensions/budgets, 36/36 gallery and 8/8 story source mappings, H.264 fast-start 01/V01 loops, no tracked masters or blob over 10 MiB, and the server-rendered integration with fresh `npm test` (5/5), build, lint, and clean 1440/900/390 browser sessions. Layout, exact grouping/order, Wellesley/no-postal copy, desktop/mobile requests, pause/play state, reduced-motion/save-data/error fallbacks, and all 45 images passed; there is no separate backend surface.
