@@ -1,26 +1,105 @@
 import assert from "node:assert/strict";
+import { spawn } from "node:child_process";
+import { once } from "node:events";
+import { createRequire } from "node:module";
 import { readFile, stat } from "node:fs/promises";
-import test from "node:test";
+import { setTimeout as delay } from "node:timers/promises";
+import test, { after } from "node:test";
 
-async function render() {
-  const workerUrl = new URL("../dist/server/index.js", import.meta.url);
-  workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
-  const { default: worker } = await import(workerUrl.href);
+test("uses standard Next scripts without starter runtime dependencies", async () => {
+  const manifest = JSON.parse(
+    await readFile(new URL("../package.json", import.meta.url), "utf8"),
+  );
 
-  return worker.fetch(
-    new Request("http://localhost/", {
-      headers: { accept: "text/html" },
-    }),
+  assert.equal(manifest.name, "casa-marrone");
+  assert.equal(manifest.scripts.dev, "next dev");
+  assert.equal(manifest.scripts.build, "next build");
+  assert.equal(manifest.scripts.start, "next start");
+  assert.equal(manifest.scripts.lint, "eslint .");
+  assert.equal("db:generate" in manifest.scripts, false);
+
+  for (const name of [
+    "drizzle-orm",
+    "react-loading-skeleton",
+    "@cloudflare/vite-plugin",
+    "@vitejs/plugin-react",
+    "@vitejs/plugin-rsc",
+    "drizzle-kit",
+    "react-server-dom-webpack",
+    "vinext",
+    "vite",
+    "wrangler",
+  ]) {
+    assert.equal(name in (manifest.dependencies ?? {}), false, name);
+    assert.equal(name in (manifest.devDependencies ?? {}), false, name);
+  }
+});
+
+const require = createRequire(import.meta.url);
+let nextServer;
+let nextOrigin;
+
+async function startNextServer() {
+  if (nextServer && nextOrigin) return;
+
+  const nextBin = require.resolve("next/dist/bin/next");
+  const child = spawn(
+    process.execPath,
+    [nextBin, "start", "--hostname", "127.0.0.1", "--port", "0"],
     {
-      ASSETS: {
-        fetch: async () => new Response("Not found", { status: 404 }),
+      cwd: new URL("..", import.meta.url),
+      env: {
+        ...process.env,
+        NEXT_TELEMETRY_DISABLED: "1",
+        NO_COLOR: "1",
       },
-    },
-    {
-      waitUntil() {},
-      passThroughOnException() {},
+      stdio: ["ignore", "pipe", "pipe"],
     },
   );
+
+  let output = "";
+  const collect = (chunk) => {
+    output += String(chunk);
+    const match = output.match(/Local:\s+(https?:\/\/[^\s]+)/);
+    if (match) nextOrigin = match[1];
+  };
+  child.stdout.on("data", collect);
+  child.stderr.on("data", collect);
+  nextServer = child;
+
+  for (let attempt = 0; attempt < 150; attempt += 1) {
+    if (child.exitCode !== null) {
+      throw new Error(`next start exited with ${child.exitCode}\n${output}`);
+    }
+    if (nextOrigin) {
+      try {
+        const response = await fetch(nextOrigin);
+        if (response.status === 200) return;
+      } catch {
+        // The production server has announced its URL but is not accepting requests yet.
+      }
+    }
+    await delay(100);
+  }
+
+  child.kill("SIGTERM");
+  throw new Error(`next start did not become ready\n${output}`);
+}
+
+after(async () => {
+  if (!nextServer || nextServer.exitCode !== null) return;
+  nextServer.kill("SIGTERM");
+  await Promise.race([
+    once(nextServer, "exit"),
+    delay(5_000).then(() => nextServer?.kill("SIGKILL")),
+  ]);
+});
+
+async function render(path = "/") {
+  await startNextServer();
+  return fetch(new URL(path, nextOrigin), {
+    headers: { accept: "text/html" },
+  });
 }
 
 const galleryImages = [
@@ -76,6 +155,18 @@ test("server-renders the approved six-part property gallery", async () => {
   }
   for (const image of galleryImages) {
     assert.match(html, new RegExp(`/property/gallery/${image}-1440\\.webp`));
+  }
+  for (const name of [
+    "property-plan",
+    "front-arrival",
+    "rear-pond",
+    "covered-porch",
+    "kitchen",
+    "copper-sink",
+    "primary-bedroom",
+    "pond-garden",
+  ]) {
+    assert.match(html, new RegExp(`/property/story/${name}-1920\\.webp`));
   }
   assert.equal((html.match(/loading="lazy"/g) ?? []).length >= 44, true);
   assert.equal((html.match(/decoding="async"/g) ?? []).length >= 44, true);
