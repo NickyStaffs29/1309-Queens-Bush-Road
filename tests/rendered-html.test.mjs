@@ -89,10 +89,12 @@ async function startNextServer() {
 after(async () => {
   if (!nextServer || nextServer.exitCode !== null) return;
   nextServer.kill("SIGTERM");
-  await Promise.race([
-    once(nextServer, "exit"),
-    delay(5_000).then(() => nextServer?.kill("SIGKILL")),
-  ]);
+  const forceKill = setTimeout(() => nextServer?.kill("SIGKILL"), 5_000);
+  try {
+    await once(nextServer, "exit");
+  } finally {
+    clearTimeout(forceKill);
+  }
 });
 
 async function render(path = "/") {
