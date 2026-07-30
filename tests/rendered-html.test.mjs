@@ -196,7 +196,8 @@ test("keeps media complete and truthful at every breakpoint", async () => {
   const ids = [...html.matchAll(/\sid="([^"]+)"/g)].map((match) => match[1]);
   assert.equal(new Set(ids).size, ids.length);
   assert.match(html, />Wellesley, Ontario</);
-  assert.doesNotMatch(html, /St\. Jacobs|wine cellar|lower-level gallery|garage loft/i);
+  // The garage loft is a historically verified feature, so only unverified claims stay excluded.
+  assert.doesNotMatch(html, /St\. Jacobs|wine cellar|lower-level gallery/i);
   assert.match(
     html,
     /alt="Bedroom with stone fireplace, television and windows"/,
@@ -234,6 +235,113 @@ test("ships only the approved web media within budget", async () => {
   for (const name of storyNames) {
     assert.equal((await stat(new URL(`../public/property/story/${name}-960.webp`, import.meta.url))).size <= 180 * 1024, true, name);
     assert.equal((await stat(new URL(`../public/property/story/${name}-1920.webp`, import.meta.url))).size <= 450 * 1024, true, name);
+  }
+});
+
+const inquiryEmail = "cmchiarello@gmail.com";
+const inquiryHref = `mailto:${inquiryEmail}?subject=Casa%20Marrone%20private%20viewing%20request`;
+
+// Omission checks read the served markup only; inlined RSC payloads repeat the same copy.
+function markupOnly(html) {
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    .replace(/<style[\s\S]*?<\/style>/gi, "");
+}
+
+test("renders the approved Casa Marrone section order", async () => {
+  const html = await (await render()).text();
+  let cursor = -1;
+  for (const marker of [
+    'class="site-header"',
+    'class="hero-video-fallback"',
+    ">Wellesley, Ontario<",
+    'id="property-title"',
+    'class="hero-price"',
+    'class="hero-line"',
+    'class="facts"',
+    'id="story"',
+    'id="grounds"',
+    'id="interior"',
+    'class="suite-band"',
+    'id="gallery"',
+    'id="details"',
+    'id="inquire"',
+    "<footer",
+  ]) {
+    const index = html.indexOf(marker, cursor + 1);
+    assert.notEqual(index, -1, `missing ${marker}`);
+    assert.equal(index > cursor, true, `out of order: ${marker}`);
+    cursor = index;
+  }
+});
+
+test("publishes the private-sale terms and confirmed property facts", async () => {
+  const html = await (await render()).text();
+
+  assert.match(html, /<title>[^<]*Casa Marrone[^<]*<\/title>/);
+  assert.match(html, /class="facts"[\s\S]*?CAD \$1,895,000[\s\S]*?<\/section>/);
+
+  for (const phrase of [
+    "Private sale",
+    "CAD $1,895,000",
+    "1835",
+    "6,553.32 sq. ft. measured",
+    "4,490.75 sq. ft. above grade",
+    "2,062.57 sq. ft. below grade",
+    "Five bedrooms and four bathrooms",
+    "Five covered porches",
+    "Two natural swimming pools",
+    "Municipal services remain current",
+    "Chimneys and flues reconstructed in May 2019",
+    "60,000 lb",
+    "50-amp service",
+    "Hard- and soft-water connections",
+  ]) {
+    assert.equal(html.includes(phrase), true, `missing ${phrase}`);
+  }
+
+  const factStrip = html.match(/class="facts"[\s\S]*?<\/section>/)[0];
+  let factCursor = -1;
+  for (const value of ["CAD $1,895,000", ">5<", ">4<", "6,553.32 sq. ft.", ">5<", ">2<"]) {
+    const index = factStrip.indexOf(value, factCursor + 1);
+    assert.notEqual(index, -1, `fact strip missing ${value}`);
+    factCursor = index;
+  }
+});
+
+test("offers one appointment-only email inquiry path", async () => {
+  const markup = markupOnly(await (await render()).text());
+
+  assert.match(markup, />Arrange a private viewing</);
+  assert.match(markup, /by confirmed appointment/);
+  assert.match(markup, /name, preferred day and time windows, and how many people will attend/);
+  assert.match(markup, />Email to request a private viewing</);
+  assert.deepEqual(markup.match(/href="mailto:[^"]*"/g), [`href="${inquiryHref}"`]);
+  assert.deepEqual([...new Set(markup.match(/[\w.+-]+@[\w.-]+\.\w{2,}/g) ?? [])], [inquiryEmail]);
+});
+
+test("omits everything outside the approved private-sale disclosure", async () => {
+  const markup = markupOnly(await (await render()).text());
+
+  for (const [label, pattern] of [
+    ["historic wording", /historic/i],
+    ["heritage wording", /heritage/i],
+    ["postal code", /\b[A-Z]\d[A-Z] ?\d[A-Z]\d\b/],
+    ["lot size", /lot size|\b\d+(?:\.\d+)?\s*(?:acres?|hectares?)\b/i],
+    ["iGuide", /iguide/i],
+    ["floor plan", /floor\s?plans?\b/i],
+    ["MLS", /\bMLS\b/i],
+    ["agent or brokerage", /\bagents?\b|\bbrokers?\b|brokerage|realtor|lambert/i],
+    ["telephone", /\btel:|telephone|\bphones?\b|\b\d{3}[.\- ]\d{3}[.\- ]\d{4}\b/i],
+    ["contact form", /<form\b|<input\b/i],
+    ["access or security procedure", /lockbox|\bsecurity\b|\balarm\b|accompan|access code|entry code|key ?code|showing instructions/i],
+    ["public scheduling", /calendly|acuity scheduling|(?:schedule|book) (?:a|an|your) (?:viewing|visit|tour|time|slot)/i],
+    ["condition guarantee", /guarantee|warrant(?:y|ies|ed)|move-in ready|turn-?key|immaculate/i],
+    ["unverified renovation", /renovat|fully updated|newly remodel|recently redone/i],
+    ["maintenance or running cost", /maintenance cost|utility cost|running cost|\$[\d,]+ (?:per|a) (?:year|month)/i],
+    ["business-use suggestion", /bed and breakfast|wedding venue|event space|rental income|air ?bnb|commercial use/i],
+  ]) {
+    assert.doesNotMatch(markup, pattern, label);
   }
 });
 

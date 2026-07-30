@@ -1,11 +1,14 @@
 /* eslint-disable @next/next/no-img-element -- responsive local derivatives are selected explicitly */
 import HeroVideo from "./HeroVideo";
 
+const inquiryEmail = "cmchiarello@gmail.com";
+const inquiryHref = `mailto:${inquiryEmail}?subject=Casa%20Marrone%20private%20viewing%20request`;
+
 const facts = [
-  ["Built", "1835"],
+  ["Private sale", "CAD $1,895,000"],
   ["Bedrooms", "5"],
   ["Bathrooms", "4"],
-  ["Total measured", "6,553 sq. ft."],
+  ["Measured interior", "6,553.32 sq. ft."],
   ["Covered porches", "5"],
   ["Natural pools", "2"],
 ];
@@ -113,13 +116,14 @@ export default function Home() {
   return (
     <>
       <header className="site-header">
-        <a className="wordmark" href="#top" aria-label="1309 Queens Bush Road, top of page">
-          <span>1309</span> Queens Bush Road
+        <a className="wordmark" href="#top" aria-label="Casa Marrone, top of page">
+          <span>Casa</span> Marrone
         </a>
         <nav aria-label="Main navigation">
-          <a href="#story">The property</a>
+          <a href="#story">The house</a>
           <a href="#gallery">Gallery</a>
-          <a className="nav-inquire" href="#inquire">Private preview</a>
+          <a href="#details">Details</a>
+          <a className="nav-inquire" href="#inquire">Arrange a viewing</a>
         </nav>
       </header>
 
@@ -130,8 +134,9 @@ export default function Home() {
           <div className="hero-content">
             <p className="eyebrow">Wellesley, Ontario</p>
             <h1 id="property-title">1309 Queens<br />Bush Road</h1>
-            <p className="hero-line">Historic character. Generous scale. A home shaped for life indoors and out.</p>
-            <a className="text-link light" href="#story">Discover the property <span aria-hidden="true">↓</span></a>
+            <p className="hero-price">Private sale · CAD $1,895,000</p>
+            <p className="hero-line">An 1835 house of timber and stone, set among water, lawn and five covered porches.</p>
+            <a className="text-link light" href="#story">Read the house <span aria-hidden="true">↓</span></a>
           </div>
         </section>
 
@@ -143,9 +148,9 @@ export default function Home() {
 
         <section id="story" className="story section" aria-labelledby="story-title">
           <div className="section-intro">
-            <p className="eyebrow copper">A house with presence</p>
-            <h2 id="story-title">Made over time,<br />made for living</h2>
-            <p>Built in 1835, this substantial residence pairs enduring architectural character with 6,553 square feet of measured interior space. Warm timber, stone and generous windows give each room its own quiet identity.</p>
+            <p className="eyebrow copper">The house and the arrival</p>
+            <h2 id="story-title">Standing here<br />since 1835</h2>
+            <p>The drive turns in past mature trees and settles in front of a house that has held this ground for nearly two centuries. Inside there is 6,553.32 sq. ft. measured in total, and the plan spends it well: rooms wide enough to take a crowd, quiet enough to sit in alone, and windows that keep the grounds in view from most of them.</p>
           </div>
           <figure className="story-image story-aerial">
             <StoryImage name="property-plan" alt="Top-down aerial view of the residence and grounds" />
@@ -156,25 +161,26 @@ export default function Home() {
           </figure>
         </section>
 
-        <section className="grounds section dark" aria-labelledby="grounds-title">
+        <section id="grounds" className="grounds section dark" aria-labelledby="grounds-title">
           <div className="grounds-copy">
             <p className="eyebrow gold">The grounds</p>
-            <h2 id="grounds-title">Room to step outside</h2>
-            <p>Five covered porches extend the home into its setting. Two natural swimming pools, broad lawns and established trees create a sequence of outdoor spaces from morning through evening.</p>
+            <h2 id="grounds-title">Water, lawn<br />and five porches</h2>
+            <p>Two natural swimming pools sit within the landscape rather than on top of it. Past them the lawn runs down to a pond, a fountain and the deck at its edge. Five covered porches follow the sun around the house, so there is always somewhere shaded to sit and somewhere to watch the light go.</p>
           </div>
           <StoryImage className="grounds-main" name="rear-pond" alt="Rear of the house beside the pond-edge deck" />
           <StoryImage className="grounds-secondary" name="covered-porch" alt="Covered porch furnished for outdoor sitting" />
           <p className="grounds-note">Two natural swimming pools<br />Five covered porches</p>
         </section>
 
-        <section className="interior section" aria-labelledby="interior-title">
+        <section id="interior" className="interior section" aria-labelledby="interior-title">
           <div className="interior-lead">
             <p className="eyebrow copper">Inside</p>
-            <h2 id="interior-title">Craft, warmth<br />and scale</h2>
+            <h2 id="interior-title">Timber, copper<br />and stone</h2>
           </div>
           <StoryImage className="interior-main" name="kitchen" alt="Custom kitchen island, professional-style range and timber hood" />
           <div className="interior-copy">
-            <p>The chef&apos;s kitchen centres on a granite island and commercial range with double ovens and warming drawers. Multiple sinks, a pantry and beverage bar support both everyday routines and larger gatherings.</p>
+            <p>The chef&apos;s kitchen is the working centre of the house: a granite island, a commercial range with double ovens and warming drawers, multiple sinks, a pantry and a beverage bar. It is built to cook properly in, not to be looked at.</p>
+            <p>What surrounds it is the kind of detail that has to be made rather than ordered — hammered copper sinks, leaded glass beside the stair, curved brick steps rising to a custom timber door.</p>
             <a className="text-link" href="#gallery">View the gallery <span aria-hidden="true">→</span></a>
           </div>
           <StoryImage className="interior-detail" name="copper-sink" alt="Hammered copper sink and dark countertop" />
@@ -184,8 +190,8 @@ export default function Home() {
           <StoryImage name="primary-bedroom" alt="Bedroom with stone fireplace, television and windows" />
           <div>
             <p className="eyebrow gold">The primary suite</p>
-            <h2>A private room<br />within the home</h2>
-            <p>The primary suite includes a fireplace, walk-in closet, ensuite and its own covered porch.</p>
+            <h2>A house within<br />the house</h2>
+            <p>A fireplace, a walk-in closet, an ensuite and a covered porch, all of them belonging to this room alone.</p>
           </div>
         </section>
 
@@ -223,26 +229,36 @@ export default function Home() {
           ))}
         </section>
 
-        <section id="features" className="features section" aria-labelledby="features-title">
+        <section id="details" className="features section" aria-labelledby="details-title">
           <div>
-            <p className="eyebrow gold">At a glance</p>
-            <h2 id="features-title">Details that<br />define the home</h2>
+            <p className="eyebrow gold">Practical detail</p>
+            <h2 id="details-title">What the house<br />is made of</h2>
           </div>
           <div className="feature-columns">
-            <ul>
-              <li>4,490.75 sq. ft. above grade</li>
-              <li>2,062.57 sq. ft. below grade</li>
-              <li>Five bedrooms and four bathrooms</li>
-              <li>Two fireplaces</li>
-              <li>Five covered porches</li>
-            </ul>
-            <ul>
-              <li>Two natural swimming pools</li>
-              <li>Pool-side three-piece bathroom</li>
-              <li>Heated triple garage</li>
-              <li>Primary suite with covered porch</li>
-              <li>Chef&apos;s kitchen with commercial range</li>
-            </ul>
+            <div>
+              <h3>Space and rooms</h3>
+              <ul>
+                <li>6,553.32 sq. ft. measured in total</li>
+                <li>4,490.75 sq. ft. above grade</li>
+                <li>2,062.57 sq. ft. below grade</li>
+                <li>Five bedrooms and four bathrooms</li>
+                <li>Two fireplaces</li>
+                <li>Pool-side three-piece bathroom</li>
+              </ul>
+            </div>
+            <div>
+              <h3>Grounds and services</h3>
+              <ul>
+                <li>Five covered porches</li>
+                <li>Two natural swimming pools</li>
+                <li>Heated triple garage</li>
+                <li>Municipal services remain current</li>
+                <li>Chimneys and flues reconstructed in May 2019</li>
+                <li>Driveway rated for 60,000 lb</li>
+                <li>50-amp service in the driveway area</li>
+                <li>Hard- and soft-water connections available</li>
+              </ul>
+            </div>
           </div>
         </section>
 
@@ -250,15 +266,18 @@ export default function Home() {
           <StoryImage name="pond-garden" alt="Pond and deck framed by mature planting" />
           <div className="inquire-shade" />
           <div className="inquire-content">
-            <p className="eyebrow gold">Private preview</p>
-            <h2 id="inquire-title">Experience<br />1309 Queens Bush Road</h2>
-            <p>This page is a private preview. Contact details coming soon.</p>
+            <p className="eyebrow gold">Private sale</p>
+            <h2 id="inquire-title">Arrange a private viewing</h2>
+            <p className="inquire-lead">Casa Marrone is offered privately at CAD $1,895,000. Viewings are available by confirmed appointment, arranged by email.</p>
+            <p className="inquire-lead">Please include your name, preferred day and time windows, and how many people will attend.</p>
+            <a className="cta-button" href={inquiryHref}>Email to request a private viewing</a>
+            <p className="inquire-email">{inquiryEmail}</p>
           </div>
         </section>
       </main>
 
       <footer>
-        <p>1309 Queens Bush Road · Wellesley, Ontario</p>
+        <p>Casa Marrone · 1309 Queens Bush Road · Wellesley, Ontario</p>
         <a href="#top">Back to top <span aria-hidden="true">↑</span></a>
       </footer>
     </>
