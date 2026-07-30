@@ -17,6 +17,8 @@ test("uses standard Next scripts without starter runtime dependencies", async ()
   assert.equal(manifest.scripts.start, "next start");
   assert.equal(manifest.scripts.lint, "eslint .");
   assert.equal("db:generate" in manifest.scripts, false);
+  assert.equal(manifest.dependencies.next, "16.2.12");
+  assert.equal(manifest.devDependencies["eslint-config-next"], "16.2.12");
 
   for (const name of [
     "drizzle-orm",

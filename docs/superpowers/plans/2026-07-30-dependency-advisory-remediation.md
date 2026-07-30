@@ -2,28 +2,30 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Clear the six pre-existing npm package findings without changing Casa Marrone’s approved page, media, behavior, or launch scope.
+**Goal:** Apply every safe pre-existing npm advisory fix available now, explicitly contain the three upstream-blocked roots, and preserve Casa Marrone’s approved page, media, behavior, and launch scope.
 
-**Architecture:** Keep the current static Next.js App Router site intact. Pin `next` and `eslint-config-next` together to the patched `16.2.12` release, then let npm perform only non-breaking transitive lockfile updates. Add two exact manifest assertions to the existing Node test instead of creating a new test framework or security script.
+**Architecture:** Keep the current static Next.js App Router site intact. Pin `next` and `eslint-config-next` together to `16.2.12`, then let npm perform only non-breaking transitive lockfile updates. Add two exact manifest assertions to the existing Node test instead of creating a new test framework or security script. Accept only the verified, currently unreachable upstream `brace-expansion`, Next-bundled PostCSS, and optional Sharp findings until their owning packages publish compatible fixes.
 
 **Tech Stack:** Node.js `>=22.13.0`, npm, Next.js `16.2.x`, React `19.2.6`, ESLint, Node test runner.
 
 ## Current Evidence
 
-- Local `main` baseline: `745fbb0fb64e2c9b12c33a16ffd2c429c5cfdb68`.
+- Local `main` baseline: `623da990fcd57a34f7c8518070d468081023feed`.
 - The standard-Next migration is locally merged and passes `npm run lint`, the production build, and all six rendered-site tests.
 - `npm audit --json` reports six affected package groups: one low, five high, zero critical; these expand to 19 upstream advisory records.
 - Static reachability review found no current path from public input to an affected feature. The site has one static route and no middleware/proxy, i18n, Server Actions, `use cache`, route handlers, custom server, dynamic rewrites, remote image configuration, YAML input, glob input, Babel compilation endpoint, or uploaded CSS/image processing.
-- The findings are therefore not currently actionable as exploitable site paths, but should be patched before public launch because npm offers non-major fixes.
+- A trial of the ordinary upgrade path fixed `@babel/core`, `js-yaml`, the root PostCSS package, and one `brace-expansion` line. The remaining audit output contains 12 dependency-effect entries rooted in only three advisories: `brace-expansion` through the development-only ESLint toolchain, PostCSS bundled inside Next, and optional Sharp through Next.
+- The npm registry currently identifies `16.2.12` as the latest Next release, and that release still declares PostCSS `8.4.31` and Sharp `^0.34.5`. npm offers only breaking downgrade/major proposals for the three remaining roots.
+- On 2026-07-30, Nick approved temporary exceptions for only those three verified upstream roots, provided the full quality gate passes and the audit is reviewed again immediately before public launch.
 
 | Package group | Installed evidence | Current exposure | Planned resolution |
 | --- | --- | --- | --- |
 | `next` | Direct runtime `16.2.6`; 9 advisory records | Affected features are absent | Pin `next` and `eslint-config-next` to `16.2.12` |
 | `@babel/core` | Dev-only `7.29.0` through ESLint | No untrusted JavaScript compilation | Refresh lock to `>=7.29.7` |
-| `brace-expansion` | Dev-only `1.1.14` and `5.0.6` | No untrusted glob input | Refresh lock to `>=1.1.18` and `>=5.0.9` |
+| `brace-expansion` | Dev-only through ESLint and its plugins | No untrusted glob input | Refresh compatible copies; temporarily accept the remaining ESLint-owned root |
 | `js-yaml` | Dev-only `4.1.1` through ESLint | No YAML ingestion | Refresh lock to `>=4.3.0` |
-| `postcss` | Next-bundled `8.4.31`; root `8.5.14` | Trusted repository CSS at build time only | Next update plus lock refresh to patched copies |
-| `sharp` | Optional `0.34.5` through Next | No `next/image` or untrusted image processing | Resolve transitively to `>=0.35.0` |
+| `postcss` | Next-bundled `8.4.31`; root `8.5.14` | Trusted repository CSS at build time only | Refresh the root copy; temporarily accept Next’s bundled copy |
+| `sharp` | Optional `0.34.5` through Next | No `next/image` or untrusted image processing | Temporarily accept Next’s optional copy |
 
 ## Global Constraints
 
@@ -34,7 +36,9 @@
 - Never run `npm audit fix --force`.
 - Leave `.superpowers/` and `next.config.ts` untouched and uncommitted.
 - Preserve `app/**` and `public/property/**` byte-for-byte.
-- Stop if the ordinary Next upgrade and non-force lock refresh do not produce a clean audit; do not improvise a direct `sharp` dependency or `overrides` block.
+- After the safe refresh, accept only the verified `brace-expansion`, Next-bundled PostCSS, and optional Sharp roots. Stop if any other root advisory appears or if any critical finding appears.
+- Re-run and reassess the audit immediately before Vercel launch. Remove each exception as soon as its owning package publishes a compatible fix.
+- Do not improvise direct transitive dependencies or an `overrides` block.
 - Do not push, open a PR, deploy, or begin SEO/GEO work.
 
 ---
@@ -50,7 +54,7 @@
 **Interfaces:**
 
 - Consumes: the existing exact-version manifest, npm lockfile, and rendered-site contract.
-- Produces: a reproducible install using patched Next/ESLint packages, no npm advisory findings, and an unchanged property-site render.
+- Produces: a reproducible install using the safest supported package tree available now, only the three approved upstream exceptions, and an unchanged property-site render.
 
 - [ ] **Step 1: Create the implementation branch and record the clean baseline**
 
@@ -61,12 +65,12 @@ git switch -c codex/patch-dependency-advisories
 git rev-parse HEAD
 git status --short
 npm audit --json
-git diff --exit-code 745fbb0 -- app public/property
+git diff --exit-code 623da99 -- app public/property
 ```
 
 Expected:
 
-- The new branch starts at `745fbb0fb64e2c9b12c33a16ffd2c429c5cfdb68`.
+- The new branch starts at `623da990fcd57a34f7c8518070d468081023feed`.
 - Only the known user-owned `.superpowers/` directory and `next.config.ts` are untracked.
 - The audit reports six affected package groups and no critical findings.
 - The approved application and property media are unchanged.
@@ -148,10 +152,11 @@ npm audit --json
 Expected:
 
 - `next` and `eslint-config-next` both resolve to `16.2.12`.
-- The vulnerable `@babel/core`, `brace-expansion`, `js-yaml`, PostCSS, and Sharp copies are replaced by patched versions.
-- The audit exits successfully with zero vulnerabilities.
+- `@babel/core`, `js-yaml`, the root PostCSS copy, and compatible `brace-expansion` copies resolve to their non-breaking fixed versions.
+- The audit has zero critical findings.
+- Every remaining effect entry traces to exactly one of the three approved upstream roots: `brace-expansion` through the development-only ESLint toolchain, PostCSS `8.4.31` bundled by Next, or optional Sharp `0.34.5` through Next.
 
-If the audit is not clean, stop and report the remaining package, installed path, advisory, and npm-proposed fix. Do not add overrides, direct transitive dependencies, or use `--force`.
+Record the complete remaining audit output in the implementation report. If another root advisory or any critical finding appears, stop and report it. Do not add overrides, direct transitive dependencies, use `--force`, downgrade Next, or upgrade ESLint across a major version.
 
 - [ ] **Step 6: Run the existing quality gate**
 
@@ -160,7 +165,7 @@ Run:
 ```bash
 npm run lint
 npm test
-git diff --exit-code 745fbb0 -- app public/property
+git diff --exit-code 623da99 -- app public/property
 git diff --check
 ```
 
@@ -197,10 +202,10 @@ Run:
 git status --short
 git diff --stat
 git diff -- package.json package-lock.json tests/rendered-html.test.mjs
-git diff --exit-code 745fbb0 -- app public/property
+git diff --exit-code 623da99 -- app public/property
 git add package.json package-lock.json tests/rendered-html.test.mjs
 git diff --cached --check
-git commit -m "chore: patch dependency advisories"
+git commit -m "chore: apply safe dependency advisory fixes"
 git status --short --branch
 ```
 
@@ -209,4 +214,5 @@ Expected:
 - The commit contains exactly the three planned files.
 - `.superpowers/` and `next.config.ts` remain untracked.
 - The branch is ready for Nick's manual PR/integration decision.
+- The three approved exceptions remain a mandatory re-audit gate immediately before Vercel launch.
 - Stop here: no push, PR, merge, deployment, or next phase.
