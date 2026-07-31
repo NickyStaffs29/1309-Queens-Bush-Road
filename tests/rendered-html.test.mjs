@@ -350,7 +350,165 @@ test("keeps gallery and story media paths in their approved directories", async 
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
   ]);
-  assert.equal((page.match(/name: "/g) ?? []).length, 36);
+  // Gallery entries only; structured-data nodes also carry a `name` field.
+  assert.equal((page.match(/\{ name: "/g) ?? []).length, 36);
   assert.doesNotMatch(page, /\/property\/(?:wine-cellar|lower-level-gallery|garage-loft)\.webp/);
   assert.doesNotMatch(css, /\.gallery-item \{[^}]*aspect-ratio: 4 \/ 3/);
+});
+
+// --- Unit 3: SEO/GEO foundation ------------------------------------------------
+// The launch origin is supplied at deploy time, so these exercise both the
+// pre-launch (absent SITE_URL) and launch (validated SITE_URL) contracts.
+
+const LAUNCH_ORIGIN = "https://casamarrone.example";
+
+async function withSiteUrl(value, run) {
+  const previous = process.env.SITE_URL;
+  if (value === undefined) delete process.env.SITE_URL;
+  else process.env.SITE_URL = value;
+  try {
+    return await run();
+  } finally {
+    if (previous === undefined) delete process.env.SITE_URL;
+    else process.env.SITE_URL = previous;
+  }
+}
+
+test("validates SITE_URL as a bare HTTPS origin", async () => {
+  const { validateSiteUrl, getSiteUrl } = await import("../app/site-url.ts");
+
+  assert.equal(validateSiteUrl(undefined), null);
+  assert.equal(validateSiteUrl(""), null);
+  assert.equal(validateSiteUrl("https://casamarrone.example"), "https://casamarrone.example");
+  assert.equal(validateSiteUrl("https://casamarrone.example/"), "https://casamarrone.example");
+
+  for (const bad of [
+    "http://casamarrone.example",
+    "casamarrone.example",
+    "https://casamarrone.example/listing",
+    "https://casamarrone.example?utm=1",
+    "https://casamarrone.example#top",
+    "not a url",
+  ]) {
+    assert.throws(() => validateSiteUrl(bad), /SITE_URL/, bad);
+  }
+
+  await withSiteUrl(undefined, () => assert.equal(getSiteUrl(), null));
+  await withSiteUrl(LAUNCH_ORIGIN, () => assert.equal(getSiteUrl(), LAUNCH_ORIGIN));
+});
+
+test("serves crawler rules that stay closed until a launch origin exists", async () => {
+  const { robotsFor } = await import("../app/site-url.ts");
+
+  assert.deepEqual(robotsFor(null), { rules: { userAgent: "*", disallow: "/" } });
+  assert.deepEqual(robotsFor(LAUNCH_ORIGIN), {
+    rules: { userAgent: "*", allow: "/" },
+    sitemap: `${LAUNCH_ORIGIN}/sitemap.xml`,
+  });
+
+  // The route files must stay thin adapters over the validated origin.
+  const [robotsSource, sitemapSource] = await Promise.all([
+    readFile(new URL("../app/robots.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/sitemap.ts", import.meta.url), "utf8"),
+  ]);
+  assert.match(robotsSource, /robotsFor\(getSiteUrl\(\)\)/);
+  assert.match(sitemapSource, /sitemapFor\(getSiteUrl\(\)\)/);
+});
+
+test("serves a canonical-only sitemap that stays empty until launch", async () => {
+  const { sitemapFor } = await import("../app/site-url.ts");
+
+  assert.deepEqual(sitemapFor(null), []);
+  const entries = sitemapFor(LAUNCH_ORIGIN);
+  assert.equal(entries.length, 1);
+  assert.equal(entries[0].url, LAUNCH_ORIGIN);
+});
+
+test("withholds canonical, social and structured data before launch", async () => {
+  const html = await (await render()).text();
+  const markup = markupOnly(html);
+
+  assert.doesNotMatch(html, /<link[^>]+rel="canonical"/);
+  assert.doesNotMatch(html, /property="og:/);
+  assert.doesNotMatch(html, /name="twitter:/);
+  assert.doesNotMatch(html, /application\/ld\+json/);
+  // Framework payloads carry their own "$undefined" sentinels, so scan the markup only.
+  assert.doesNotMatch(markup, /undefined|\[object Object\]|SITE_URL/);
+
+  const robotsTxt = await (await render("/robots.txt")).text();
+  assert.match(robotsTxt, /User-Agent: \*/i);
+  assert.match(robotsTxt, /Disallow: \//);
+  assert.doesNotMatch(robotsTxt, /^Allow:/im);
+  assert.doesNotMatch(robotsTxt, /Sitemap:/i);
+
+  const sitemapXml = await (await render("/sitemap.xml")).text();
+  assert.doesNotMatch(sitemapXml, /<loc>/);
+});
+
+test("defers video and llms.txt claims that have no verified source yet", async () => {
+  const html = await (await render()).text();
+  assert.doesNotMatch(html, /VideoObject/);
+  assert.equal((await render("/llms.txt")).status, 404);
+});
+
+test("builds a truthful, internally consistent property graph for launch", async () => {
+  const { propertyGraphFor } = await import("../app/site-url.ts");
+  const graph = propertyGraphFor(LAUNCH_ORIGIN);
+
+  assert.equal(graph["@context"], "https://schema.org");
+  const nodes = graph["@graph"];
+  assert.deepEqual(nodes.map((node) => node["@type"]), [
+    "RealEstateListing",
+    "SingleFamilyResidence",
+    "ImageObject",
+  ]);
+
+  const [listing, residence, image] = nodes;
+  const ids = new Set(nodes.map((node) => node["@id"]));
+  for (const reference of [
+    listing.mainEntity["@id"],
+    listing.primaryImageOfPage["@id"],
+    listing.offers.itemOffered["@id"],
+    residence.photo["@id"],
+  ]) {
+    assert.equal(ids.has(reference), true, `dangling @id: ${reference}`);
+  }
+  assert.equal(listing.url, LAUNCH_ORIGIN);
+
+  // `offers` is a CreativeWork property; SingleFamilyResidence is a Place.
+  assert.equal("offers" in residence, false);
+  assert.equal(listing.offers.price, 1895000);
+  assert.equal(listing.offers.priceCurrency, "CAD");
+  assert.equal(listing.offers.availability, "https://schema.org/InStock");
+
+  assert.equal(residence.yearBuilt, 1835);
+  assert.equal(residence.numberOfBedrooms, 5);
+  assert.equal(residence.numberOfBathroomsTotal, 4);
+  assert.deepEqual(residence.floorSize, {
+    "@type": "QuantitativeValue",
+    value: 6553.32,
+    unitCode: "FTK",
+  });
+  assert.equal(residence.address.postalCode, undefined);
+  assert.equal(image.contentUrl, `${LAUNCH_ORIGIN}/property/video/property-overview-desktop-poster.webp`);
+
+  const flattened = JSON.stringify(graph);
+  for (const banned of [
+    /postalCode/i,
+    /seller/i,
+    /broker/i,
+    /\bagents?\b/i,
+    /\bMLS\b/i,
+    /lotSize|\bacres?\b/i,
+    /lambert/i,
+    /VideoObject/,
+    /ForSale|ForRent/,
+    /historic|heritage/i,
+  ]) {
+    assert.doesNotMatch(flattened, banned);
+  }
+
+  // Next's documented JSON-LD injection escapes `<` before it reaches the page.
+  const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+  assert.match(page, /JSON\.stringify\(propertyGraphFor\(siteUrl\)\)\.replace\(\/<\/g, "\\\\u003c"\)/);
 });
