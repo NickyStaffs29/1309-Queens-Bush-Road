@@ -190,6 +190,13 @@ test("renders the responsive hero video with still-image fallbacks", async () =>
   assert.match(html, /class="hero-video-fallback"/);
 });
 
+test("sizes the hero video to fully cover its box", async () => {
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(css, /img, \.hero-video \{[^}]*width: 100%/);
+  assert.match(css, /img, \.hero-video \{[^}]*height: 100%/);
+  assert.match(css, /img, \.hero-video \{[^}]*object-fit: cover/);
+});
+
 test("keeps media complete and truthful at every breakpoint", async () => {
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   const html = await (await render()).text();
