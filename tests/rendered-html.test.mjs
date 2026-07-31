@@ -112,36 +112,36 @@ const galleryImages = [
   "setting-rear-elevation",
   "setting-house-lawn-aerial",
   "setting-full-property",
-  "setting-stone-porch-bench",
   "grounds-natural-pool-aerial",
   "grounds-pond-deck",
   "grounds-rear-across-pond",
   "grounds-lawn-fountain",
   "grounds-lawn-deck-pond",
   "grounds-opposite-aerial",
+  "grounds-willow-tree",
   "living-fireplace",
   "living-dining-room",
   "living-kitchen-island",
   "living-kitchen-island-vertical",
-  "living-copper-sink-edge",
   "living-kitchen-piano-connection",
   "craft-range-stone",
   "craft-range-detail",
   "craft-leaded-glass-nook",
+  "craft-stone-porch-bench",
   "craft-window-stair",
   "craft-brick-stair-detail",
+  "craft-copper-sink-edge",
   "craft-brick-steps-timber-door",
   "rooms-timber-entry",
   "rooms-office-library",
   "rooms-sitting-room",
-  "rooms-balcony-cafe",
-  "rooms-willow-tree",
+  "rooms-double-vanity",
   "rooms-bedroom",
   "quiet-timber-hall",
-  "quiet-double-vanity",
   "quiet-pond-window-view",
   "quiet-stone-waterfall",
   "quiet-lily-pads",
+  "quiet-balcony-cafe",
   "quiet-pond-fountain",
 ];
 
@@ -323,7 +323,10 @@ test("offers one appointment-only email inquiry path", async () => {
   assert.match(markup, /by confirmed appointment/);
   assert.match(markup, /name, preferred day and time windows, and how many people will attend/);
   assert.match(markup, />Email to request a private viewing</);
-  assert.deepEqual(markup.match(/href="mailto:[^"]*"/g), [`href="${inquiryHref}"`]);
+  // The CTA and the visible address are both links, but to ONE destination.
+  const mailtoHrefs = markup.match(/href="mailto:[^"]*"/g) ?? [];
+  assert.equal(mailtoHrefs.length >= 1, true, "no mailto link rendered");
+  assert.deepEqual([...new Set(mailtoHrefs)], [`href="${inquiryHref}"`]);
   assert.deepEqual([...new Set(markup.match(/[\w.+-]+@[\w.-]+\.\w{2,}/g) ?? [])], [inquiryEmail]);
 });
 

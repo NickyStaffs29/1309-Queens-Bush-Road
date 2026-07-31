@@ -24,7 +24,6 @@ const galleryGroups = [
       { name: "setting-rear-elevation", alt: "Rear elevation with covered porches and upper balcony" },
       { name: "setting-house-lawn-aerial", alt: "Raised aerial view of the house and lawn" },
       { name: "setting-full-property", alt: "Wide aerial view of the house, grounds and water features" },
-      { name: "setting-stone-porch-bench", alt: "Wagon-wheel bench against a stone porch wall" },
     ],
   },
   {
@@ -37,6 +36,7 @@ const galleryGroups = [
       { name: "grounds-lawn-fountain", alt: "Broad lawn leading toward the pond and fountain" },
       { name: "grounds-lawn-deck-pond", alt: "Wide view across the lawn, deck and pond" },
       { name: "grounds-opposite-aerial", alt: "Aerial view across the residence, lawn and water features" },
+      { name: "grounds-willow-tree", alt: "Mature willow tree on the lawn", portrait: true },
     ],
   },
   {
@@ -44,10 +44,9 @@ const galleryGroups = [
     slug: "living",
     images: [
       { name: "living-fireplace", alt: "Living room with exposed beams and stone fireplace" },
-      { name: "living-dining-room", alt: "Dining room with hardwood floors and a garden-facing window" },
-      { name: "living-kitchen-island", alt: "Wood-topped kitchen island with seating" },
+      { name: "living-dining-room", alt: "Dining room with hardwood floors and a bay window onto the lawn" },
+      { name: "living-kitchen-island", alt: "Kitchen island with a dark stone counter and wooden bar stools" },
       { name: "living-kitchen-island-vertical", alt: "Vertical view across the kitchen island", portrait: true },
-      { name: "living-copper-sink-edge", alt: "Carved copper sink edge and custom metalwork", portrait: true },
       { name: "living-kitchen-piano-connection", alt: "Kitchen island looking toward the adjoining piano room", feature: true },
     ],
   },
@@ -55,11 +54,13 @@ const galleryGroups = [
     title: "Craft",
     slug: "craft",
     images: [
-      { name: "craft-range-stone", alt: "Kitchen cooking area with timber, stone and dark cabinetry" },
+      { name: "craft-range-stone", alt: "Range and hood beneath timber beams, beside a brick column and granite counter" },
       { name: "craft-range-detail", alt: "Professional-style range and metal control detail" },
       { name: "craft-leaded-glass-nook", alt: "Service nook with a round leaded-glass window" },
+      { name: "craft-stone-porch-bench", alt: "Wagon-wheel bench against a stone porch wall" },
       { name: "craft-window-stair", alt: "Round leaded-glass window beside the timber staircase", portrait: true },
       { name: "craft-brick-stair-detail", alt: "Curved brick steps and timber wall detail", portrait: true },
+      { name: "craft-copper-sink-edge", alt: "Carved copper sink edge and custom metalwork", portrait: true },
       { name: "craft-brick-steps-timber-door", alt: "Curved brick steps leading to a custom timber door", feature: true },
     ],
   },
@@ -70,8 +71,7 @@ const galleryGroups = [
       { name: "rooms-timber-entry", alt: "Warm-toned entry with timber posts and front door" },
       { name: "rooms-office-library", alt: "Home office with built-in book wall and dark wood desk" },
       { name: "rooms-sitting-room", alt: "Quiet sitting room with two antique-style chairs" },
-      { name: "rooms-balcony-cafe", alt: "Upper balcony with a small café table", portrait: true },
-      { name: "rooms-willow-tree", alt: "Mature willow tree on the lawn", portrait: true },
+      { name: "rooms-double-vanity", alt: "Double vanity with a dark stone counter" },
       { name: "rooms-bedroom", alt: "Softly furnished bedroom with timber window trim", feature: true },
     ],
   },
@@ -80,10 +80,10 @@ const galleryGroups = [
     slug: "quiet",
     images: [
       { name: "quiet-timber-hall", alt: "Long hall with timber trim and terracotta-toned walls" },
-      { name: "quiet-double-vanity", alt: "Double vanity with a dark stone counter" },
-      { name: "quiet-pond-window-view", alt: "Pond and grounds viewed through an upstairs window" },
+      { name: "quiet-pond-window-view", alt: "Pond, fountain and lawn viewed through interior windows" },
       { name: "quiet-stone-waterfall", alt: "Stone waterfall and layered garden planting", portrait: true },
       { name: "quiet-lily-pads", alt: "Lily pads beneath clear pond water", portrait: true },
+      { name: "quiet-balcony-cafe", alt: "Upper balcony with a small caf\u00e9 table", portrait: true },
       { name: "quiet-pond-fountain", alt: "Fountain across the pond with a small outbuilding beyond", feature: true },
     ],
   },
@@ -287,7 +287,9 @@ export default function Home() {
             <p className="inquire-lead">Casa Marrone is offered privately at CAD $1,895,000. Viewings are available by confirmed appointment, arranged by email.</p>
             <p className="inquire-lead">Please include your name, preferred day and time windows, and how many people will attend.</p>
             <a className="cta-button" href={inquiryHref}>Email to request a private viewing</a>
-            <p className="inquire-email">{inquiryEmail}</p>
+            <p className="inquire-email">
+              <a href={inquiryHref}>{inquiryEmail}</a>
+            </p>
           </div>
         </section>
       </main>
