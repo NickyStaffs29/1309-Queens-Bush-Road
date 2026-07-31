@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# This workflow only reads code and runs lint/tests. Anything not listed
+# here defaults to none once this block is present.
+permissions:
+  contents: read
+
+# Supersede stale runs on the same branch/PR rather than reporting against
+# an outdated commit.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NEXT_TELEMETRY_DISABLED: '1'
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          # 24 is required, not just engines.node's floor of >=22.13.0:
+          # tests/rendered-html.test.mjs does `await import("../app/site-url.ts")`,
+          # a raw .ts import relying on Node's native type stripping, which is
+          # only on by default from 22.18+/24.x. A 22.13 runner would fail it.
+          node-version: '24'
+          cache: 'npm'
+
+      - run: npm ci
+
+      # Next.js 16 removed the build-time ESLint hook, so this is the only
+      # place ESLint runs anywhere in the pipeline. Vercel's build never lints.
+      - run: npm run lint
+
+  test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - run: npm ci
+
+      # `npm test` is `next build && node --test tests/rendered-html.test.mjs`,
+      # run as-is so there is one source of truth for how this project is tested.
+      #
+      # SITE_URL is deliberately left unset: the suite's safe-closed assertions
+      # (robots disallow-all, empty sitemap, no canonical/OG/JSON-LD) only hold
+      # when it is absent. Do not add it to this job.
+      - run: npm test
