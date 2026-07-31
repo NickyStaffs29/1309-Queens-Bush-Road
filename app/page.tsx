@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element -- responsive local derivatives are selected explicitly */
 import HeroVideo from "./HeroVideo";
+import { getSiteUrl, propertyGraphFor } from "./site-url";
 
 const inquiryEmail = "cmchiarello@gmail.com";
 const inquiryHref = `mailto:${inquiryEmail}?subject=Casa%20Marrone%20private%20viewing%20request`;
@@ -112,9 +113,24 @@ function StoryImage({
   );
 }
 
+function PropertyJsonLd({ siteUrl }: { siteUrl: string }) {
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{
+        __html: JSON.stringify(propertyGraphFor(siteUrl)).replace(/</g, "\\u003c"),
+      }}
+    />
+  );
+}
+
 export default function Home() {
+  const siteUrl = getSiteUrl();
+
   return (
     <>
+      {siteUrl ? <PropertyJsonLd siteUrl={siteUrl} /> : null}
+
       <header className="site-header">
         <a className="wordmark" href="#top" aria-label="Casa Marrone, top of page">
           <span>Casa</span> Marrone
