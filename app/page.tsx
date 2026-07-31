@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element -- responsive local derivatives are selected explicitly */
 import HeroVideo from "./HeroVideo";
+import PropertyVideo from "./PropertyVideo";
 import { getSiteUrl, propertyGraphFor } from "./site-url";
 
 const inquiryEmail = "cmchiarello@gmail.com";
@@ -14,7 +15,16 @@ const facts = [
   ["Natural pools", "2"],
 ];
 
-const galleryGroups = [
+type GalleryImage = {
+  name: string;
+  alt: string;
+  portrait?: boolean;
+  feature?: boolean;
+  video?: boolean;
+  staggerMs?: number;
+};
+
+const galleryGroups: { title: string; slug: string; images: GalleryImage[] }[] = [
   {
     title: "The setting",
     slug: "setting",
@@ -24,6 +34,10 @@ const galleryGroups = [
       { name: "setting-rear-elevation", alt: "Rear elevation with covered porches and upper balcony" },
       { name: "setting-house-lawn-aerial", alt: "Raised aerial view of the house and lawn", feature: true },
       { name: "setting-full-property", alt: "Wide aerial view of the house, grounds and water features", feature: true },
+      { name: "setting-wide-context", alt: "Aerial view sweeping across the lawn and tree line", video: true, staggerMs: 0, feature: true },
+      { name: "setting-facade-flyby", alt: "Low aerial pass along the roofline and facade", video: true, staggerMs: 180, feature: true },
+      { name: "setting-high-establishing", alt: "Elevated aerial view of the house and natural pool", video: true, staggerMs: 360, feature: true },
+      { name: "setting-street-approach", alt: "Aerial view along the street toward the property, with neighboring rooftops beyond.", video: true, staggerMs: 540, feature: true },
     ],
   },
   {
@@ -75,7 +89,7 @@ const galleryGroups = [
       { name: "rooms-office-library", alt: "Home office with built-in book wall and dark wood desk" },
       { name: "rooms-sitting-room", alt: "Quiet sitting room with two antique-style chairs" },
       { name: "rooms-double-vanity", alt: "Double vanity with a dark stone counter" },
-      { name: "rooms-guest-bedroom", alt: "Bedroom with blush bedding, a timber trunk and a window seat" },
+      { name: "rooms-powder-room", alt: "Powder room with a granite-top vanity and glass shower door" },
       { name: "rooms-bedroom", alt: "Softly furnished bedroom with timber window trim" },
     ],
   },
@@ -180,7 +194,7 @@ export default function Home() {
           </figure>
           <div className="story-arrival-row">
             <figure className="story-image">
-              <StoryImage name="front-arrival" alt="Front elevation and three-car garage viewed from above" sizes="(max-width: 900px) 100vw, 30vw" />
+              <PropertyVideo name="front-driveway-arrival" alt="Aerial view along the driveway approaching the house and garage" />
             </figure>
             <figure className="story-image">
               <StoryImage name="front-porch-daylight" alt="Front porch and entry door in daylight." sizes="(max-width: 900px) 100vw, 30vw" />
@@ -197,7 +211,7 @@ export default function Home() {
             <h2 id="grounds-title">Water, lawn<br />and five porches</h2>
             <p>Two natural swimming pools sit within the landscape rather than on top of it. Past them the lawn runs down to a pond, a fountain and the deck at its edge. Five covered porches follow the sun around the house, so there is always somewhere shaded to sit and somewhere to watch the light go.</p>
           </div>
-          <StoryImage className="grounds-main" name="rear-pond" alt="Rear of the house beside the pond-edge deck" />
+          <PropertyVideo className="grounds-main" name="grounds-pool-pond" alt="Aerial view descending toward the natural pool and rear deck" />
           <StoryImage className="grounds-secondary" name="covered-porch" alt="Covered porch furnished for outdoor sitting" />
           <p className="grounds-note">Two natural swimming pools<br />Five covered porches</p>
         </section>
@@ -251,16 +265,20 @@ export default function Home() {
                       key={image.name}
                       className={`gallery-item ${portrait ? "portrait" : "landscape"}${image.feature ? " feature" : ""}`}
                     >
-                      <img
-                        src={`/property/gallery/${image.name}-1440.webp`}
-                        srcSet={`/property/gallery/${image.name}-720.webp ${portrait ? "480w" : "720w"}, /property/gallery/${image.name}-1440.webp ${portrait ? "960w" : "1440w"}`}
-                        sizes={portrait ? "(max-width: 640px) 50vw, (max-width: 900px) 50vw, 25vw" : "(max-width: 640px) 100vw, (max-width: 900px) 50vw, 33vw"}
-                        alt={image.alt}
-                        width={portrait ? "960" : "1440"}
-                        height={portrait ? "1440" : "1080"}
-                        loading="lazy"
-                        decoding="async"
-                      />
+                      {image.video === true ? (
+                        <PropertyVideo name={image.name} alt={image.alt} staggerMs={image.staggerMs} />
+                      ) : (
+                        <img
+                          src={`/property/gallery/${image.name}-1440.webp`}
+                          srcSet={`/property/gallery/${image.name}-720.webp ${portrait ? "480w" : "720w"}, /property/gallery/${image.name}-1440.webp ${portrait ? "960w" : "1440w"}`}
+                          sizes={portrait ? "(max-width: 640px) 50vw, (max-width: 900px) 50vw, 25vw" : "(max-width: 640px) 100vw, (max-width: 900px) 50vw, 33vw"}
+                          alt={image.alt}
+                          width={portrait ? "960" : "1440"}
+                          height={portrait ? "1440" : "1080"}
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      )}
                     </figure>
                   );
                 })}
