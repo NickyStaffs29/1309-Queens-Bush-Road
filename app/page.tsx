@@ -21,6 +21,7 @@ type GalleryImage = {
   portrait?: boolean;
   feature?: boolean;
   video?: boolean;
+  staggerMs?: number;
 };
 
 const galleryGroups: { title: string; slug: string; images: GalleryImage[] }[] = [
@@ -33,9 +34,10 @@ const galleryGroups: { title: string; slug: string; images: GalleryImage[] }[] =
       { name: "setting-rear-elevation", alt: "Rear elevation with covered porches and upper balcony" },
       { name: "setting-house-lawn-aerial", alt: "Raised aerial view of the house and lawn", feature: true },
       { name: "setting-full-property", alt: "Wide aerial view of the house, grounds and water features", feature: true },
-      { name: "setting-wide-context", alt: "Aerial view sweeping across the lawn and tree line", video: true },
-      { name: "setting-facade-flyby", alt: "Low aerial pass along the roofline and facade", video: true },
-      { name: "setting-high-establishing", alt: "Elevated aerial view of the house and natural pool", video: true },
+      { name: "setting-wide-context", alt: "Aerial view sweeping across the lawn and tree line", video: true, staggerMs: 0 },
+      { name: "setting-facade-flyby", alt: "Low aerial pass along the roofline and facade", video: true, staggerMs: 180 },
+      { name: "setting-high-establishing", alt: "Elevated aerial view of the house and natural pool", video: true, staggerMs: 360 },
+      { name: "setting-street-approach", alt: "Aerial view along the street toward the property, with neighboring rooftops beyond.", video: true, staggerMs: 540 },
     ],
   },
   {
@@ -192,7 +194,7 @@ export default function Home() {
           </figure>
           <div className="story-arrival-row">
             <figure className="story-image">
-              <StoryImage name="front-arrival" alt="Front elevation and three-car garage viewed from above" sizes="(max-width: 900px) 100vw, 30vw" />
+              <PropertyVideo name="front-driveway-arrival" alt="Aerial view along the driveway approaching the house and garage" />
             </figure>
             <figure className="story-image">
               <StoryImage name="front-porch-daylight" alt="Front porch and entry door in daylight." sizes="(max-width: 900px) 100vw, 30vw" />
@@ -264,7 +266,7 @@ export default function Home() {
                       className={`gallery-item ${portrait ? "portrait" : "landscape"}${image.feature ? " feature" : ""}`}
                     >
                       {image.video === true ? (
-                        <PropertyVideo name={image.name} alt={image.alt} />
+                        <PropertyVideo name={image.name} alt={image.alt} staggerMs={image.staggerMs} />
                       ) : (
                         <img
                           src={`/property/gallery/${image.name}-1440.webp`}

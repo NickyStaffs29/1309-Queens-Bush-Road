@@ -149,7 +149,7 @@ const galleryImages = [
   "quiet-pond-fountain",
 ];
 
-const galleryVideos = ["setting-wide-context", "setting-facade-flyby", "setting-high-establishing"];
+const galleryVideos = ["setting-wide-context", "setting-facade-flyby", "setting-high-establishing", "setting-street-approach"];
 
 test("server-renders the approved six-part property gallery", async () => {
   const response = await render();
@@ -168,7 +168,6 @@ test("server-renders the approved six-part property gallery", async () => {
   }
   for (const name of [
     "property-plan",
-    "front-arrival",
     "front-porch-daylight",
     "front-through-trees",
     "covered-porch",
@@ -207,12 +206,20 @@ test("renders the responsive hero video with still-image fallbacks", async () =>
 
 test("renders scroll-gated property video tiles with poster fallbacks", async () => {
   const html = await (await render()).text();
-  for (const name of [...galleryVideos, "grounds-pool-pond"]) {
+  for (const name of [...galleryVideos, "grounds-pool-pond", "front-driveway-arrival"]) {
     assert.match(html, new RegExp(`data-src="/property/video/${name}\\.mp4"`));
     assert.doesNotMatch(html, new RegExp(`(?<!data-)src="/property/video/${name}\\.mp4"`));
     assert.match(html, new RegExp(`/property/video/${name}-poster\\.webp`));
   }
-  assert.equal((html.match(/>Pause video</g) ?? []).length, 5);
+  assert.equal((html.match(/>Pause video</g) ?? []).length, 7);
+
+  const settingBlock = html.slice(html.indexOf('id="setting-gallery-title"'), html.indexOf('id="grounds-gallery-title"'));
+  assert.equal((settingBlock.match(/class="gallery-item /g) ?? []).length, 9);
+  assert.equal((settingBlock.match(/class="gallery-item landscape"/g) ?? []).length, 7);
+  assert.equal((settingBlock.match(/class="gallery-item landscape feature"/g) ?? []).length, 2);
+
+  const arrivalRow = html.slice(html.indexOf('class="story-arrival-row"'), html.indexOf('id="grounds"'));
+  assert.equal((arrivalRow.match(/class="story-image"/g) ?? []).length, 3);
 });
 
 test("sizes the hero video to fully cover its box", async () => {
@@ -241,6 +248,8 @@ test("keeps media complete and truthful at every breakpoint", async () => {
     "primary bedroom alt text should not claim details absent from the image",
   );
   assert.match(css, /\.gallery-group-grid \{[^}]*grid-template-columns: repeat\(12, 1fr\)/);
+  assert.match(css, /\.gallery-group-grid \{[^}]*align-items: end/);
+  assert.match(css, /\.story-arrival-row \{[^}]*grid-template-columns: repeat\(3, 1fr\)/);
   assert.match(css, /\.gallery-item\.landscape \{[^}]*grid-column: span 4/);
   assert.match(css, /\.gallery-item\.portrait \{[^}]*grid-column: span 3/);
   assert.match(css, /@media \(max-width: 900px\)[\s\S]*\.gallery-group-grid \{[^}]*grid-template-columns: repeat\(2, 1fr\)/);
@@ -267,12 +276,16 @@ test("ships only the approved web media within budget", async () => {
     ["video/setting-high-establishing-poster.webp", 160 * 1024],
     ["video/grounds-pool-pond.mp4", 5.5 * 1024 * 1024],
     ["video/grounds-pool-pond-poster.webp", 250 * 1024],
+    ["video/front-driveway-arrival.mp4", 28 * 1024 * 1024],
+    ["video/front-driveway-arrival-poster.webp", 160 * 1024],
+    ["video/setting-street-approach.mp4", 27 * 1024 * 1024],
+    ["video/setting-street-approach-poster.webp", 160 * 1024],
   ];
   for (const [file, maxBytes] of files) {
     assert.equal((await stat(new URL(`../public/property/${file}`, import.meta.url))).size <= maxBytes, true, file);
   }
 
-  const storyNames = ["property-plan", "front-arrival", "front-porch-daylight", "front-through-trees", "covered-porch", "kitchen", "copper-sink", "primary-bedroom", "primary-bedroom-wide", "primary-bedroom-porch-view", "pond-garden"];
+  const storyNames = ["property-plan", "front-porch-daylight", "front-through-trees", "covered-porch", "kitchen", "copper-sink", "primary-bedroom", "primary-bedroom-wide", "primary-bedroom-porch-view", "pond-garden"];
   for (const name of storyNames) {
     assert.equal((await stat(new URL(`../public/property/story/${name}-960.webp`, import.meta.url))).size <= 180 * 1024, true, name);
     assert.equal((await stat(new URL(`../public/property/story/${name}-1920.webp`, import.meta.url))).size <= 450 * 1024, true, name);

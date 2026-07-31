@@ -11,10 +11,12 @@ export default function PropertyVideo({
   name,
   alt,
   className,
+  staggerMs = 0,
 }: {
   name: string;
   alt: string;
   className?: string;
+  staggerMs?: number;
 }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -28,6 +30,8 @@ export default function PropertyVideo({
     const video = videoRef.current;
     if (!root || !video || reducedMotion || saveData) return;
 
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
     // ponytail: one-shot IntersectionObserver, not continuous pause-on-scroll-away —
     // goal only requires gating the *first* autoplay so tiles don't all start at once;
     // a continuous toggle wasn't asked for and adds state for no requirement it serves
@@ -35,16 +39,26 @@ export default function PropertyVideo({
       ([entry]) => {
         if (!entry.isIntersecting) return;
         observer.disconnect();
-        const source = video.querySelector<HTMLSourceElement>("source[data-src]");
-        if (source) source.src = source.dataset.src ?? "";
-        video.load();
-        void video.play().catch(() => setReady(false));
+        const promote = () => {
+          const source = video.querySelector<HTMLSourceElement>("source[data-src]");
+          if (source) source.src = source.dataset.src ?? "";
+          video.load();
+          void video.play().catch(() => setReady(false));
+        };
+        if (staggerMs > 0) {
+          timeoutId = setTimeout(promote, staggerMs);
+        } else {
+          promote();
+        }
       },
       { threshold: 0.5 },
     );
     observer.observe(root);
-    return () => observer.disconnect();
-  }, []);
+    return () => {
+      observer.disconnect();
+      clearTimeout(timeoutId);
+    };
+  }, [staggerMs]);
 
   async function togglePlayback() {
     const video = videoRef.current;
