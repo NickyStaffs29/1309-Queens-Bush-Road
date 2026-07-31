@@ -62,7 +62,7 @@ const galleryGroups = [
       { name: "craft-window-stair", alt: "Round leaded-glass window beside the timber staircase", portrait: true },
       { name: "craft-brick-stair-detail", alt: "Curved brick steps and timber wall detail", portrait: true },
       { name: "craft-copper-sink-edge", alt: "Carved copper sink edge and custom metalwork", portrait: true },
-      { name: "craft-oval-window", alt: "Oval leaded-glass window set in a pegged timber surround above the stair", portrait: true },
+      { name: "craft-timber-stair-barrel", alt: "Timber staircase and a wrought-iron-strapped barrel table.", portrait: true },
       { name: "craft-stone-porch-bench", alt: "Wagon-wheel bench against a stone porch wall", feature: true },
       { name: "craft-brick-steps-timber-door", alt: "Curved brick steps leading to a custom timber door", feature: true },
     ],
@@ -83,8 +83,8 @@ const galleryGroups = [
     title: "Quiet views",
     slug: "quiet",
     images: [
-      { name: "quiet-timber-hall", alt: "Long hall with timber trim and terracotta-toned walls" },
-      { name: "quiet-pond-window-view", alt: "Pond, fountain and lawn viewed through interior windows" },
+      { name: "quiet-pool-clearing", alt: "Natural pool and lawn clearing viewed from the deck, framed by maples and evergreens." },
+      { name: "quiet-willow-balcony", alt: "Willow branches draped beside an upper balcony railing." },
       { name: "quiet-stone-waterfall", alt: "Stone waterfall and layered garden planting", portrait: true },
       { name: "quiet-lily-pads", alt: "Lily pads beneath clear pond water", portrait: true },
       { name: "quiet-balcony-cafe", alt: "Upper balcony with a small caf\u00e9 table", portrait: true },
@@ -97,17 +97,19 @@ function StoryImage({
   name,
   alt,
   className,
+  sizes = "(max-width: 900px) 100vw, 66vw",
 }: {
   name: string;
   alt: string;
   className?: string;
+  sizes?: string;
 }) {
   return (
     <img
       className={className}
       src={`/property/story/${name}-1920.webp`}
       srcSet={`/property/story/${name}-960.webp 960w, /property/story/${name}-1920.webp 1920w`}
-      sizes="(max-width: 900px) 100vw, 66vw"
+      sizes={sizes}
       alt={alt}
       width="1920"
       height="1440"
@@ -176,9 +178,17 @@ export default function Home() {
             <StoryImage name="property-plan" alt="Top-down aerial view of the residence and grounds" />
             <figcaption>The residence sits within a broad, mature landscape.</figcaption>
           </figure>
-          <figure className="story-image story-approach">
-            <StoryImage name="front-arrival" alt="Front elevation and three-car garage viewed from above" />
-          </figure>
+          <div className="story-arrival-row">
+            <figure className="story-image">
+              <StoryImage name="front-arrival" alt="Front elevation and three-car garage viewed from above" sizes="(max-width: 900px) 100vw, 30vw" />
+            </figure>
+            <figure className="story-image">
+              <StoryImage name="front-porch-daylight" alt="Front porch and entry door in daylight." sizes="(max-width: 900px) 100vw, 30vw" />
+            </figure>
+            <figure className="story-image">
+              <StoryImage name="front-through-trees" alt="Front of the house seen through mature trees, with the oval window over the porch." sizes="(max-width: 900px) 100vw, 30vw" />
+            </figure>
+          </div>
         </section>
 
         <section id="grounds" className="grounds section dark" aria-labelledby="grounds-title">
@@ -197,7 +207,7 @@ export default function Home() {
             <p className="eyebrow copper">Inside</p>
             <h2 id="interior-title">Timber, copper<br />and stone</h2>
           </div>
-          <StoryImage className="interior-main" name="kitchen" alt="Custom kitchen island, professional-style range and timber hood" />
+          <StoryImage className="interior-main" name="kitchen" alt="Kitchen island and range viewed from across the room, with the oval leaded-glass window and stairwell visible beyond." />
           <div className="interior-copy">
             <p>The chef&apos;s kitchen is the working centre of the house: a granite island, a commercial range with double ovens and warming drawers, multiple sinks, a pantry and a beverage bar. It is built to cook properly in, not to be looked at.</p>
             <p>What surrounds it is the kind of detail that has to be made rather than ordered — hammered copper sinks, leaded glass beside the stair, curved brick steps rising to a custom timber door.</p>
@@ -207,7 +217,17 @@ export default function Home() {
         </section>
 
         <section className="suite-band" aria-label="Primary suite">
-          <StoryImage name="primary-bedroom" alt="Bedroom with stone fireplace, television and windows" />
+          <div className="suite-gallery">
+            <figure className="story-image">
+              <StoryImage name="primary-bedroom-wide" alt="Primary bedroom viewed from the fireplace across to the bed and the open French door to the porch." sizes="(max-width: 900px) 66vw, 32vw" />
+            </figure>
+            <figure className="story-image">
+              <StoryImage name="primary-bedroom" alt="Bedroom with stone fireplace, television and windows" sizes="(max-width: 900px) 33vw, 20vw" />
+            </figure>
+            <figure className="story-image">
+              <StoryImage name="primary-bedroom-porch-view" alt="Bed pillows in the foreground beside the open French door to a screened porch." sizes="(max-width: 900px) 33vw, 20vw" />
+            </figure>
+          </div>
           <div>
             <p className="eyebrow gold">The primary suite</p>
             <h2>A house within<br />the house</h2>

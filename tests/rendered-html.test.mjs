@@ -132,7 +132,7 @@ const galleryImages = [
   "craft-window-stair",
   "craft-brick-stair-detail",
   "craft-copper-sink-edge",
-  "craft-oval-window",
+  "craft-timber-stair-barrel",
   "craft-stone-porch-bench",
   "craft-brick-steps-timber-door",
   "rooms-timber-entry",
@@ -141,8 +141,8 @@ const galleryImages = [
   "rooms-double-vanity",
   "rooms-guest-bedroom",
   "rooms-bedroom",
-  "quiet-timber-hall",
-  "quiet-pond-window-view",
+  "quiet-pool-clearing",
+  "quiet-willow-balcony",
   "quiet-stone-waterfall",
   "quiet-lily-pads",
   "quiet-balcony-cafe",
@@ -167,11 +167,15 @@ test("server-renders the approved six-part property gallery", async () => {
   for (const name of [
     "property-plan",
     "front-arrival",
+    "front-porch-daylight",
+    "front-through-trees",
     "rear-pond",
     "covered-porch",
     "kitchen",
     "copper-sink",
     "primary-bedroom",
+    "primary-bedroom-wide",
+    "primary-bedroom-porch-view",
     "pond-garden",
   ]) {
     assert.match(html, new RegExp(`/property/story/${name}-1920\\.webp`));
@@ -242,7 +246,7 @@ test("ships only the approved web media within budget", async () => {
     assert.equal((await stat(new URL(`../public/property/${file}`, import.meta.url))).size <= maxBytes, true, file);
   }
 
-  const storyNames = ["property-plan", "front-arrival", "rear-pond", "covered-porch", "kitchen", "copper-sink", "primary-bedroom", "pond-garden"];
+  const storyNames = ["property-plan", "front-arrival", "front-porch-daylight", "front-through-trees", "rear-pond", "covered-porch", "kitchen", "copper-sink", "primary-bedroom", "primary-bedroom-wide", "primary-bedroom-porch-view", "pond-garden"];
   for (const name of storyNames) {
     assert.equal((await stat(new URL(`../public/property/story/${name}-960.webp`, import.meta.url))).size <= 180 * 1024, true, name);
     assert.equal((await stat(new URL(`../public/property/story/${name}-1920.webp`, import.meta.url))).size <= 450 * 1024, true, name);
