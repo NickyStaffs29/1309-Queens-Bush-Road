@@ -119,26 +119,30 @@ const galleryImages = [
   "grounds-lawn-deck-pond",
   "grounds-opposite-aerial",
   "grounds-willow-tree",
+  "grounds-pool-natural",
+  "grounds-pool-deck-view",
   "living-fireplace",
   "living-dining-room",
   "living-kitchen-island",
-  "living-kitchen-island-vertical",
+  "living-piano-room",
   "living-kitchen-piano-connection",
   "craft-range-stone",
   "craft-range-detail",
   "craft-leaded-glass-nook",
-  "craft-stone-porch-bench",
   "craft-window-stair",
   "craft-brick-stair-detail",
   "craft-copper-sink-edge",
+  "craft-timber-stair-barrel",
+  "craft-stone-porch-bench",
   "craft-brick-steps-timber-door",
   "rooms-timber-entry",
   "rooms-office-library",
   "rooms-sitting-room",
   "rooms-double-vanity",
+  "rooms-guest-bedroom",
   "rooms-bedroom",
-  "quiet-timber-hall",
-  "quiet-pond-window-view",
+  "quiet-pool-clearing",
+  "quiet-willow-balcony",
   "quiet-stone-waterfall",
   "quiet-lily-pads",
   "quiet-balcony-cafe",
@@ -153,7 +157,7 @@ test("server-renders the approved six-part property gallery", async () => {
   const html = await response.text();
   assert.match(html, /id="gallery"/);
   assert.equal((html.match(/class="gallery-group"/g) ?? []).length, 6);
-  assert.equal((html.match(/class="gallery-item /g) ?? []).length, 36);
+  assert.equal((html.match(/class="gallery-item /g) ?? []).length, 40);
   for (const heading of ["The setting", "The grounds", "Living &amp; kitchen", "Craft", "Rooms", "Quiet views"]) {
     assert.match(html, new RegExp(`>${heading}<`));
   }
@@ -163,11 +167,15 @@ test("server-renders the approved six-part property gallery", async () => {
   for (const name of [
     "property-plan",
     "front-arrival",
+    "front-porch-daylight",
+    "front-through-trees",
     "rear-pond",
     "covered-porch",
     "kitchen",
     "copper-sink",
     "primary-bedroom",
+    "primary-bedroom-wide",
+    "primary-bedroom-porch-view",
     "pond-garden",
   ]) {
     assert.match(html, new RegExp(`/property/story/${name}-1920\\.webp`));
@@ -238,7 +246,7 @@ test("ships only the approved web media within budget", async () => {
     assert.equal((await stat(new URL(`../public/property/${file}`, import.meta.url))).size <= maxBytes, true, file);
   }
 
-  const storyNames = ["property-plan", "front-arrival", "rear-pond", "covered-porch", "kitchen", "copper-sink", "primary-bedroom", "pond-garden"];
+  const storyNames = ["property-plan", "front-arrival", "front-porch-daylight", "front-through-trees", "rear-pond", "covered-porch", "kitchen", "copper-sink", "primary-bedroom", "primary-bedroom-wide", "primary-bedroom-porch-view", "pond-garden"];
   for (const name of storyNames) {
     assert.equal((await stat(new URL(`../public/property/story/${name}-960.webp`, import.meta.url))).size <= 180 * 1024, true, name);
     assert.equal((await stat(new URL(`../public/property/story/${name}-1920.webp`, import.meta.url))).size <= 450 * 1024, true, name);
@@ -361,7 +369,7 @@ test("keeps gallery and story media paths in their approved directories", async 
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
   ]);
   // Gallery entries only; structured-data nodes also carry a `name` field.
-  assert.equal((page.match(/\{ name: "/g) ?? []).length, 36);
+  assert.equal((page.match(/\{ name: "/g) ?? []).length, 40);
   assert.doesNotMatch(page, /\/property\/(?:wine-cellar|lower-level-gallery|garage-loft)\.webp/);
   assert.doesNotMatch(css, /\.gallery-item \{[^}]*aspect-ratio: 4 \/ 3/);
 });

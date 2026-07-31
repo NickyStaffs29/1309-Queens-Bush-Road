@@ -87,8 +87,10 @@ nav a { align-items: center; display: inline-flex; font-size: 11px; letter-spaci
 .section { padding: clamp(90px, 11vw, 170px) clamp(24px, 7vw, 112px); }
 .section h2, .suite-band h2, .inquire h2 { font-size: clamp(48px, 6.2vw, 92px); line-height: .95; }
 /* The suite band keeps its copy in a narrow side column, so the full display size fragments there. */
-@media (min-width: 901px) { .suite-band h2 { font-size: clamp(36px, 3.3vw, 50px); } }
-.story { display: grid; gap: clamp(25px, 5vw, 75px); grid-template-columns: .82fr 1.25fr; grid-template-rows: auto 260px; }
+@media (min-width: 901px) {
+  .suite-band h2 { font-size: clamp(36px, 3.3vw, 50px); }
+}
+.story { display: grid; gap: clamp(25px, 5vw, 75px); grid-template-columns: .82fr 1.25fr; grid-template-rows: auto auto; }
 .section-intro { align-self: center; padding: 0 2vw 4vw 0; }
 .section-intro > p:last-child, .interior-copy p, .grounds-copy > p:last-child { font: 400 clamp(17px, 1.5vw, 21px)/1.75 var(--serif); }
 .section-intro > p:last-child { margin: 40px 0 0; max-width: 490px; }
@@ -96,9 +98,11 @@ nav a { align-items: center; display: inline-flex; font-size: 11px; letter-spaci
 .story-aerial { display: flex; flex-direction: column; height: clamp(520px, 60vw, 780px); margin: 0; }
 .story-aerial img { flex: 1; min-height: 0; }
 .story-aerial figcaption { color: #765d4e; flex: none; font: italic 13px/1.4 var(--serif); margin-top: 13px; }
-.story-approach { height: 260px; margin: 0; width: 100%; }
+.story-arrival-row { display: grid; grid-column: 1 / -1; grid-template-columns: repeat(3, 1fr); gap: clamp(12px, 2vw, 28px); }
+.story-arrival-row .story-image { aspect-ratio: 4 / 3; margin: 0; overflow: hidden; }
 
 .dark { background: var(--umber); color: var(--plaster); }
+#grounds { padding-block: clamp(60px, 7vw, 110px); }
 .grounds { display: grid; gap: 26px; grid-template-columns: 1.25fr .75fr; grid-template-rows: auto 540px auto; }
 .grounds-copy { align-self: end; max-width: 620px; padding: 0 0 55px; }
 .grounds-copy > p:last-child { color: #dbcdb9; margin: 38px 0 0; }
@@ -106,15 +110,21 @@ nav a { align-items: center; display: inline-flex; font-size: 11px; letter-spaci
 .grounds-secondary { grid-column: 2; grid-row: 1 / 3; }
 .grounds-note { border-top: 1px solid var(--copper); color: var(--gold); font: italic 16px/1.6 var(--serif); grid-column: 1; margin: 8px 0 0; padding-top: 18px; width: 250px; }
 
-.interior { display: grid; gap: clamp(24px, 4vw, 62px); grid-template-columns: .7fr 1.3fr; grid-template-rows: auto 260px; }
-.interior-lead { align-self: end; padding-bottom: 30px; }
+.interior { display: grid; gap: clamp(24px, 4vw, 62px); grid-template-columns: .7fr 1.3fr; grid-template-rows: auto auto; }
+.interior-lead { align-self: center; }
 .interior-main { height: clamp(520px, 52vw, 720px); }
 .interior-copy { align-self: start; max-width: 490px; }
 .interior-copy p { margin: 0 0 28px; }
 .interior-detail { height: 260px; justify-self: end; width: 100%; }
+/* Row 2 sizes to .interior-copy's real content on desktop, so .interior-detail fills it instead of leaving dead space. */
+@media (min-width: 901px) {
+  .interior-detail { height: 100%; }
+}
 
 .suite-band { background: var(--tobacco); color: var(--plaster); display: grid; grid-template-columns: 1.25fr .75fr; }
-.suite-band > img { max-height: 760px; min-height: 580px; }
+.suite-gallery { display: grid; gap: clamp(12px, 2vw, 28px); grid-template-columns: 1.5fr 1fr; grid-template-rows: 1fr 1fr; height: clamp(580px, 46vw, 760px); }
+.suite-gallery .story-image { margin: 0; overflow: hidden; }
+.suite-gallery .story-image:first-child { grid-row: 1 / 3; }
 .suite-band > div { align-self: center; padding: 70px clamp(30px, 7vw, 110px); }
 .suite-band p:last-child { color: #ddcdbb; font: 400 18px/1.7 var(--serif); margin: 36px 0 0; }
 
@@ -128,7 +138,7 @@ nav a { align-items: center; display: inline-flex; font-size: 11px; letter-spaci
   margin: 0 0 clamp(28px, 4vw, 48px);
   padding-bottom: 18px;
 }
-.gallery-group-grid { display: grid; gap: clamp(12px, 2vw, 28px); grid-template-columns: repeat(12, 1fr); }
+.gallery-group-grid { display: grid; gap: clamp(12px, 2vw, 28px); grid-template-columns: repeat(12, 1fr); align-items: end; }
 .gallery-item { margin: 0; overflow: hidden; }
 .gallery-item.landscape { aspect-ratio: 4 / 3; grid-column: span 4; }
 .gallery-item.portrait { aspect-ratio: 2 / 3; grid-column: span 3; }
@@ -169,6 +179,7 @@ a:focus-visible { outline: 2px solid var(--gold); outline-offset: 5px; }
 @media (max-width: 900px) {
   .story, .interior, .features { grid-template-columns: 1fr; }
   .story, .interior { grid-template-rows: auto; }
+  .story-arrival-row { grid-template-columns: 1fr; }
   .section-intro { max-width: 670px; }
   .grounds { grid-template-rows: auto 430px 350px auto; }
   .grounds-copy { grid-column: 1 / -1; }
@@ -177,8 +188,10 @@ a:focus-visible { outline: 2px solid var(--gold); outline-offset: 5px; }
   .grounds-note { grid-row: 4; }
   .gallery-group-grid { grid-template-columns: repeat(2, 1fr); }
   .gallery-item.landscape, .gallery-item.portrait, .gallery-item.feature { grid-column: span 1; }
+  /* An odd-numbered group would otherwise end on a half-empty row. */
+  .gallery-item:last-child:nth-child(odd) { grid-column: 1 / -1; }
   .suite-band { grid-template-columns: 1fr; }
-  .suite-band > img { min-height: 500px; }
+  .suite-gallery { height: 500px; }
   .features { gap: 55px; }
 }
 
@@ -198,7 +211,6 @@ a:focus-visible { outline: 2px solid var(--gold); outline-offset: 5px; }
   .facts div:nth-child(even) { border-right: 0; }
   .facts div:nth-last-child(-n+2) { border-bottom: 0; }
   .story-aerial { height: 440px; }
-  .story-approach { height: 190px; }
   .grounds { display: block; }
   .grounds-copy { padding-bottom: 45px; }
   .grounds-main { height: 430px; }
@@ -206,7 +218,7 @@ a:focus-visible { outline: 2px solid var(--gold); outline-offset: 5px; }
   .grounds-note { margin-top: 28px; }
   .interior-main { height: 450px; }
   .interior-detail { height: 200px; }
-  .suite-band > img { min-height: 430px; }
+  .suite-gallery { height: 430px; }
   .suite-band > div { padding-block: 80px; }
   .gallery-heading { display: block; }
   .gallery-heading h2 { margin-top: 35px; }

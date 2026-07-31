@@ -22,8 +22,8 @@ const galleryGroups = [
       { name: "setting-rural-context", alt: "Aerial view of the property within the Wellesley landscape" },
       { name: "setting-aerial-overview", alt: "Aerial view of the house and surrounding grounds" },
       { name: "setting-rear-elevation", alt: "Rear elevation with covered porches and upper balcony" },
-      { name: "setting-house-lawn-aerial", alt: "Raised aerial view of the house and lawn" },
-      { name: "setting-full-property", alt: "Wide aerial view of the house, grounds and water features" },
+      { name: "setting-house-lawn-aerial", alt: "Raised aerial view of the house and lawn", feature: true },
+      { name: "setting-full-property", alt: "Wide aerial view of the house, grounds and water features", feature: true },
     ],
   },
   {
@@ -37,6 +37,8 @@ const galleryGroups = [
       { name: "grounds-lawn-deck-pond", alt: "Wide view across the lawn, deck and pond" },
       { name: "grounds-opposite-aerial", alt: "Aerial view across the residence, lawn and water features" },
       { name: "grounds-willow-tree", alt: "Mature willow tree on the lawn", portrait: true },
+      { name: "grounds-pool-natural", alt: "Rock-edged natural pool with a stepping stone, grasses and a red maple", portrait: true },
+      { name: "grounds-pool-deck-view", alt: "Natural pool and its rock border seen from the timber deck", feature: true },
     ],
   },
   {
@@ -46,7 +48,7 @@ const galleryGroups = [
       { name: "living-fireplace", alt: "Living room with exposed beams and stone fireplace" },
       { name: "living-dining-room", alt: "Dining room with hardwood floors and a bay window onto the lawn" },
       { name: "living-kitchen-island", alt: "Kitchen island with a dark stone counter and wooden bar stools" },
-      { name: "living-kitchen-island-vertical", alt: "Vertical view across the kitchen island", portrait: true },
+      { name: "living-piano-room", alt: "Grand piano on wide-plank oak beneath an iron chandelier", feature: true },
       { name: "living-kitchen-piano-connection", alt: "Kitchen island looking toward the adjoining piano room", feature: true },
     ],
   },
@@ -57,10 +59,11 @@ const galleryGroups = [
       { name: "craft-range-stone", alt: "Range and hood beneath timber beams, beside a brick column and granite counter" },
       { name: "craft-range-detail", alt: "Professional-style range and metal control detail" },
       { name: "craft-leaded-glass-nook", alt: "Service nook with a round leaded-glass window" },
-      { name: "craft-stone-porch-bench", alt: "Wagon-wheel bench against a stone porch wall" },
       { name: "craft-window-stair", alt: "Round leaded-glass window beside the timber staircase", portrait: true },
       { name: "craft-brick-stair-detail", alt: "Curved brick steps and timber wall detail", portrait: true },
       { name: "craft-copper-sink-edge", alt: "Carved copper sink edge and custom metalwork", portrait: true },
+      { name: "craft-timber-stair-barrel", alt: "Timber staircase and a wrought-iron-strapped barrel table.", portrait: true },
+      { name: "craft-stone-porch-bench", alt: "Wagon-wheel bench against a stone porch wall", feature: true },
       { name: "craft-brick-steps-timber-door", alt: "Curved brick steps leading to a custom timber door", feature: true },
     ],
   },
@@ -72,15 +75,16 @@ const galleryGroups = [
       { name: "rooms-office-library", alt: "Home office with built-in book wall and dark wood desk" },
       { name: "rooms-sitting-room", alt: "Quiet sitting room with two antique-style chairs" },
       { name: "rooms-double-vanity", alt: "Double vanity with a dark stone counter" },
-      { name: "rooms-bedroom", alt: "Softly furnished bedroom with timber window trim", feature: true },
+      { name: "rooms-guest-bedroom", alt: "Bedroom with blush bedding, a timber trunk and a window seat" },
+      { name: "rooms-bedroom", alt: "Softly furnished bedroom with timber window trim" },
     ],
   },
   {
     title: "Quiet views",
     slug: "quiet",
     images: [
-      { name: "quiet-timber-hall", alt: "Long hall with timber trim and terracotta-toned walls" },
-      { name: "quiet-pond-window-view", alt: "Pond, fountain and lawn viewed through interior windows" },
+      { name: "quiet-pool-clearing", alt: "Natural pool and lawn clearing viewed from the deck, framed by maples and evergreens." },
+      { name: "quiet-willow-balcony", alt: "Willow branches draped beside an upper balcony railing." },
       { name: "quiet-stone-waterfall", alt: "Stone waterfall and layered garden planting", portrait: true },
       { name: "quiet-lily-pads", alt: "Lily pads beneath clear pond water", portrait: true },
       { name: "quiet-balcony-cafe", alt: "Upper balcony with a small caf\u00e9 table", portrait: true },
@@ -93,17 +97,19 @@ function StoryImage({
   name,
   alt,
   className,
+  sizes = "(max-width: 900px) 100vw, 66vw",
 }: {
   name: string;
   alt: string;
   className?: string;
+  sizes?: string;
 }) {
   return (
     <img
       className={className}
       src={`/property/story/${name}-1920.webp`}
       srcSet={`/property/story/${name}-960.webp 960w, /property/story/${name}-1920.webp 1920w`}
-      sizes="(max-width: 900px) 100vw, 66vw"
+      sizes={sizes}
       alt={alt}
       width="1920"
       height="1440"
@@ -172,9 +178,17 @@ export default function Home() {
             <StoryImage name="property-plan" alt="Top-down aerial view of the residence and grounds" />
             <figcaption>The residence sits within a broad, mature landscape.</figcaption>
           </figure>
-          <figure className="story-image story-approach">
-            <StoryImage name="front-arrival" alt="Front elevation and three-car garage viewed from above" />
-          </figure>
+          <div className="story-arrival-row">
+            <figure className="story-image">
+              <StoryImage name="front-arrival" alt="Front elevation and three-car garage viewed from above" sizes="(max-width: 900px) 100vw, 30vw" />
+            </figure>
+            <figure className="story-image">
+              <StoryImage name="front-porch-daylight" alt="Front porch and entry door in daylight." sizes="(max-width: 900px) 100vw, 30vw" />
+            </figure>
+            <figure className="story-image">
+              <StoryImage name="front-through-trees" alt="Front of the house seen through mature trees, with the oval window over the porch." sizes="(max-width: 900px) 100vw, 30vw" />
+            </figure>
+          </div>
         </section>
 
         <section id="grounds" className="grounds section dark" aria-labelledby="grounds-title">
@@ -193,7 +207,7 @@ export default function Home() {
             <p className="eyebrow copper">Inside</p>
             <h2 id="interior-title">Timber, copper<br />and stone</h2>
           </div>
-          <StoryImage className="interior-main" name="kitchen" alt="Custom kitchen island, professional-style range and timber hood" />
+          <StoryImage className="interior-main" name="kitchen" alt="Kitchen island and range viewed from across the room, with the oval leaded-glass window and stairwell visible beyond." />
           <div className="interior-copy">
             <p>The chef&apos;s kitchen is the working centre of the house: a granite island, a commercial range with double ovens and warming drawers, multiple sinks, a pantry and a beverage bar. It is built to cook properly in, not to be looked at.</p>
             <p>What surrounds it is the kind of detail that has to be made rather than ordered — hammered copper sinks, leaded glass beside the stair, curved brick steps rising to a custom timber door.</p>
@@ -203,7 +217,17 @@ export default function Home() {
         </section>
 
         <section className="suite-band" aria-label="Primary suite">
-          <StoryImage name="primary-bedroom" alt="Bedroom with stone fireplace, television and windows" />
+          <div className="suite-gallery">
+            <figure className="story-image">
+              <StoryImage name="primary-bedroom-wide" alt="Primary bedroom viewed from the fireplace across to the bed and the open French door to the porch." sizes="(max-width: 900px) 66vw, 32vw" />
+            </figure>
+            <figure className="story-image">
+              <StoryImage name="primary-bedroom" alt="Bedroom with stone fireplace, television and windows" sizes="(max-width: 900px) 33vw, 20vw" />
+            </figure>
+            <figure className="story-image">
+              <StoryImage name="primary-bedroom-porch-view" alt="Bed pillows in the foreground beside the open French door to a screened porch." sizes="(max-width: 900px) 33vw, 20vw" />
+            </figure>
+          </div>
           <div>
             <p className="eyebrow gold">The primary suite</p>
             <h2>A house within<br />the house</h2>
