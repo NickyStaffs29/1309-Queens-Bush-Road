@@ -177,6 +177,8 @@ a:focus-visible { outline: 2px solid var(--gold); outline-offset: 5px; }
   .grounds-note { grid-row: 4; }
   .gallery-group-grid { grid-template-columns: repeat(2, 1fr); }
   .gallery-item.landscape, .gallery-item.portrait, .gallery-item.feature { grid-column: span 1; }
+  /* An odd-numbered group would otherwise end on a half-empty row. */
+  .gallery-item:last-child:nth-child(odd) { grid-column: 1 / -1; }
   .suite-band { grid-template-columns: 1fr; }
   .suite-band > img { min-height: 500px; }
   .features { gap: 55px; }
