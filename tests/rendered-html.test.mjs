@@ -215,8 +215,24 @@ test("renders scroll-gated property video tiles with poster fallbacks", async ()
 
   const settingBlock = html.slice(html.indexOf('id="setting-gallery-title"'), html.indexOf('id="grounds-gallery-title"'));
   assert.equal((settingBlock.match(/class="gallery-item /g) ?? []).length, 9);
-  assert.equal((settingBlock.match(/class="gallery-item landscape"/g) ?? []).length, 7);
-  assert.equal((settingBlock.match(/class="gallery-item landscape feature"/g) ?? []).length, 2);
+  assert.equal((settingBlock.match(/class="gallery-item landscape"/g) ?? []).length, 3);
+  assert.equal((settingBlock.match(/class="gallery-item landscape feature"/g) ?? []).length, 6);
+
+  // A group's final row must fill the 12-column grid, or come within a quarter of it.
+  // Anything shorter reads as an unfinished row rather than a deliberate edge.
+  const groupBlocks = html.split('class="gallery-group"').slice(1);
+  assert.equal(groupBlocks.length, 6);
+  for (const block of groupBlocks) {
+    const spans = [...block.matchAll(/class="gallery-item ([a-z ]+)"/g)]
+      .map(([, cls]) => (cls.includes("feature") ? 6 : cls.includes("portrait") ? 3 : 4))
+      .reduce((total, span) => total + span, 0);
+    const lastRow = spans % 12;
+    assert.equal(
+      lastRow === 0 || lastRow >= 9,
+      true,
+      `group spans ${spans}: final row fills only ${lastRow}/12 columns`,
+    );
+  }
 
   const arrivalRow = html.slice(html.indexOf('class="story-arrival-row"'), html.indexOf('id="grounds"'));
   assert.equal((arrivalRow.match(/class="story-image"/g) ?? []).length, 3);
