@@ -139,7 +139,7 @@ const galleryImages = [
   "rooms-office-library",
   "rooms-sitting-room",
   "rooms-double-vanity",
-  "rooms-guest-bedroom",
+  "rooms-powder-room",
   "rooms-bedroom",
   "quiet-pool-clearing",
   "quiet-willow-balcony",
@@ -149,6 +149,8 @@ const galleryImages = [
   "quiet-pond-fountain",
 ];
 
+const galleryVideos = ["setting-wide-context", "setting-facade-flyby", "setting-high-establishing"];
+
 test("server-renders the approved six-part property gallery", async () => {
   const response = await render();
   assert.equal(response.status, 200);
@@ -157,7 +159,7 @@ test("server-renders the approved six-part property gallery", async () => {
   const html = await response.text();
   assert.match(html, /id="gallery"/);
   assert.equal((html.match(/class="gallery-group"/g) ?? []).length, 6);
-  assert.equal((html.match(/class="gallery-item /g) ?? []).length, 40);
+  assert.equal((html.match(/class="gallery-item /g) ?? []).length, galleryImages.length + galleryVideos.length);
   for (const heading of ["The setting", "The grounds", "Living &amp; kitchen", "Craft", "Rooms", "Quiet views"]) {
     assert.match(html, new RegExp(`>${heading}<`));
   }
@@ -169,7 +171,6 @@ test("server-renders the approved six-part property gallery", async () => {
     "front-arrival",
     "front-porch-daylight",
     "front-through-trees",
-    "rear-pond",
     "covered-porch",
     "kitchen",
     "copper-sink",
@@ -187,6 +188,12 @@ test("server-renders the approved six-part property gallery", async () => {
   assert.equal((html.match(/height="/g) ?? []).length >= 46, true);
 });
 
+test("sets manual scroll restoration before any page content renders", async () => {
+  const html = await (await render()).text();
+  assert.match(html, /history\.scrollRestoration\s*=\s*['"]manual['"]/);
+  assert.equal(html.indexOf("history.scrollRestoration") < html.indexOf('class="site-header"'), true);
+});
+
 test("renders the responsive hero video with still-image fallbacks", async () => {
   const html = await (await render()).text();
   assert.match(html, /\/property\/video\/property-overview-desktop\.mp4/);
@@ -198,11 +205,21 @@ test("renders the responsive hero video with still-image fallbacks", async () =>
   assert.match(html, /class="hero-video-fallback"/);
 });
 
+test("renders scroll-gated property video tiles with poster fallbacks", async () => {
+  const html = await (await render()).text();
+  for (const name of [...galleryVideos, "grounds-pool-pond"]) {
+    assert.match(html, new RegExp(`data-src="/property/video/${name}\\.mp4"`));
+    assert.doesNotMatch(html, new RegExp(`(?<!data-)src="/property/video/${name}\\.mp4"`));
+    assert.match(html, new RegExp(`/property/video/${name}-poster\\.webp`));
+  }
+  assert.equal((html.match(/>Pause video</g) ?? []).length, 5);
+});
+
 test("sizes the hero video to fully cover its box", async () => {
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
-  assert.match(css, /img, \.hero-video \{[^}]*width: 100%/);
-  assert.match(css, /img, \.hero-video \{[^}]*height: 100%/);
-  assert.match(css, /img, \.hero-video \{[^}]*object-fit: cover/);
+  assert.match(css, /img, video, \.hero-video \{[^}]*width: 100%/);
+  assert.match(css, /img, video, \.hero-video \{[^}]*height: 100%/);
+  assert.match(css, /img, video, \.hero-video \{[^}]*object-fit: cover/);
 });
 
 test("keeps media complete and truthful at every breakpoint", async () => {
@@ -229,6 +246,7 @@ test("keeps media complete and truthful at every breakpoint", async () => {
   assert.match(css, /@media \(max-width: 900px\)[\s\S]*\.gallery-group-grid \{[^}]*grid-template-columns: repeat\(2, 1fr\)/);
   assert.match(css, /@media \(max-width: 640px\)[\s\S]*\.gallery-item\.landscape \{[^}]*grid-column: 1 \/ -1/);
   assert.match(css, /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.hero-video \{[^}]*display: none/);
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.property-video-media[^}]*display: none/);
 });
 
 test("ships only the approved web media within budget", async () => {
@@ -241,12 +259,20 @@ test("ships only the approved web media within budget", async () => {
     ["video/property-overview-mobile-poster.webp", 300 * 1024],
     ["video/property-overview-desktop.mp4", 7 * 1024 * 1024],
     ["video/property-overview-mobile.mp4", 4.5 * 1024 * 1024],
+    ["video/setting-wide-context.mp4", 2.5 * 1024 * 1024],
+    ["video/setting-wide-context-poster.webp", 150 * 1024],
+    ["video/setting-facade-flyby.mp4", 0.75 * 1024 * 1024],
+    ["video/setting-facade-flyby-poster.webp", 150 * 1024],
+    ["video/setting-high-establishing.mp4", 2.5 * 1024 * 1024],
+    ["video/setting-high-establishing-poster.webp", 160 * 1024],
+    ["video/grounds-pool-pond.mp4", 5.5 * 1024 * 1024],
+    ["video/grounds-pool-pond-poster.webp", 250 * 1024],
   ];
   for (const [file, maxBytes] of files) {
     assert.equal((await stat(new URL(`../public/property/${file}`, import.meta.url))).size <= maxBytes, true, file);
   }
 
-  const storyNames = ["property-plan", "front-arrival", "front-porch-daylight", "front-through-trees", "rear-pond", "covered-porch", "kitchen", "copper-sink", "primary-bedroom", "primary-bedroom-wide", "primary-bedroom-porch-view", "pond-garden"];
+  const storyNames = ["property-plan", "front-arrival", "front-porch-daylight", "front-through-trees", "covered-porch", "kitchen", "copper-sink", "primary-bedroom", "primary-bedroom-wide", "primary-bedroom-porch-view", "pond-garden"];
   for (const name of storyNames) {
     assert.equal((await stat(new URL(`../public/property/story/${name}-960.webp`, import.meta.url))).size <= 180 * 1024, true, name);
     assert.equal((await stat(new URL(`../public/property/story/${name}-1920.webp`, import.meta.url))).size <= 450 * 1024, true, name);
@@ -369,7 +395,7 @@ test("keeps gallery and story media paths in their approved directories", async 
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
   ]);
   // Gallery entries only; structured-data nodes also carry a `name` field.
-  assert.equal((page.match(/\{ name: "/g) ?? []).length, 40);
+  assert.equal((page.match(/\{ name: "/g) ?? []).length, galleryImages.length + galleryVideos.length);
   assert.doesNotMatch(page, /\/property\/(?:wine-cellar|lower-level-gallery|garage-loft)\.webp/);
   assert.doesNotMatch(css, /\.gallery-item \{[^}]*aspect-ratio: 4 \/ 3/);
 });
