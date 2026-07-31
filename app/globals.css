@@ -92,8 +92,10 @@ nav a { align-items: center; display: inline-flex; font-size: 11px; letter-spaci
 .section-intro { align-self: center; padding: 0 2vw 4vw 0; }
 .section-intro > p:last-child, .interior-copy p, .grounds-copy > p:last-child { font: 400 clamp(17px, 1.5vw, 21px)/1.75 var(--serif); }
 .section-intro > p:last-child { margin: 40px 0 0; max-width: 490px; }
-.story-aerial { height: clamp(520px, 60vw, 780px); margin: 0; }
-.story-aerial figcaption { color: #765d4e; font: italic 13px/1.4 var(--serif); margin-top: 13px; }
+/* Flex column so the caption gets its own space instead of overflowing the fixed-height figure. */
+.story-aerial { display: flex; flex-direction: column; height: clamp(520px, 60vw, 780px); margin: 0; }
+.story-aerial img { flex: 1; min-height: 0; }
+.story-aerial figcaption { color: #765d4e; flex: none; font: italic 13px/1.4 var(--serif); margin-top: 13px; }
 .story-approach { height: 260px; margin: 0; width: 100%; }
 
 .dark { background: var(--umber); color: var(--plaster); }
@@ -149,6 +151,8 @@ nav a { align-items: center; display: inline-flex; font-size: 11px; letter-spaci
 .cta-button:hover { background: var(--gold); }
 .cta-button:focus-visible { outline: 2px solid var(--plaster); outline-offset: 4px; }
 .inquire-email { color: #e6dccd; font: 400 14px/1 var(--sans); letter-spacing: .05em; margin: 20px 0 0; }
+.inquire-email a { align-items: center; border-bottom: 1px solid rgba(230, 220, 205, .4); display: inline-flex; min-height: 44px; text-decoration: none; }
+.inquire-email a:hover { border-bottom-color: var(--copper); }
 
 footer { align-items: center; background: var(--umber); color: #d7c8b5; display: flex; font-size: 10px; justify-content: space-between; letter-spacing: .14em; min-height: 100px; padding: 30px clamp(24px, 7vw, 112px); text-transform: uppercase; }
 footer a { text-decoration: none; }
