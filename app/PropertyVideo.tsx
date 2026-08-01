@@ -106,7 +106,6 @@ export default function PropertyVideo({
         className="property-video-control"
         type="button"
         onClick={togglePlayback}
-        aria-pressed={paused}
         hidden={!ready}
         disabled={!ready}
       >

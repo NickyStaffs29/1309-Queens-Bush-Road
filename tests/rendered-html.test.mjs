@@ -238,6 +238,30 @@ test("renders scroll-gated property video tiles with poster fallbacks", async ()
   assert.equal((arrivalRow.match(/class="story-image"/g) ?? []).length, 3);
 });
 
+test("exposes video controls as plain buttons rather than toggle buttons", async () => {
+  const html = await (await render()).text();
+  // The label already carries the state, so aria-pressed would announce it twice, and invert it.
+  assert.doesNotMatch(html, /aria-pressed/);
+  assert.match(html, /class="hero-video-control"/);
+  assert.match(html, /class="property-video-control"/);
+});
+
+test("gives every text control a 44px touch target", async () => {
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(css, /\.text-link \{[^}]*min-height: 44px/);
+  assert.match(css, /footer a \{[^}]*min-height: 44px/);
+  assert.match(css, /nav a \{[^}]*min-height: 44px/);
+});
+
+test("keeps the gallery and the viewing request reachable in the mobile header", async () => {
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  const mobile = css.slice(css.indexOf("@media (max-width: 640px)"));
+  // One rule may hide header links, and only the two section anchors.
+  const hidden = [...mobile.matchAll(/\n\s*([^\n{}]*nav a[^\n{}]*)\{[^}]*display: none/g)]
+    .map(([, selector]) => selector.trim());
+  assert.deepEqual(hidden, ['nav a[href="#story"], nav a[href="#details"]']);
+});
+
 test("sizes the hero video to fully cover its box", async () => {
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.match(css, /img, video, \.hero-video \{[^}]*width: 100%/);

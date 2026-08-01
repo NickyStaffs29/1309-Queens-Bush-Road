@@ -74,7 +74,6 @@ export default function HeroVideo() {
         className="hero-video-control"
         type="button"
         onClick={togglePlayback}
-        aria-pressed={paused}
         hidden={!ready}
         disabled={!ready}
       >
