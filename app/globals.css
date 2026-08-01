@@ -75,7 +75,7 @@ nav a { align-items: center; display: inline-flex; font-size: 11px; letter-spaci
 .hero h1 { font-size: clamp(64px, 9vw, 138px); line-height: .78; }
 .hero-price { border-left: 2px solid var(--copper); font: 500 clamp(13px, 1.15vw, 16px)/1.4 var(--sans); letter-spacing: .14em; margin: 34px 0 0; padding-left: 16px; text-transform: uppercase; }
 .hero-line { font-family: var(--serif); font-size: clamp(18px, 2vw, 26px); font-style: italic; line-height: 1.4; margin: 26px 0 30px; max-width: 570px; }
-.text-link { display: inline-flex; font-size: 11px; font-weight: 600; gap: 20px; letter-spacing: .16em; padding: 10px 0; text-decoration: none; text-transform: uppercase; }
+.text-link { align-items: center; display: inline-flex; font-size: 11px; font-weight: 600; gap: 20px; letter-spacing: .16em; min-height: 44px; padding: 10px 0; text-decoration: none; text-transform: uppercase; }
 .text-link.light { border-bottom: 1px solid rgba(255,255,255,.55); }
 
 .facts { background: var(--walnut); color: var(--plaster); display: grid; grid-template-columns: repeat(6, 1fr); padding: 0 clamp(20px, 3.5vw, 56px); }
@@ -191,7 +191,8 @@ nav a { align-items: center; display: inline-flex; font-size: 11px; letter-spaci
 .inquire-email a:hover { border-bottom-color: var(--copper); }
 
 footer { align-items: center; background: var(--umber); color: #d7c8b5; display: flex; font-size: 10px; justify-content: space-between; letter-spacing: .14em; min-height: 100px; padding: 30px clamp(24px, 7vw, 112px); text-transform: uppercase; }
-footer a { text-decoration: none; }
+/* The gap replaces the word space the flex context trims off before the arrow. */
+footer a { align-items: center; display: inline-flex; gap: .4em; min-height: 44px; text-decoration: none; }
 
 a:focus-visible { outline: 2px solid var(--gold); outline-offset: 5px; }
 
@@ -224,8 +225,10 @@ a:focus-visible { outline: 2px solid var(--gold); outline-offset: 5px; }
 @media (max-width: 640px) {
   .site-header { height: 68px; padding-inline: 18px; }
   .wordmark { font-size: 14px; }
-  .nav-inquire { font-size: 9px; letter-spacing: .1em; }
-  nav a:not(.nav-inquire) { display: none; }
+  nav { gap: 16px; }
+  nav a { font-size: 9px; letter-spacing: .1em; }
+  /* Only the two section links drop out — the gallery and the viewing request stay reachable. */
+  nav a[href="#story"], nav a[href="#details"] { display: none; }
   .hero { min-height: 680px; }
   .hero-video-fallback img, .hero-video { object-position: center; }
   .hero-video-control { bottom: 20px; right: 18px; }
