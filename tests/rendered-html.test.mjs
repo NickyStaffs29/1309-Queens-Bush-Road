@@ -308,17 +308,19 @@ test("ships only the approved web media within budget", async () => {
     ["video/property-overview-mobile-poster.webp", 300 * 1024],
     ["video/property-overview-desktop.mp4", 7 * 1024 * 1024],
     ["video/property-overview-mobile.mp4", 4.5 * 1024 * 1024],
-    ["video/setting-wide-context.mp4", 2.5 * 1024 * 1024],
+    // Secondary clips are 1280x720 web cuts. These ceilings are deliberately tight:
+    // the earlier budgets were loose enough to let master-bitrate files ship unnoticed.
+    ["video/setting-wide-context.mp4", 1.6 * 1024 * 1024],
     ["video/setting-wide-context-poster.webp", 150 * 1024],
-    ["video/setting-facade-flyby.mp4", 0.75 * 1024 * 1024],
+    ["video/setting-facade-flyby.mp4", 0.95 * 1024 * 1024],
     ["video/setting-facade-flyby-poster.webp", 150 * 1024],
-    ["video/setting-high-establishing.mp4", 2.5 * 1024 * 1024],
+    ["video/setting-high-establishing.mp4", 1.6 * 1024 * 1024],
     ["video/setting-high-establishing-poster.webp", 160 * 1024],
-    ["video/grounds-pool-pond.mp4", 5.5 * 1024 * 1024],
+    ["video/grounds-pool-pond.mp4", 1.4 * 1024 * 1024],
     ["video/grounds-pool-pond-poster.webp", 250 * 1024],
-    ["video/front-driveway-arrival.mp4", 28 * 1024 * 1024],
+    ["video/front-driveway-arrival.mp4", 1.8 * 1024 * 1024],
     ["video/front-driveway-arrival-poster.webp", 160 * 1024],
-    ["video/setting-street-approach.mp4", 27 * 1024 * 1024],
+    ["video/setting-street-approach.mp4", 1.8 * 1024 * 1024],
     ["video/setting-street-approach-poster.webp", 160 * 1024],
   ];
   for (const [file, maxBytes] of files) {
