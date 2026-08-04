@@ -489,12 +489,14 @@ test("renders the approved Casa Marrone section order", async () => {
   }
 });
 
-test("publishes the private-sale terms and confirmed property facts", async () => {
+test("publishes only the approved rounded area and confirmed property facts", async () => {
   const html = await (await render()).text();
   const page = html.match(/<main[\s\S]*?<\/main>/)?.[0] ?? html;
   const detailedClaim = "one natural swimming pool/pond, plus a separate natural pond";
+  const area = "6,553 sq. ft. total";
   const grounds = page.match(/<section id="grounds"[\s\S]*?<\/section>/)?.[0] ?? "";
   const details = page.match(/<section id="details"[\s\S]*?<\/section>/)?.[0] ?? "";
+  const story = page.match(/<section id="story"[\s\S]*?<\/section>/)?.[0] ?? "";
 
   assert.match(html, /<title>[^<]*Casa Marrone[^<]*<\/title>/);
   assert.match(html, /class="facts"[\s\S]*?CAD \$1,895,000[\s\S]*?<\/section>/);
@@ -503,9 +505,7 @@ test("publishes the private-sale terms and confirmed property facts", async () =
     "Private sale",
     "CAD $1,895,000",
     "1835",
-    "6,553.32 sq. ft. measured",
-    "4,490.75 sq. ft. above grade",
-    "2,062.57 sq. ft. below grade",
+    area,
     "Five bedrooms and four bathrooms",
     "Five covered porches",
     detailedClaim,
@@ -530,10 +530,21 @@ test("publishes the private-sale terms and confirmed property facts", async () =
 
   const factStrip = html.match(/class="facts"[\s\S]*?<\/section>/)[0];
   let factCursor = -1;
-  for (const value of ["CAD $1,895,000", ">5<", ">4<", "6,553.32 sq. ft.", ">5<", ">2<"]) {
+  for (const value of ["CAD $1,895,000", ">5<", ">4<", area, ">5<", ">2<"]) {
     const index = factStrip.indexOf(value, factCursor + 1);
     assert.notEqual(index, -1, `fact strip missing ${value}`);
     factCursor = index;
+  }
+
+  // The rounded total is the only area figure published, in all four surfaces that carry one.
+  assert.equal(story.includes(`Inside there is ${area}`), true, "story copy missing the rounded total");
+  assert.equal(details.includes(`<li>${area}</li>`), true, "details list missing the rounded total");
+  assert.equal((details.match(/6,553 sq\. ft\. total/g) ?? []).length, 1, "details list repeats the total");
+  assert.equal(metaDescription.includes(area), true, "metadata description missing the rounded total");
+
+  // Whole document: no decimal precision and no grade breakdown survives anywhere, head included.
+  for (const banned of [/6,553\.32/, /4,490\.75/, /2,062\.57/, /above grade/i, /below grade/i]) {
+    assert.doesNotMatch(html, banned, `still publishes ${banned}`);
   }
 });
 
@@ -717,7 +728,7 @@ test("builds a truthful, internally consistent property graph for launch", async
   assert.equal(residence.numberOfBathroomsTotal, 4);
   assert.deepEqual(residence.floorSize, {
     "@type": "QuantitativeValue",
-    value: 6553.32,
+    value: 6553,
     unitCode: "FTK",
   });
   assert.equal(residence.address.postalCode, undefined);

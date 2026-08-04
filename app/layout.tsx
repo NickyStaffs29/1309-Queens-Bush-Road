@@ -3,7 +3,7 @@ import { getSiteUrl } from "./site-url";
 import "./globals.css";
 
 const title = "Casa Marrone | 1309 Queens Bush Road, Wellesley";
-const description = "Casa Marrone is an 1835 five-bedroom house in Wellesley, Ontario, offered by private sale at CAD $1,895,000 with 6,553.32 sq. ft. measured, five covered porches, one natural swimming pool/pond and a separate natural pond.";
+const description = "Casa Marrone is an 1835 five-bedroom house in Wellesley, Ontario, offered by private sale at CAD $1,895,000 with 6,553 sq. ft. total, five covered porches, one natural swimming pool/pond and a separate natural pond.";
 const socialImage = "/property/video/property-overview-desktop-poster.webp";
 
 const siteUrl = getSiteUrl();

@@ -82,7 +82,7 @@ export function propertyGraphFor(siteUrl: string) {
         yearBuilt: 1835,
         numberOfBedrooms: 5,
         numberOfBathroomsTotal: 4,
-        floorSize: { "@type": "QuantitativeValue", value: 6553.32, unitCode: "FTK" },
+        floorSize: { "@type": "QuantitativeValue", value: 6553, unitCode: "FTK" },
         photo: { "@id": image },
       },
       {
