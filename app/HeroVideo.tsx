@@ -33,7 +33,7 @@ export default function HeroVideo() {
   const [ready, setReady] = useState(false);
   const [paused, setPaused] = useState(false);
 
-  function loadClip(index: number, autoplay: boolean) {
+  function loadClip(index: number, autoplay: boolean, hideUntilReady = false) {
     const video = videoRef.current;
     if (!video) return;
     const clip = HERO_CLIPS[index];
@@ -43,7 +43,7 @@ export default function HeroVideo() {
       source.dataset.src = source.dataset.media === "(max-width: 640px)" ? clip.mobile : clip.desktop;
       source.src = source.dataset.src;
     }
-    setReady(false);
+    if (hideUntilReady) setReady(false);
     video.load();
     if (autoplay) {
       void video.play().catch(() => setReady(false));
@@ -55,7 +55,7 @@ export default function HeroVideo() {
     const saveData = (navigator as NavigatorWithConnection).connection?.saveData;
     blockedRef.current = Boolean(reducedMotion || saveData);
     if (blockedRef.current) return;
-    loadClip(clipIndexRef.current, true);
+    loadClip(clipIndexRef.current, true, true);
   }, []);
 
   function handleEnded() {

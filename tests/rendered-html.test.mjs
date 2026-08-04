@@ -225,7 +225,10 @@ test("renders the responsive hero video with still-image fallbacks", async () =>
   assert.match(video, /preload="none"/);
   assert.doesNotMatch(video, /\sloop(?:="")?(?:\s|>)/);
   assert.match(video, /aria-hidden="true"/);
+  assert.match(video, /class="hero-video"/);
+  assert.doesNotMatch(video, /class="hero-video is-ready"/);
   assert.equal((video.match(/<source\b/g) ?? []).length, 2);
+  assert.equal((video.match(/<source\b[^>]*\ssrc=/g) ?? []).length, 0);
   assert.match(html, />Pause video</);
   assert.match(html, /class="hero-video-fallback"/);
 });
