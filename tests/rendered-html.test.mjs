@@ -287,11 +287,20 @@ test("renders scroll-gated property video tiles with poster fallbacks", async ()
   assert.equal((arrivalRow.match(/class="story-image"/g) ?? []).length, 3);
 });
 
+// Everything above the first breakpoint: the desktop declarations the mobile blocks
+// override. Scoping to it keeps a desktop assertion from being satisfied by a mobile rule.
+function desktopBlock(css) {
+  const end = css.indexOf("@media (max-width: 1180px)");
+  assert.notEqual(end, -1, "missing the first breakpoint");
+  return css.slice(0, end);
+}
+
 test("applies the approved still-image and gallery treatments", async () => {
   const [css, html] = await Promise.all([
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
     (async () => (await render()).text())(),
   ]);
+  const desktop = desktopBlock(css);
 
   const arrivalRow = html.slice(html.indexOf('class="story-arrival-row"'), html.indexOf('id="grounds"'));
   const arrivalImage = arrivalRow.match(/<img[^>]+src="\/property\/gallery\/setting-rear-elevation-1440\.webp"[^>]*>/)?.[0] ?? "";
@@ -313,11 +322,14 @@ test("applies the approved still-image and gallery treatments", async () => {
   const primary = suite.match(/<figure class="story-image suite-primary"[\s\S]*?<\/figure>/)?.[0] ?? "";
   assert.match(primary, /src="\/property\/story\/primary-bedroom-wide-1920\.webp"/);
   assert.match(primary, /srcSet="\/property\/story\/primary-bedroom-wide-960\.webp 960w, \/property\/story\/primary-bedroom-wide-1920\.webp 1920w"/);
+  assert.match(primary, /sizes="\(max-width: 900px\) 100vw, 32vw"/);
   assert.match(suite, /\/property\/story\/primary-bedroom-1920\.webp/);
   assert.match(suite, /\/property\/story\/primary-bedroom-porch-view-1920\.webp/);
-  assert.match(css, /\.suite-primary \{[^}]*background:\s*var\(--tobacco\)/);
-  assert.match(css, /\.suite-primary img \{[^}]*object-fit:\s*contain/);
-  assert.match(css, /\.suite-primary img \{[^}]*object-position:\s*center/);
+  assert.equal((suite.match(/sizes="\(max-width: 900px\) 100vw, 20vw"/g) ?? []).length, 2);
+  // Desktop-scoped: the mobile block now carries its own `.suite-primary img` rule.
+  assert.match(cssRule(desktop, ".suite-primary"), /background:\s*var\(--tobacco\)/);
+  assert.match(cssRule(desktop, ".suite-primary img"), /object-fit:\s*contain/);
+  assert.match(cssRule(desktop, ".suite-primary img"), /object-position:\s*center/);
 
   const serene = html.slice(html.indexOf('id="quiet-gallery-title"'), html.indexOf('id="inquire"'));
   assert.equal((serene.match(/class="gallery-item landscape/g) ?? []).length, 6);
@@ -343,6 +355,65 @@ test("applies the approved still-image and gallery treatments", async () => {
     assert.match(html, new RegExp(`/property/story/${name}-1920\\.webp`));
     assert.doesNotMatch(html, new RegExp(`/property/gallery/${name}-`));
   }
+});
+
+test("stacks all primary-suite images at full mobile width", async () => {
+  const [css, html] = await Promise.all([
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+    (async () => (await render()).text())(),
+  ]);
+  const desktop = desktopBlock(css);
+  const mobile = cssBlock(css, "@media (max-width: 900px)");
+  const small = cssBlock(css, "@media (max-width: 640px)");
+
+  // Each figure spans the viewport below 901px, so every candidate must be picked for 100vw.
+  const suite = html.slice(html.indexOf('class="suite-band"'), html.indexOf('id="details"'));
+  const suiteSizes = [...suite.matchAll(/sizes="([^"]*)"/g)].map(([, value]) => value);
+  assert.deepEqual(suiteSizes, [
+    "(max-width: 900px) 100vw, 32vw",
+    "(max-width: 900px) 100vw, 20vw",
+    "(max-width: 900px) 100vw, 20vw",
+  ]);
+  for (const value of suiteSizes) {
+    assert.equal(value.startsWith("(max-width: 900px) 100vw"), true, value);
+  }
+
+  // One full-width column: no collage rows, no fixed height, no inherited band padding.
+  // `.suite-band > div` also selects the gallery, so this rule has to outweigh it.
+  const gallery = cssRule(mobile, ".suite-band > .suite-gallery");
+  assert.match(gallery, /grid-template-columns: 1fr/);
+  assert.match(gallery, /grid-template-rows: none/);
+  assert.match(gallery, /height: auto/);
+  assert.match(gallery, /padding: 0/);
+  assert.match(gallery, /align-self: stretch/);
+  assert.match(gallery, /gap: 24px/);
+  assert.match(cssRule(mobile, ".suite-gallery .story-image:first-child"), /grid-row: auto/);
+  assert.match(cssRule(mobile, ".suite-gallery .story-image"), /aspect-ratio: 4 \/ 3/);
+
+  // The copy, not the gallery, owns the mobile content padding.
+  assert.match(cssRule(mobile, ".suite-band > div"), /padding: 72px var\(--mobile-gutter\)/);
+
+  // Only the primary image crops on mobile; nothing else in the band changes fit.
+  assert.deepEqual(
+    [...mobile.matchAll(/(?:^|\n)\s*([^\n{}]*suite[^\n{}]*)\{[^}]*object-fit:/g)]
+      .map(([, selector]) => selector.trim()),
+    [".suite-primary img"],
+  );
+  assert.match(cssRule(mobile, ".suite-primary img"), /object-fit: cover/);
+
+  // Desktop keeps the letterboxed centred primary, the two-column band and the collage.
+  assert.match(cssRule(desktop, ".suite-primary img"), /object-fit: contain/);
+  assert.match(cssRule(desktop, ".suite-primary img"), /object-position: center/);
+  assert.match(cssRule(desktop, ".suite-primary"), /background: var\(--tobacco\)/);
+  assert.match(cssRule(desktop, ".suite-band"), /grid-template-columns: 1\.25fr \.75fr/);
+  assert.match(cssRule(desktop, ".suite-gallery"), /grid-template-columns: 1\.5fr 1fr/);
+  assert.match(cssRule(desktop, ".suite-gallery"), /grid-template-rows: 1fr 1fr/);
+  assert.match(cssRule(desktop, ".suite-gallery .story-image:first-child"), /grid-row: 1 \/ 3/);
+  assert.match(cssRule(desktop, ".suite-band > div"), /align-self: center/);
+
+  // The 640 block no longer re-imposes a fixed gallery height or its own band padding.
+  assert.equal(/(?:^|\n)\s*\.suite-gallery \{/.test(small), false, "640 re-sets the gallery height");
+  assert.doesNotMatch(small, /\.suite-band > div \{[^}]*padding-block/, "640 re-sets the band padding");
 });
 
 test("exposes video controls as plain buttons rather than toggle buttons", async () => {
@@ -710,6 +781,83 @@ test("offers one appointment-only email inquiry path", async () => {
   assert.equal(mailtoHrefs.length >= 1, true, "no mailto link rendered");
   assert.deepEqual([...new Set(mailtoHrefs)], [`href="${inquiryHref}"`]);
   assert.deepEqual([...new Set(markup.match(/[\w.+-]+@[\w.-]+\.\w{2,}/g) ?? [])], [inquiryEmail]);
+});
+
+test("makes inquiry artwork full bleed and centres the mobile CTA", async () => {
+  const [css, html] = await Promise.all([
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+    (async () => (await render()).text())(),
+  ]);
+  const desktop = desktopBlock(css);
+  const mobile = cssBlock(css, "@media (max-width: 900px)");
+
+  // The artwork is a direct child of the section. Below 900px the section is taller than
+  // the image's intrinsic height, so in flow it leaves a plaster seam and has to be lifted
+  // out to cover. Desktop has no seam to fix: there the image stays in flow and its own
+  // height is what gives the section its 1080px, so lifting it out would collapse the
+  // section to its 720px minimum. The rule belongs to the mobile block only.
+  assert.doesNotMatch(
+    desktop,
+    /\.inquire > img \{[^}]*position: absolute/,
+    "desktop must leave the inquiry artwork in flow",
+  );
+  const artwork = cssRule(mobile, ".inquire > img");
+  assert.match(artwork, /position: absolute/);
+  assert.match(artwork, /inset: 0/);
+
+  // The positioning context, the shade and the content stack all stay as they were.
+  assert.match(cssRule(desktop, ".inquire"), /position: relative/);
+  assert.match(cssRule(desktop, ".inquire"), /overflow: hidden/);
+  const shade = cssRule(desktop, ".inquire-shade");
+  assert.match(shade, /position: absolute/);
+  assert.match(shade, /inset: 0/);
+  assert.equal(
+    html.indexOf('class="inquire-shade"') < html.indexOf('class="inquire-content"'),
+    true,
+    "the shade must paint under the content",
+  );
+
+  // Vertical centring is untouched; only the horizontal box becomes gutter-to-gutter.
+  const desktopContent = cssRule(desktop, ".inquire-content");
+  assert.match(desktopContent, /position: absolute/);
+  assert.match(desktopContent, /top: 50%/);
+  assert.match(desktopContent, /transform: translateY\(-50%\)/);
+  assert.doesNotMatch(mobile, /\.inquire-content \{[^}]*(?:top:|transform:)/, "mobile re-sets the vertical centring");
+
+  const content = cssRule(mobile, ".inquire-content");
+  assert.match(content, /left: var\(--mobile-gutter\)/);
+  assert.match(content, /right: var\(--mobile-gutter\)/);
+  assert.match(content, /width: auto/);
+  assert.match(content, /max-width: none/);
+  assert.match(content, /text-align: center/);
+
+  // Centred, wrappable and still a 52px target once the label breaks over two lines.
+  const cta = cssRule(mobile, ".cta-button");
+  assert.match(cta, /justify-content: center/);
+  assert.match(cta, /text-align: center/);
+  assert.match(cta, /white-space: normal/);
+  assert.match(cta, /padding: 14px 20px/);
+  assert.match(cta, /min-height: 52px/);
+  assert.match(cssRule(desktop, ".cta-button"), /display: inline-flex/);
+
+  // Email only: the CTA and the visible address, both to the one approved destination.
+  const markup = markupOnly(html);
+  const section = markup.slice(markup.indexOf('id="inquire"'), markup.indexOf("<footer"));
+  assert.match(section, />Email to request a private viewing</);
+  assert.match(section, /by confirmed appointment/);
+  const mailtoHrefs = section.match(/href="mailto:[^"]*"/g) ?? [];
+  assert.equal(mailtoHrefs.length, 2, "the CTA and the visible address are the two inquiry links");
+  assert.deepEqual(mailtoHrefs, [`href="${inquiryHref}"`, `href="${inquiryHref}"`]);
+  assert.deepEqual([...new Set(section.match(/[\w.+-]+@[\w.-]+\.\w{2,}/g) ?? [])], [inquiryEmail]);
+
+  for (const [label, pattern] of [
+    ["contact form", /<form\b|<input\b|<select\b|<textarea\b/i],
+    ["telephone", /\btel:|telephone|\bphones?\b|\b\d{3}[.\- ]\d{3}[.\- ]\d{4}\b/i],
+    ["scheduler", /calendly|acuity scheduling|(?:schedule|book) (?:a|an|your) (?:viewing|visit|tour|time|slot)/i],
+    ["showing procedure", /lockbox|access code|entry code|key ?code|showing instructions|accompan/i],
+  ]) {
+    assert.doesNotMatch(section, pattern, label);
+  }
 });
 
 test("omits everything outside the approved private-sale disclosure", async () => {

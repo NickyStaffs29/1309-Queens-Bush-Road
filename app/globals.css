@@ -187,6 +187,8 @@ nav a { align-items: center; display: inline-flex; font-size: 11px; letter-spaci
 .feature-columns h3 { color: var(--gold); font: 600 10px/1 var(--sans); letter-spacing: .2em; margin: 0 0 8px; text-transform: uppercase; }
 
 .inquire { color: white; min-height: 720px; overflow: hidden; position: relative; }
+/* The artwork stays in flow here: its own height is what gives the section its full
+   desktop height. Lifting it out would drop the section to its 720px minimum. */
 .inquire-shade { background: linear-gradient(90deg, rgba(30,18,11,.82), rgba(30,18,11,.1)), linear-gradient(0deg, rgba(30,18,11,.45), transparent); inset: 0; position: absolute; }
 .inquire-content { left: clamp(24px, 9vw, 140px); max-width: 640px; position: absolute; top: 50%; transform: translateY(-50%); }
 .inquire h2 { font-size: clamp(40px, 5vw, 74px); line-height: 1; }
@@ -259,7 +261,22 @@ a:focus-visible { outline: 2px solid var(--gold); outline-offset: 5px; }
   /* An odd-numbered group would otherwise end on a half-empty row. */
   .gallery-item:last-child:nth-child(odd) { grid-column: 1 / -1; }
   .suite-band { grid-template-columns: 1fr; }
-  .suite-gallery { height: 500px; }
+  /* The copy owns the mobile content padding; the gallery goes edge to edge. */
+  .suite-band > div { padding: 72px var(--mobile-gutter); }
+  /* `.suite-band > div` also selects the gallery, so undoing the band padding and the
+     desktop collage here needs the extra class to outweigh it. */
+  .suite-band > .suite-gallery { align-self: stretch; gap: 24px; grid-template-columns: 1fr; grid-template-rows: none; height: auto; padding: 0; }
+  .suite-gallery .story-image { aspect-ratio: 4 / 3; }
+  .suite-gallery .story-image:first-child { grid-row: auto; }
+  /* Full-width now, so the primary fills its figure instead of letterboxing on tobacco. */
+  .suite-primary img { object-fit: cover; }
+
+  /* Below this width the section is taller than the artwork's intrinsic height, so in
+     flow it stops short and leaves a plaster seam. Out of flow it covers the section. */
+  .inquire > img { inset: 0; position: absolute; }
+  .inquire-content { left: var(--mobile-gutter); max-width: none; right: var(--mobile-gutter); text-align: center; width: auto; }
+  /* The label wraps to two lines at 320px, so the box needs its own vertical padding. */
+  .cta-button { justify-content: center; min-height: 52px; padding: 14px 20px; text-align: center; white-space: normal; }
 
   footer { font-size: 11px; padding-inline: var(--mobile-gutter); }
 }
@@ -282,8 +299,6 @@ a:focus-visible { outline: 2px solid var(--gold); outline-offset: 5px; }
   .grounds-note { margin-top: 24px; }
   .interior-main { height: 450px; }
   .interior-detail { height: 200px; }
-  .suite-gallery { height: 430px; }
-  .suite-band > div { padding-block: 80px; }
   .gallery-heading { display: block; }
   .gallery-heading h2 { margin-top: 35px; }
   .gallery-group-grid { grid-template-columns: repeat(2, 1fr); }
