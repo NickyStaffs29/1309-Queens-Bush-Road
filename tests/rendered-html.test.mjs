@@ -334,6 +334,20 @@ test("applies the approved still-image and gallery treatments", async () => {
   assert.match(suite, /\/property\/story\/primary-bedroom-1920\.webp/);
   assert.match(suite, /\/property\/story\/primary-bedroom-porch-view-1920\.webp/);
   assert.equal((suite.match(/sizes="\(max-width: 900px\) 100vw, 20vw"/g) ?? []).length, 2);
+
+  // The band's own copy, as served: eyebrow, the approved two-line heading, and the description.
+  assert.match(suite, /<p class="eyebrow gold">The primary suite<\/p>/);
+  assert.match(suite, /<h2>A private<br\s*\/?>retreat<\/h2>/);
+  assert.match(
+    suite,
+    /<p>A fireplace, a walk-in closet, an ensuite and a covered porch, all of them belonging to this room alone\.<\/p>/,
+  );
+  // The superseded heading is gone in every form, including split across the line break.
+  assert.doesNotMatch(suite, /A house within/);
+  assert.doesNotMatch(suite, /the house/);
+  const suiteText = suite.replace(/<br\s*\/?>/g, " ").replace(/\s+/g, " ");
+  assert.doesNotMatch(suiteText, /A house within the house/);
+
   // Desktop-scoped: the mobile block now carries its own `.suite-primary img` rule.
   assert.match(cssRule(desktop, ".suite-primary"), /background:\s*var\(--tobacco\)/);
   assert.match(cssRule(desktop, ".suite-primary img"), /object-fit:\s*contain/);
