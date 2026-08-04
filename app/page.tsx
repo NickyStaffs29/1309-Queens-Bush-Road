@@ -354,7 +354,11 @@ export default function Home() {
       </main>
 
       <footer>
-        <p>Casa Marrone · 1309 Queens Bush Road · Wellesley, Ontario</p>
+        <p>
+          <span>Casa Marrone ·</span>
+          <span>1309 Queens Bush Road ·</span>
+          <span>Wellesley, Ontario</span>
+        </p>
         <a href="#top">Back to top <span aria-hidden="true">↑</span></a>
       </footer>
     </>

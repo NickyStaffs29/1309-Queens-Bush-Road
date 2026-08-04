@@ -353,11 +353,64 @@ test("exposes video controls as plain buttons rather than toggle buttons", async
   assert.match(html, /class="property-video-control"/);
 });
 
-test("gives every text control a 44px touch target", async () => {
+// Returns the inner text of a brace-balanced at-rule so a mobile assertion cannot
+// accidentally be satisfied by a desktop rule further down the file.
+function cssBlock(css, header) {
+  const start = css.indexOf(header);
+  assert.notEqual(start, -1, `missing ${header}`);
+  const open = css.indexOf("{", start);
+  let depth = 0;
+  for (let index = open; index < css.length; index += 1) {
+    if (css[index] === "{") depth += 1;
+    else if (css[index] === "}" && (depth -= 1) === 0) return css.slice(open + 1, index);
+  }
+  throw new Error(`unterminated ${header}`);
+}
+
+function cssRule(block, selector) {
+  const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = block.match(new RegExp(`(?:^|\\n)\\s*${escaped} \\{([^}]*)\\}`));
+  assert.notEqual(match, null, `missing rule for ${selector}`);
+  return match[1];
+}
+
+function hiddenNavSelectors(block) {
+  return [...block.matchAll(/(?:^|\n)\s*([^\n{}]*nav a[^\n{}]*)\{[^}]*display: none/g)]
+    .map(([, selector]) => selector.trim());
+}
+
+test("gives every text control a 44px touch target and locks the mobile interface type", async () => {
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.match(css, /\.text-link \{[^}]*min-height: 44px/);
   assert.match(css, /footer a \{[^}]*min-height: 44px/);
   assert.match(css, /nav a \{[^}]*min-height: 44px/);
+  assert.match(css, /\.wordmark \{[^}]*min-height: 44px/);
+
+  const mobile = cssBlock(css, "@media (max-width: 900px)");
+  const small = cssBlock(css, "@media (max-width: 640px)");
+
+  // No small-screen override may shrink a target back under the contract.
+  for (const block of [mobile, small]) {
+    for (const [, selector, body] of block.matchAll(/(?:^|\n)\s*([^\n{}]+)\{([^}]*)\}/g)) {
+      if (!/\.wordmark|nav a|footer a|\.text-link/.test(selector)) continue;
+      const minHeight = body.match(/min-height:\s*([^;]+)/)?.[1]?.trim();
+      if (minHeight) assert.equal(minHeight, "44px", selector.trim());
+    }
+  }
+
+  assert.match(cssRule(mobile, ".wordmark"), /font-size: 14px/);
+  assert.match(cssRule(mobile, "nav"), /gap: 12px/);
+  assert.match(cssRule(mobile, "nav a"), /font-size: 10px/);
+  assert.match(cssRule(mobile, "nav a"), /letter-spacing: \.06em/);
+  assert.match(cssRule(mobile, ".facts span"), /font-size: 11px/);
+  assert.match(cssRule(mobile, ".feature-columns h3"), /font-size: 11px/);
+  assert.match(cssRule(mobile, "footer"), /font-size: 11px/);
+  assert.match(cssRule(mobile, ".hero h1"), /line-height: \.95/);
+  assert.match(cssRule(mobile, ".section h2, .suite-band h2, .inquire h2"), /line-height: 1;/);
+
+  // The 640 block must not re-tighten or re-shrink what the 900 block just set.
+  assert.equal(/(?:^|\n)\s*nav a \{/.test(small), false, "640 re-sets nav type");
+  assert.doesNotMatch(small, /\.hero h1 \{[^}]*line-height/, "640 re-sets the hero display line-height");
 });
 
 test("uses a native copper underline for the viewing link", async () => {
@@ -371,13 +424,110 @@ test("uses a native copper underline for the viewing link", async () => {
   assert.match(css, /nav a \{[^}]*min-height: 44px/);
 });
 
-test("keeps the gallery and the viewing request reachable in the mobile header", async () => {
+test("renders a compact sticky mobile header without adding navigation UI", async () => {
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
-  const mobile = css.slice(css.indexOf("@media (max-width: 640px)"));
-  // One rule may hide header links, and only the two section anchors.
-  const hidden = [...mobile.matchAll(/\n\s*([^\n{}]*nav a[^\n{}]*)\{[^}]*display: none/g)]
-    .map(([, selector]) => selector.trim());
-  assert.deepEqual(hidden, ['nav a[href="#story"], nav a[href="#details"]']);
+  const markup = markupOnly(await (await render()).text());
+  const header = markup.match(/<header[\s\S]*?<\/header>/)?.[0] ?? "";
+  const mobile = cssBlock(css, "@media (max-width: 900px)");
+  const small = cssBlock(css, "@media (max-width: 640px)");
+
+  // Hiding a link is a CSS decision; every destination stays in the markup.
+  for (const href of ["#top", "#story", "#gallery", "#details", "#inquire"]) {
+    assert.equal(header.includes(`href="${href}"`), true, `header lost ${href}`);
+  }
+
+  const siteHeader = cssRule(mobile, ".site-header");
+  assert.match(siteHeader, /position: sticky/);
+  assert.match(siteHeader, /top: 0/);
+  assert.match(siteHeader, /height: 64px/);
+  assert.match(siteHeader, /padding-inline: var\(--mobile-gutter\)/);
+
+  // The 900 block is the single authority: only the two section links drop out.
+  assert.deepEqual(hiddenNavSelectors(mobile), ['nav a[href="#story"], nav a[href="#details"]']);
+  assert.deepEqual(hiddenNavSelectors(small), []);
+  assert.match(cssRule(mobile, "nav a"), /white-space: nowrap/);
+  assert.match(
+    mobile,
+    /#top, #story, #grounds, #interior, #details, #gallery, #inquire \{[^}]*scroll-margin-top: 64px/,
+  );
+  // Smooth scrolling and its reduced-motion escape hatch both survive the sticky offset.
+  assert.match(css, /html \{[^}]*scroll-behavior: smooth/);
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\)[\s\S]*html \{[^}]*scroll-behavior: auto/);
+
+  // No drawer, no hamburger, no bottom bar, no JavaScript navigation.
+  assert.equal((markup.match(/<header/g) ?? []).length, 1);
+  assert.equal((markup.match(/<nav/g) ?? []).length, 1);
+  assert.equal(header.includes("<button"), false, "header must not add a navigation button");
+  assert.doesNotMatch(markup, /hamburger|menu-?(?:toggle|drawer|panel|button)|nav-?toggle|bottom-?nav/i);
+  assert.doesNotMatch(css, /hamburger|menu-?(?:toggle|drawer|panel|button)|nav-?toggle|bottom-?nav/i);
+});
+
+test("uses one mobile gutter and aligns facts and footer safely", async () => {
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  const markup = markupOnly(await (await render()).text());
+  const mobile = cssBlock(css, "@media (max-width: 900px)");
+  const small = cssBlock(css, "@media (max-width: 640px)");
+
+  assert.match(css, /:root \{[^}]*--mobile-gutter: 24px;/);
+
+  // One inset, applied to every gutter-bearing surface this stage owns.
+  for (const [selector, declaration] of [
+    [".site-header", "padding-inline: var(--mobile-gutter)"],
+    [".hero-content", "left: var(--mobile-gutter)"],
+    [".hero-content", "right: var(--mobile-gutter)"],
+    [".facts", "padding-inline: var(--mobile-gutter)"],
+    [".section", "padding: 72px var(--mobile-gutter)"],
+    ["footer", "padding-inline: var(--mobile-gutter)"],
+  ]) {
+    assert.equal(cssRule(mobile, selector).includes(declaration), true, `${selector} { ${declaration} }`);
+  }
+
+  // 72 section-level, 48 within-section, 24 between related media.
+  for (const [selector, declaration] of [
+    ["#grounds", "padding-block: 72px"],
+    [".story, .interior, .features", "gap: 48px"],
+    [".section-intro", "padding: 0"],
+    [".feature-columns", "gap: 48px"],
+    [".story-arrival-row", "gap: 24px"],
+    [".grounds", "gap: 24px"],
+    [".grounds-copy", "padding-bottom: 24px"],
+    [".grounds-note", "margin-top: 0"],
+  ]) {
+    assert.equal(cssRule(mobile, selector).includes(declaration), true, `${selector} { ${declaration} }`);
+  }
+  // Below 640 the grounds grid collapses to blocks, so the same separations move onto margins.
+  assert.match(cssRule(small, ".grounds-copy"), /padding-bottom: 48px/);
+  assert.match(cssRule(small, ".grounds-secondary"), /margin: 24px 0 0 auto/);
+  assert.match(cssRule(small, ".grounds-note"), /margin-top: 24px/);
+
+  // The header is in flow now, so the first fold is the viewport minus its 64px.
+  assert.match(cssRule(mobile, ".hero"), /height: max\(616px, calc\(100svh - 64px\)\)/);
+  assert.match(cssRule(mobile, ".hero"), /min-height: 616px/);
+  assert.doesNotMatch(small, /\.hero \{[^}]*min-height: 680px/);
+  assert.equal(/(?:^|\n)\s*\.hero-content \{/.test(small), false, "640 re-sets the hero gutter");
+
+  // Vertical cards with the value pushed down, so a wrapped label cannot shift its row.
+  assert.match(cssRule(mobile, ".facts div"), /display: flex/);
+  assert.match(cssRule(mobile, ".facts div"), /flex-direction: column/);
+  assert.match(cssRule(mobile, ".facts strong"), /margin-top: auto/);
+  assert.match(cssRule(small, ".facts"), /grid-template-columns: repeat\(2, 1fr\)/);
+  const smallCard = cssRule(small, ".facts div, .facts div:nth-child(3)");
+  assert.match(smallCard, /padding: 26px 16px/);
+  assert.match(smallCard, /border-bottom: 1px solid/);
+  assert.match(smallCard, /border-right: 1px solid/);
+
+  // Same words, same order, grouped so a line can only break between phrases.
+  const footerParagraph = markup.match(/<footer[\s\S]*?<\/footer>/)?.[0]?.match(/<p[^>]*>[\s\S]*?<\/p>/)?.[0] ?? "";
+  const groups = [...footerParagraph.matchAll(/<span>([^<]*)<\/span>/g)].map(([, text]) => text);
+  assert.deepEqual(groups, ["Casa Marrone ·", "1309 Queens Bush Road ·", "Wellesley, Ontario"]);
+  assert.equal(groups.join(" "), "Casa Marrone · 1309 Queens Bush Road · Wellesley, Ontario");
+  assert.match(css, /footer p \{[^}]*display: flex/);
+  assert.match(css, /footer p \{[^}]*flex-wrap: wrap/);
+  assert.match(css, /footer p \{[^}]*row-gap: 8px/);
+  // The column gap only replaces the word space, so desktop keeps its one-line address.
+  assert.match(css, /footer p \{[^}]*column-gap: \.4em/);
+  assert.match(css, /footer p span \{[^}]*white-space: nowrap/);
+  assert.doesNotMatch(mobile, /footer p \{[^}]*flex-wrap: nowrap/);
 });
 
 test("sizes the hero video to fully cover its box", async () => {
