@@ -160,9 +160,10 @@ test("server-renders the approved six-part property gallery", async () => {
   assert.match(html, /id="gallery"/);
   assert.equal((html.match(/class="gallery-group"/g) ?? []).length, 6);
   assert.equal((html.match(/class="gallery-item /g) ?? []).length, galleryImages.length + galleryVideos.length);
-  for (const heading of ["The setting", "The grounds", "Living &amp; kitchen", "Craft", "Rooms", "Quiet views"]) {
+  for (const heading of ["The setting", "The grounds", "Living &amp; kitchen", "Craft", "Rooms", "Serene Corners"]) {
     assert.match(html, new RegExp(`>${heading}<`));
   }
+  assert.doesNotMatch(html, />Quiet views</);
   for (const image of galleryImages) {
     assert.match(html, new RegExp(`/property/gallery/${image}-1440\\.webp`));
   }
@@ -250,6 +251,17 @@ test("gives every text control a 44px touch target", async () => {
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.match(css, /\.text-link \{[^}]*min-height: 44px/);
   assert.match(css, /footer a \{[^}]*min-height: 44px/);
+  assert.match(css, /nav a \{[^}]*min-height: 44px/);
+});
+
+test("uses a native copper underline for the viewing link", async () => {
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  const navInquire = css.match(/\.nav-inquire \{([^}]*)\}/)?.[1] ?? "";
+  assert.match(navInquire, /text-decoration:\s*underline/);
+  assert.match(navInquire, /text-decoration-color:\s*var\(--copper\)/);
+  assert.match(navInquire, /text-decoration-thickness:\s*1px/);
+  assert.match(navInquire, /text-underline-offset:\s*4px/);
+  assert.doesNotMatch(navInquire, /border-bottom|padding/);
   assert.match(css, /nav a \{[^}]*min-height: 44px/);
 });
 
@@ -359,8 +371,8 @@ test("renders the approved Casa Marrone section order", async () => {
     'id="grounds"',
     'id="interior"',
     'class="suite-band"',
-    'id="gallery"',
     'id="details"',
+    'id="gallery"',
     'id="inquire"',
     "<footer",
   ]) {
@@ -373,6 +385,10 @@ test("renders the approved Casa Marrone section order", async () => {
 
 test("publishes the private-sale terms and confirmed property facts", async () => {
   const html = await (await render()).text();
+  const page = html.match(/<main[\s\S]*?<\/main>/)?.[0] ?? html;
+  const detailedClaim = "one natural swimming pool/pond, plus a separate natural pond";
+  const grounds = page.match(/<section id="grounds"[\s\S]*?<\/section>/)?.[0] ?? "";
+  const details = page.match(/<section id="details"[\s\S]*?<\/section>/)?.[0] ?? "";
 
   assert.match(html, /<title>[^<]*Casa Marrone[^<]*<\/title>/);
   assert.match(html, /class="facts"[\s\S]*?CAD \$1,895,000[\s\S]*?<\/section>/);
@@ -386,7 +402,7 @@ test("publishes the private-sale terms and confirmed property facts", async () =
     "2,062.57 sq. ft. below grade",
     "Five bedrooms and four bathrooms",
     "Five covered porches",
-    "Two natural swimming pools",
+    detailedClaim,
     "Municipal services remain current",
     "Chimneys and flues reconstructed in May 2019",
     "60,000 lb",
@@ -395,6 +411,11 @@ test("publishes the private-sale terms and confirmed property facts", async () =
   ]) {
     assert.equal(html.includes(phrase), true, `missing ${phrase}`);
   }
+  assert.doesNotMatch(page, /two natural swimming pools/i);
+  assert.match(page, /<span>Natural water features<\/span><strong>2<\/strong>/);
+  assert.equal(grounds.includes(detailedClaim), true);
+  assert.equal(details.includes(detailedClaim), true);
+  assert.equal((page.match(new RegExp(detailedClaim, "g")) ?? []).length, 3);
 
   const factStrip = html.match(/class="facts"[\s\S]*?<\/section>/)[0];
   let factCursor = -1;

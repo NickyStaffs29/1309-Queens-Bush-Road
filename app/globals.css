@@ -37,7 +37,12 @@ a { color: inherit; }
 .wordmark span { color: var(--copper); font-style: italic; margin-right: 4px; }
 nav { align-items: center; display: flex; gap: clamp(20px, 3vw, 46px); }
 nav a { align-items: center; display: inline-flex; font-size: 11px; letter-spacing: .14em; min-height: 44px; text-decoration: none; text-transform: uppercase; }
-.nav-inquire { border-bottom: 1px solid var(--copper); padding: 1px 0 0; }
+.nav-inquire {
+  text-decoration: underline;
+  text-decoration-color: var(--copper);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
 
 .hero { color: white; height: max(720px, 100svh); min-height: 650px; overflow: hidden; position: relative; }
 .hero-media, .hero-video-fallback, .hero-video { inset: 0; position: absolute; }

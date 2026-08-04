@@ -12,7 +12,7 @@ const facts = [
   ["Bathrooms", "4"],
   ["Measured interior", "6,553.32 sq. ft."],
   ["Covered porches", "5"],
-  ["Natural pools", "2"],
+  ["Natural water features", "2"],
 ];
 
 type GalleryImage = {
@@ -94,7 +94,7 @@ const galleryGroups: { title: string; slug: string; images: GalleryImage[] }[] =
     ],
   },
   {
-    title: "Quiet views",
+    title: "Serene Corners",
     slug: "quiet",
     images: [
       { name: "quiet-pool-clearing", alt: "Natural pool and lawn clearing viewed from the deck, framed by maples and evergreens." },
@@ -209,11 +209,11 @@ export default function Home() {
           <div className="grounds-copy">
             <p className="eyebrow gold">The grounds</p>
             <h2 id="grounds-title">Water, lawn<br />and five porches</h2>
-            <p>Two natural swimming pools sit within the landscape rather than on top of it. Past them the lawn runs down to a pond, a fountain and the deck at its edge. Five covered porches follow the sun around the house, so there is always somewhere shaded to sit and somewhere to watch the light go.</p>
+            <p>The grounds include one natural swimming pool/pond, plus a separate natural pond. The lawn runs past a fountain and the deck at its edge. Five covered porches follow the sun around the house, so there is always somewhere shaded to sit and somewhere to watch the light go.</p>
           </div>
           <PropertyVideo className="grounds-main" name="grounds-pool-pond" alt="Aerial view descending toward the natural pool and rear deck" />
           <StoryImage className="grounds-secondary" name="covered-porch" alt="Covered porch furnished for outdoor sitting" />
-          <p className="grounds-note">Two natural swimming pools<br />Five covered porches</p>
+          <p className="grounds-note">Water features: one natural swimming pool/pond, plus a separate natural pond<br />Five covered porches</p>
         </section>
 
         <section id="interior" className="interior section" aria-labelledby="interior-title">
@@ -246,6 +246,39 @@ export default function Home() {
             <p className="eyebrow gold">The primary suite</p>
             <h2>A house within<br />the house</h2>
             <p>A fireplace, a walk-in closet, an ensuite and a covered porch, all of them belonging to this room alone.</p>
+          </div>
+        </section>
+
+        <section id="details" className="features section" aria-labelledby="details-title">
+          <div>
+            <p className="eyebrow gold">Practical detail</p>
+            <h2 id="details-title">What the house<br />is made of</h2>
+          </div>
+          <div className="feature-columns">
+            <div>
+              <h3>Space and rooms</h3>
+              <ul>
+                <li>6,553.32 sq. ft. measured in total</li>
+                <li>4,490.75 sq. ft. above grade</li>
+                <li>2,062.57 sq. ft. below grade</li>
+                <li>Five bedrooms and four bathrooms</li>
+                <li>Two fireplaces</li>
+                <li>Pool-side three-piece bathroom</li>
+              </ul>
+            </div>
+            <div>
+              <h3>Grounds and services</h3>
+              <ul>
+                <li>Five covered porches</li>
+                <li>Water features: one natural swimming pool/pond, plus a separate natural pond</li>
+                <li>Heated triple garage</li>
+                <li>Municipal services remain current</li>
+                <li>Chimneys and flues reconstructed in May 2019</li>
+                <li>Driveway rated for 60,000 lb</li>
+                <li>50-amp service in the driveway area</li>
+                <li>Hard- and soft-water connections available</li>
+              </ul>
+            </div>
           </div>
         </section>
 
@@ -285,39 +318,6 @@ export default function Home() {
               </div>
             </section>
           ))}
-        </section>
-
-        <section id="details" className="features section" aria-labelledby="details-title">
-          <div>
-            <p className="eyebrow gold">Practical detail</p>
-            <h2 id="details-title">What the house<br />is made of</h2>
-          </div>
-          <div className="feature-columns">
-            <div>
-              <h3>Space and rooms</h3>
-              <ul>
-                <li>6,553.32 sq. ft. measured in total</li>
-                <li>4,490.75 sq. ft. above grade</li>
-                <li>2,062.57 sq. ft. below grade</li>
-                <li>Five bedrooms and four bathrooms</li>
-                <li>Two fireplaces</li>
-                <li>Pool-side three-piece bathroom</li>
-              </ul>
-            </div>
-            <div>
-              <h3>Grounds and services</h3>
-              <ul>
-                <li>Five covered porches</li>
-                <li>Two natural swimming pools</li>
-                <li>Heated triple garage</li>
-                <li>Municipal services remain current</li>
-                <li>Chimneys and flues reconstructed in May 2019</li>
-                <li>Driveway rated for 60,000 lb</li>
-                <li>50-amp service in the driveway area</li>
-                <li>Hard- and soft-water connections available</li>
-              </ul>
-            </div>
-          </div>
         </section>
 
         <section id="inquire" className="inquire" aria-labelledby="inquire-title">
