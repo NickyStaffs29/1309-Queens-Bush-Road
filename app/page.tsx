@@ -10,7 +10,7 @@ const facts = [
   ["Private sale", "CAD $1,895,000"],
   ["Bedrooms", "5"],
   ["Bathrooms", "4"],
-  ["Measured interior", "6,553.32 sq. ft."],
+  ["Measured interior", "6,553 sq. ft. total"],
   ["Covered porches", "5"],
   ["Natural water features", "2"],
 ];
@@ -186,7 +186,7 @@ export default function Home() {
           <div className="section-intro">
             <p className="eyebrow copper">The house and the arrival</p>
             <h2 id="story-title">Standing here<br />since 1835</h2>
-            <p>The drive turns in past mature trees and settles in front of a house that has held this ground for nearly two centuries. Inside there is 6,553.32 sq. ft. measured in total, and the plan spends it well: rooms wide enough to take a crowd, quiet enough to sit in alone, and windows that keep the grounds in view from most of them.</p>
+            <p>The drive turns in past mature trees and settles in front of a house that has held this ground for nearly two centuries. Inside there is 6,553 sq. ft. total, and the plan spends it well: rooms wide enough to take a crowd, quiet enough to sit in alone, and windows that keep the grounds in view from most of them.</p>
           </div>
           <figure className="story-image story-aerial">
             <StoryImage name="property-plan" alt="Top-down aerial view of the residence and grounds" />
@@ -277,9 +277,7 @@ export default function Home() {
             <div>
               <h3>Space and rooms</h3>
               <ul>
-                <li>6,553.32 sq. ft. measured in total</li>
-                <li>4,490.75 sq. ft. above grade</li>
-                <li>2,062.57 sq. ft. below grade</li>
+                <li>6,553 sq. ft. total</li>
                 <li>Five bedrooms and four bathrooms</li>
                 <li>Two fireplaces</li>
                 <li>Pool-side three-piece bathroom</li>
