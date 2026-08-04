@@ -187,9 +187,8 @@ nav a { align-items: center; display: inline-flex; font-size: 11px; letter-spaci
 .feature-columns h3 { color: var(--gold); font: 600 10px/1 var(--sans); letter-spacing: .2em; margin: 0 0 8px; text-transform: uppercase; }
 
 .inquire { color: white; min-height: 720px; overflow: hidden; position: relative; }
-/* The artwork is a direct child of the section. In flow it stops at its own intrinsic
-   height and leaves a plaster seam below it, so it has to be lifted out to cover. */
-.inquire > img { inset: 0; position: absolute; }
+/* The artwork stays in flow here: its own height is what gives the section its full
+   desktop height. Lifting it out would drop the section to its 720px minimum. */
 .inquire-shade { background: linear-gradient(90deg, rgba(30,18,11,.82), rgba(30,18,11,.1)), linear-gradient(0deg, rgba(30,18,11,.45), transparent); inset: 0; position: absolute; }
 .inquire-content { left: clamp(24px, 9vw, 140px); max-width: 640px; position: absolute; top: 50%; transform: translateY(-50%); }
 .inquire h2 { font-size: clamp(40px, 5vw, 74px); line-height: 1; }
@@ -272,6 +271,9 @@ a:focus-visible { outline: 2px solid var(--gold); outline-offset: 5px; }
   /* Full-width now, so the primary fills its figure instead of letterboxing on tobacco. */
   .suite-primary img { object-fit: cover; }
 
+  /* Below this width the section is taller than the artwork's intrinsic height, so in
+     flow it stops short and leaves a plaster seam. Out of flow it covers the section. */
+  .inquire > img { inset: 0; position: absolute; }
   .inquire-content { left: var(--mobile-gutter); max-width: none; right: var(--mobile-gutter); text-align: center; width: auto; }
   /* The label wraps to two lines at 320px, so the box needs its own vertical padding. */
   .cta-button { justify-content: center; min-height: 52px; padding: 14px 20px; text-align: center; white-space: normal; }

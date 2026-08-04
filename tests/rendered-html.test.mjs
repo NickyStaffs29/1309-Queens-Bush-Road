@@ -791,9 +791,17 @@ test("makes inquiry artwork full bleed and centres the mobile CTA", async () => 
   const desktop = desktopBlock(css);
   const mobile = cssBlock(css, "@media (max-width: 900px)");
 
-  // The artwork is a direct child of the section. Left in flow it stops at its intrinsic
-  // height and leaves a plaster seam below it; out of flow it covers the section instead.
-  const artwork = cssRule(desktop, ".inquire > img");
+  // The artwork is a direct child of the section. Below 900px the section is taller than
+  // the image's intrinsic height, so in flow it leaves a plaster seam and has to be lifted
+  // out to cover. Desktop has no seam to fix: there the image stays in flow and its own
+  // height is what gives the section its 1080px, so lifting it out would collapse the
+  // section to its 720px minimum. The rule belongs to the mobile block only.
+  assert.doesNotMatch(
+    desktop,
+    /\.inquire > img \{[^}]*position: absolute/,
+    "desktop must leave the inquiry artwork in flow",
+  );
+  const artwork = cssRule(mobile, ".inquire > img");
   assert.match(artwork, /position: absolute/);
   assert.match(artwork, /inset: 0/);
 
