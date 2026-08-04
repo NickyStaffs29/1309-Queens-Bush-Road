@@ -71,19 +71,23 @@ export default function HeroVideo() {
   async function togglePlayback() {
     const video = videoRef.current;
     if (!video) return;
-    if (paused) {
+    if (userPausedRef.current) {
       userPausedRef.current = false;
+      setPaused(false);
       try {
         await video.play();
       } catch {
-        if (!userPausedRef.current) setReady(false);
+        if (userPausedRef.current) return;
+        userPausedRef.current = true;
+        setPaused(true);
+        setReady(false);
         return;
       }
-      setPaused(false);
+      if (userPausedRef.current) return;
     } else {
       userPausedRef.current = true;
-      video.pause();
       setPaused(true);
+      video.pause();
     }
   }
 
