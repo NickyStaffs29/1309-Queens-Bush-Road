@@ -252,13 +252,13 @@ export default function Home() {
         <section className="suite-band" aria-label="Primary suite">
           <div className="suite-gallery">
             <figure className="story-image suite-primary">
-              <StoryImage name="primary-bedroom-wide" alt="Primary bedroom viewed from the fireplace across to the bed and the open French door to the porch." sizes="(max-width: 900px) 66vw, 32vw" />
+              <StoryImage name="primary-bedroom-wide" alt="Primary bedroom viewed from the fireplace across to the bed and the open French door to the porch." sizes="(max-width: 900px) 100vw, 32vw" />
             </figure>
             <figure className="story-image">
-              <StoryImage name="primary-bedroom" alt="Bedroom with stone fireplace, television and windows" sizes="(max-width: 900px) 33vw, 20vw" />
+              <StoryImage name="primary-bedroom" alt="Bedroom with stone fireplace, television and windows" sizes="(max-width: 900px) 100vw, 20vw" />
             </figure>
             <figure className="story-image">
-              <StoryImage name="primary-bedroom-porch-view" alt="Bed pillows in the foreground beside the open French door to a screened porch." sizes="(max-width: 900px) 33vw, 20vw" />
+              <StoryImage name="primary-bedroom-porch-view" alt="Bed pillows in the foreground beside the open French door to a screened porch." sizes="(max-width: 900px) 100vw, 20vw" />
             </figure>
           </div>
           <div>
