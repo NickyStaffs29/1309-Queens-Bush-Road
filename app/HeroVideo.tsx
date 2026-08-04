@@ -46,7 +46,9 @@ export default function HeroVideo() {
     if (hideUntilReady) setReady(false);
     video.load();
     if (autoplay) {
-      void video.play().catch(() => setReady(false));
+      void video.play().catch(() => {
+        if (!userPausedRef.current) setReady(false);
+      });
     }
   }
 
@@ -69,12 +71,12 @@ export default function HeroVideo() {
   async function togglePlayback() {
     const video = videoRef.current;
     if (!video) return;
-    if (video.paused) {
+    if (paused) {
       userPausedRef.current = false;
       try {
         await video.play();
       } catch {
-        setReady(false);
+        if (!userPausedRef.current) setReady(false);
         return;
       }
       setPaused(false);
@@ -110,7 +112,9 @@ export default function HeroVideo() {
         preload="none"
         aria-hidden="true"
         onCanPlay={() => setReady(true)}
-        onError={() => setReady(false)}
+        onError={() => {
+          if (!userPausedRef.current) setReady(false);
+        }}
         onEnded={handleEnded}
       >
         <source
