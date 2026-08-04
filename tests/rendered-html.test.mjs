@@ -169,9 +169,7 @@ test("server-renders the approved six-part property gallery", async () => {
   }
   for (const name of [
     "property-plan",
-    "front-porch-daylight",
     "front-through-trees",
-    "covered-porch",
     "kitchen",
     "copper-sink",
     "primary-bedroom",
@@ -237,6 +235,64 @@ test("renders scroll-gated property video tiles with poster fallbacks", async ()
 
   const arrivalRow = html.slice(html.indexOf('class="story-arrival-row"'), html.indexOf('id="grounds"'));
   assert.equal((arrivalRow.match(/class="story-image"/g) ?? []).length, 3);
+});
+
+test("applies the approved still-image and gallery treatments", async () => {
+  const [css, html] = await Promise.all([
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+    (async () => (await render()).text())(),
+  ]);
+
+  const arrivalRow = html.slice(html.indexOf('class="story-arrival-row"'), html.indexOf('id="grounds"'));
+  const arrivalImage = arrivalRow.match(/<img[^>]+src="\/property\/gallery\/setting-rear-elevation-1440\.webp"[^>]*>/)?.[0] ?? "";
+  assert.match(arrivalImage, /srcSet="\/property\/gallery\/setting-rear-elevation-720\.webp 720w, \/property\/gallery\/setting-rear-elevation-1440\.webp 1440w"/);
+  assert.match(arrivalImage, /alt="Rear elevation with covered porches and upper balcony\."/);
+  assert.match(arrivalImage, /width="1440"[^>]*height="1080"/);
+  assert.match(arrivalImage, /loading="lazy"/);
+  assert.match(arrivalImage, /decoding="async"/);
+
+  const grounds = html.slice(html.indexOf('id="grounds"'), html.indexOf('id="interior"'));
+  const groundsImage = grounds.match(/<img[^>]+src="\/property\/gallery\/grounds-rear-across-pond-1440\.webp"[^>]*>/)?.[0] ?? "";
+  assert.match(groundsImage, /srcSet="\/property\/gallery\/grounds-rear-across-pond-720\.webp 720w, \/property\/gallery\/grounds-rear-across-pond-1440\.webp 1440w"/);
+  assert.match(groundsImage, /alt="Rear exterior viewed across the pond garden\."/);
+  assert.match(groundsImage, /width="1440"[^>]*height="1080"/);
+  assert.match(groundsImage, /loading="lazy"/);
+  assert.match(groundsImage, /decoding="async"/);
+
+  const suite = html.slice(html.indexOf('class="suite-band"'), html.indexOf('id="details"'));
+  const primary = suite.match(/<figure class="story-image suite-primary"[\s\S]*?<\/figure>/)?.[0] ?? "";
+  assert.match(primary, /src="\/property\/story\/primary-bedroom-wide-1920\.webp"/);
+  assert.match(primary, /srcSet="\/property\/story\/primary-bedroom-wide-960\.webp 960w, \/property\/story\/primary-bedroom-wide-1920\.webp 1920w"/);
+  assert.match(suite, /\/property\/story\/primary-bedroom-1920\.webp/);
+  assert.match(suite, /\/property\/story\/primary-bedroom-porch-view-1920\.webp/);
+  assert.match(css, /\.suite-primary \{[^}]*background:\s*var\(--tobacco\)/);
+  assert.match(css, /\.suite-primary img \{[^}]*object-fit:\s*contain/);
+  assert.match(css, /\.suite-primary img \{[^}]*object-position:\s*center/);
+
+  const serene = html.slice(html.indexOf('id="quiet-gallery-title"'), html.indexOf('id="inquire"'));
+  assert.equal((serene.match(/class="gallery-item landscape/g) ?? []).length, 6);
+  assert.equal((serene.match(/class="gallery-item portrait/g) ?? []).length, 0);
+  assert.equal((serene.match(/class="gallery-item landscape feature/g) ?? []).length, 0);
+
+  const expectedGroups = new Map([
+    ["setting-gallery-title", 9],
+    ["grounds-gallery-title", 9],
+    ["living-gallery-title", 5],
+    ["craft-gallery-title", 9],
+    ["rooms-gallery-title", 6],
+    ["quiet-gallery-title", 6],
+  ]);
+  for (const [headingId, count] of expectedGroups) {
+    const start = html.indexOf(`id="${headingId}"`);
+    const end = html.indexOf('class="gallery-group"', start + 1);
+    const block = html.slice(start, end === -1 ? html.indexOf('id="inquire"') : end);
+    assert.equal((block.match(/class="gallery-item /g) ?? []).length, count, headingId);
+  }
+
+  for (const name of ["kitchen", "copper-sink"]) {
+    assert.match(html, new RegExp(`/property/story/${name}-1920\\.webp`));
+    assert.doesNotMatch(html, new RegExp(`/property/gallery/${name}-`));
+  }
 });
 
 test("exposes video controls as plain buttons rather than toggle buttons", async () => {

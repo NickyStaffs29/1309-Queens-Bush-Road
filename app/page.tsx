@@ -99,10 +99,10 @@ const galleryGroups: { title: string; slug: string; images: GalleryImage[] }[] =
     images: [
       { name: "quiet-pool-clearing", alt: "Natural pool and lawn clearing viewed from the deck, framed by maples and evergreens." },
       { name: "quiet-willow-balcony", alt: "Willow branches draped beside an upper balcony railing." },
-      { name: "quiet-stone-waterfall", alt: "Stone waterfall and layered garden planting", portrait: true },
-      { name: "quiet-lily-pads", alt: "Lily pads beneath clear pond water", portrait: true },
-      { name: "quiet-balcony-cafe", alt: "Upper balcony with a small caf\u00e9 table", portrait: true },
-      { name: "quiet-pond-fountain", alt: "Fountain across the pond with a small outbuilding beyond", feature: true },
+      { name: "quiet-stone-waterfall", alt: "Stone waterfall and layered garden planting" },
+      { name: "quiet-lily-pads", alt: "Lily pads beneath clear pond water" },
+      { name: "quiet-balcony-cafe", alt: "Upper balcony with a small caf\u00e9 table" },
+      { name: "quiet-pond-fountain", alt: "Fountain across the pond with a small outbuilding beyond" },
     ],
   },
 ];
@@ -197,7 +197,16 @@ export default function Home() {
               <PropertyVideo name="front-driveway-arrival" alt="Aerial view along the driveway approaching the house and garage" />
             </figure>
             <figure className="story-image">
-              <StoryImage name="front-porch-daylight" alt="Front porch and entry door in daylight." sizes="(max-width: 900px) 100vw, 30vw" />
+              <img
+                src="/property/gallery/setting-rear-elevation-1440.webp"
+                srcSet="/property/gallery/setting-rear-elevation-720.webp 720w, /property/gallery/setting-rear-elevation-1440.webp 1440w"
+                sizes="(max-width: 640px) 100vw, (max-width: 900px) 50vw, 33vw"
+                alt="Rear elevation with covered porches and upper balcony."
+                width="1440"
+                height="1080"
+                loading="lazy"
+                decoding="async"
+              />
             </figure>
             <figure className="story-image">
               <StoryImage name="front-through-trees" alt="Front of the house seen through mature trees, with the oval window over the porch." sizes="(max-width: 900px) 100vw, 30vw" />
@@ -212,7 +221,17 @@ export default function Home() {
             <p>The grounds include one natural swimming pool/pond, plus a separate natural pond. The lawn runs past a fountain and the deck at its edge. Five covered porches follow the sun around the house, so there is always somewhere shaded to sit and somewhere to watch the light go.</p>
           </div>
           <PropertyVideo className="grounds-main" name="grounds-pool-pond" alt="Aerial view descending toward the natural pool and rear deck" />
-          <StoryImage className="grounds-secondary" name="covered-porch" alt="Covered porch furnished for outdoor sitting" />
+          <img
+            className="grounds-secondary"
+            src="/property/gallery/grounds-rear-across-pond-1440.webp"
+            srcSet="/property/gallery/grounds-rear-across-pond-720.webp 720w, /property/gallery/grounds-rear-across-pond-1440.webp 1440w"
+            sizes="(max-width: 640px) 72vw, (max-width: 900px) 70vw, 30vw"
+            alt="Rear exterior viewed across the pond garden."
+            width="1440"
+            height="1080"
+            loading="lazy"
+            decoding="async"
+          />
           <p className="grounds-note">Water features: one natural swimming pool/pond, plus a separate natural pond<br />Five covered porches</p>
         </section>
 
@@ -232,7 +251,7 @@ export default function Home() {
 
         <section className="suite-band" aria-label="Primary suite">
           <div className="suite-gallery">
-            <figure className="story-image">
+            <figure className="story-image suite-primary">
               <StoryImage name="primary-bedroom-wide" alt="Primary bedroom viewed from the fireplace across to the bed and the open French door to the porch." sizes="(max-width: 900px) 66vw, 32vw" />
             </figure>
             <figure className="story-image">
