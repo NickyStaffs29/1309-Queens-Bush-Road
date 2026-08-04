@@ -517,7 +517,12 @@ test("publishes the private-sale terms and confirmed property facts", async () =
   ]) {
     assert.equal(html.includes(phrase), true, `missing ${phrase}`);
   }
-  assert.doesNotMatch(page, /two natural swimming pools/i);
+  // Whole document, not just <main>: the stale claim survived in the metadata description
+  // once already because the visible-copy check stopped at the page body.
+  assert.doesNotMatch(html, /two natural swimming pools/i);
+  const metaDescription = html.match(/<meta name="description" content="([^"]*)"/)?.[1] ?? "";
+  assert.match(metaDescription, /natural swimming pool\/pond/);
+  assert.match(metaDescription, /separate natural pond/);
   assert.match(page, /<span>Natural water features<\/span><strong>2<\/strong>/);
   assert.equal(grounds.includes(detailedClaim), true);
   assert.equal(details.includes(detailedClaim), true);
