@@ -12,7 +12,7 @@ const facts = [
   ["Bathrooms", "4"],
   ["Measured interior", "6,553.32 sq. ft."],
   ["Covered porches", "5"],
-  ["Natural pools", "2"],
+  ["Natural water features", "2"],
 ];
 
 type GalleryImage = {
@@ -94,15 +94,15 @@ const galleryGroups: { title: string; slug: string; images: GalleryImage[] }[] =
     ],
   },
   {
-    title: "Quiet views",
+    title: "Serene Corners",
     slug: "quiet",
     images: [
       { name: "quiet-pool-clearing", alt: "Natural pool and lawn clearing viewed from the deck, framed by maples and evergreens." },
       { name: "quiet-willow-balcony", alt: "Willow branches draped beside an upper balcony railing." },
-      { name: "quiet-stone-waterfall", alt: "Stone waterfall and layered garden planting", portrait: true },
-      { name: "quiet-lily-pads", alt: "Lily pads beneath clear pond water", portrait: true },
-      { name: "quiet-balcony-cafe", alt: "Upper balcony with a small caf\u00e9 table", portrait: true },
-      { name: "quiet-pond-fountain", alt: "Fountain across the pond with a small outbuilding beyond", feature: true },
+      { name: "quiet-stone-waterfall", alt: "Stone waterfall and layered garden planting" },
+      { name: "quiet-lily-pads", alt: "Lily pads beneath clear pond water" },
+      { name: "quiet-balcony-cafe", alt: "Upper balcony with a small caf\u00e9 table" },
+      { name: "quiet-pond-fountain", alt: "Fountain across the pond with a small outbuilding beyond" },
     ],
   },
 ];
@@ -197,7 +197,16 @@ export default function Home() {
               <PropertyVideo name="front-driveway-arrival" alt="Aerial view along the driveway approaching the house and garage" />
             </figure>
             <figure className="story-image">
-              <StoryImage name="front-porch-daylight" alt="Front porch and entry door in daylight." sizes="(max-width: 900px) 100vw, 30vw" />
+              <img
+                src="/property/gallery/setting-rear-elevation-1440.webp"
+                srcSet="/property/gallery/setting-rear-elevation-720.webp 720w, /property/gallery/setting-rear-elevation-1440.webp 1440w"
+                sizes="(max-width: 640px) 100vw, (max-width: 900px) 50vw, 33vw"
+                alt="Rear elevation with covered porches and upper balcony."
+                width="1440"
+                height="1080"
+                loading="lazy"
+                decoding="async"
+              />
             </figure>
             <figure className="story-image">
               <StoryImage name="front-through-trees" alt="Front of the house seen through mature trees, with the oval window over the porch." sizes="(max-width: 900px) 100vw, 30vw" />
@@ -209,11 +218,21 @@ export default function Home() {
           <div className="grounds-copy">
             <p className="eyebrow gold">The grounds</p>
             <h2 id="grounds-title">Water, lawn<br />and five porches</h2>
-            <p>Two natural swimming pools sit within the landscape rather than on top of it. Past them the lawn runs down to a pond, a fountain and the deck at its edge. Five covered porches follow the sun around the house, so there is always somewhere shaded to sit and somewhere to watch the light go.</p>
+            <p>The grounds include one natural swimming pool/pond, plus a separate natural pond. The lawn runs past a fountain and the deck at its edge. Five covered porches follow the sun around the house, so there is always somewhere shaded to sit and somewhere to watch the light go.</p>
           </div>
           <PropertyVideo className="grounds-main" name="grounds-pool-pond" alt="Aerial view descending toward the natural pool and rear deck" />
-          <StoryImage className="grounds-secondary" name="covered-porch" alt="Covered porch furnished for outdoor sitting" />
-          <p className="grounds-note">Two natural swimming pools<br />Five covered porches</p>
+          <img
+            className="grounds-secondary"
+            src="/property/gallery/grounds-rear-across-pond-1440.webp"
+            srcSet="/property/gallery/grounds-rear-across-pond-720.webp 720w, /property/gallery/grounds-rear-across-pond-1440.webp 1440w"
+            sizes="(max-width: 640px) 72vw, (max-width: 900px) 70vw, 30vw"
+            alt="Rear exterior viewed across the pond garden."
+            width="1440"
+            height="1080"
+            loading="lazy"
+            decoding="async"
+          />
+          <p className="grounds-note">Water features: one natural swimming pool/pond, plus a separate natural pond<br />Five covered porches</p>
         </section>
 
         <section id="interior" className="interior section" aria-labelledby="interior-title">
@@ -232,7 +251,7 @@ export default function Home() {
 
         <section className="suite-band" aria-label="Primary suite">
           <div className="suite-gallery">
-            <figure className="story-image">
+            <figure className="story-image suite-primary">
               <StoryImage name="primary-bedroom-wide" alt="Primary bedroom viewed from the fireplace across to the bed and the open French door to the porch." sizes="(max-width: 900px) 66vw, 32vw" />
             </figure>
             <figure className="story-image">
@@ -246,6 +265,39 @@ export default function Home() {
             <p className="eyebrow gold">The primary suite</p>
             <h2>A house within<br />the house</h2>
             <p>A fireplace, a walk-in closet, an ensuite and a covered porch, all of them belonging to this room alone.</p>
+          </div>
+        </section>
+
+        <section id="details" className="features section" aria-labelledby="details-title">
+          <div>
+            <p className="eyebrow gold">Practical detail</p>
+            <h2 id="details-title">What the house<br />is made of</h2>
+          </div>
+          <div className="feature-columns">
+            <div>
+              <h3>Space and rooms</h3>
+              <ul>
+                <li>6,553.32 sq. ft. measured in total</li>
+                <li>4,490.75 sq. ft. above grade</li>
+                <li>2,062.57 sq. ft. below grade</li>
+                <li>Five bedrooms and four bathrooms</li>
+                <li>Two fireplaces</li>
+                <li>Pool-side three-piece bathroom</li>
+              </ul>
+            </div>
+            <div>
+              <h3>Grounds and services</h3>
+              <ul>
+                <li>Five covered porches</li>
+                <li>Water features: one natural swimming pool/pond, plus a separate natural pond</li>
+                <li>Heated triple garage</li>
+                <li>Municipal services remain current</li>
+                <li>Chimneys and flues reconstructed in May 2019</li>
+                <li>Driveway rated for 60,000 lb</li>
+                <li>50-amp service in the driveway area</li>
+                <li>Hard- and soft-water connections available</li>
+              </ul>
+            </div>
           </div>
         </section>
 
@@ -285,39 +337,6 @@ export default function Home() {
               </div>
             </section>
           ))}
-        </section>
-
-        <section id="details" className="features section" aria-labelledby="details-title">
-          <div>
-            <p className="eyebrow gold">Practical detail</p>
-            <h2 id="details-title">What the house<br />is made of</h2>
-          </div>
-          <div className="feature-columns">
-            <div>
-              <h3>Space and rooms</h3>
-              <ul>
-                <li>6,553.32 sq. ft. measured in total</li>
-                <li>4,490.75 sq. ft. above grade</li>
-                <li>2,062.57 sq. ft. below grade</li>
-                <li>Five bedrooms and four bathrooms</li>
-                <li>Two fireplaces</li>
-                <li>Pool-side three-piece bathroom</li>
-              </ul>
-            </div>
-            <div>
-              <h3>Grounds and services</h3>
-              <ul>
-                <li>Five covered porches</li>
-                <li>Two natural swimming pools</li>
-                <li>Heated triple garage</li>
-                <li>Municipal services remain current</li>
-                <li>Chimneys and flues reconstructed in May 2019</li>
-                <li>Driveway rated for 60,000 lb</li>
-                <li>50-amp service in the driveway area</li>
-                <li>Hard- and soft-water connections available</li>
-              </ul>
-            </div>
-          </div>
         </section>
 
         <section id="inquire" className="inquire" aria-labelledby="inquire-title">

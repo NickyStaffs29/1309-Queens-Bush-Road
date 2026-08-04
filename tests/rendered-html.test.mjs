@@ -160,17 +160,16 @@ test("server-renders the approved six-part property gallery", async () => {
   assert.match(html, /id="gallery"/);
   assert.equal((html.match(/class="gallery-group"/g) ?? []).length, 6);
   assert.equal((html.match(/class="gallery-item /g) ?? []).length, galleryImages.length + galleryVideos.length);
-  for (const heading of ["The setting", "The grounds", "Living &amp; kitchen", "Craft", "Rooms", "Quiet views"]) {
+  for (const heading of ["The setting", "The grounds", "Living &amp; kitchen", "Craft", "Rooms", "Serene Corners"]) {
     assert.match(html, new RegExp(`>${heading}<`));
   }
+  assert.doesNotMatch(html, />Quiet views</);
   for (const image of galleryImages) {
     assert.match(html, new RegExp(`/property/gallery/${image}-1440\\.webp`));
   }
   for (const name of [
     "property-plan",
-    "front-porch-daylight",
     "front-through-trees",
-    "covered-porch",
     "kitchen",
     "copper-sink",
     "primary-bedroom",
@@ -195,13 +194,63 @@ test("sets manual scroll restoration before any page content renders", async () 
 
 test("renders the responsive hero video with still-image fallbacks", async () => {
   const html = await (await render()).text();
+  const video = html.match(/<video[^>]+class="hero-video"[\s\S]*?<\/video>/)?.[0] ?? "";
+  const descriptors = JSON.parse((video.match(/data-hero-clips="([^"]+)"/)?.[1] ?? "[]").replaceAll("&quot;", '"'));
+  assert.deepEqual(descriptors, [
+    {
+      desktop: "/property/video/property-overview-desktop.mp4",
+      mobile: "/property/video/property-overview-mobile.mp4",
+      mobileObjectPosition: "center",
+    },
+    {
+      desktop: "/property/video/hero-front-driveway-arrival-desktop.mp4",
+      mobile: "/property/video/front-driveway-arrival.mp4",
+      mobileObjectPosition: "38% 52%",
+    },
+    {
+      desktop: "/property/video/hero-setting-street-approach-desktop.mp4",
+      mobile: "/property/video/setting-street-approach.mp4",
+      mobileObjectPosition: "35% 48%",
+    },
+  ]);
   assert.match(html, /\/property\/video\/property-overview-desktop\.mp4/);
   assert.match(html, /\/property\/video\/property-overview-mobile\.mp4/);
+  assert.match(html, /\/property\/video\/hero-front-driveway-arrival-desktop\.mp4/);
+  assert.match(html, /\/property\/video\/front-driveway-arrival\.mp4/);
+  assert.match(html, /\/property\/video\/hero-setting-street-approach-desktop\.mp4/);
+  assert.match(html, /\/property\/video\/setting-street-approach\.mp4/);
   assert.match(html, /media="\(max-width: 640px\)"/);
   assert.match(html, /poster="\/property\/video\/property-overview-desktop-poster\.webp"/);
   assert.match(html, /muted=""[^>]*playsInline=""|playsInline=""[^>]*muted=""/);
+  assert.match(video, /preload="none"/);
+  assert.doesNotMatch(video, /\sloop(?:="")?(?:\s|>)/);
+  assert.match(video, /aria-hidden="true"/);
+  assert.match(video, /class="hero-video"/);
+  assert.doesNotMatch(video, /class="hero-video is-ready"/);
+  assert.equal((video.match(/<source\b/g) ?? []).length, 2);
+  assert.equal((video.match(/<source\b[^>]*\ssrc=/g) ?? []).length, 0);
   assert.match(html, />Pause video</);
   assert.match(html, /class="hero-video-fallback"/);
+});
+
+test("preserves the hero source bytes and approved generated video ceilings", async () => {
+  const exactBytes = new Map([
+    ["video/property-overview-desktop.mp4", 5520924],
+    ["video/property-overview-mobile.mp4", 3283385],
+    ["video/setting-street-approach.mp4", 1756445],
+  ]);
+  for (const [file, expected] of exactBytes) {
+    assert.equal((await stat(new URL(`../public/property/${file}`, import.meta.url))).size, expected, file);
+  }
+
+  const ceilings = new Map([
+    ["video/hero-front-driveway-arrival-desktop.mp4", 12 * 1024 * 1024],
+    ["video/front-driveway-arrival.mp4", 6.8 * 1024 * 1024],
+    ["video/hero-setting-street-approach-desktop.mp4", 11.5 * 1024 * 1024],
+  ]);
+  for (const [file, maxBytes] of ceilings) {
+    assert.equal((await stat(new URL(`../public/property/${file}`, import.meta.url))).size <= maxBytes, true, file);
+  }
 });
 
 test("renders scroll-gated property video tiles with poster fallbacks", async () => {
@@ -238,6 +287,64 @@ test("renders scroll-gated property video tiles with poster fallbacks", async ()
   assert.equal((arrivalRow.match(/class="story-image"/g) ?? []).length, 3);
 });
 
+test("applies the approved still-image and gallery treatments", async () => {
+  const [css, html] = await Promise.all([
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+    (async () => (await render()).text())(),
+  ]);
+
+  const arrivalRow = html.slice(html.indexOf('class="story-arrival-row"'), html.indexOf('id="grounds"'));
+  const arrivalImage = arrivalRow.match(/<img[^>]+src="\/property\/gallery\/setting-rear-elevation-1440\.webp"[^>]*>/)?.[0] ?? "";
+  assert.match(arrivalImage, /srcSet="\/property\/gallery\/setting-rear-elevation-720\.webp 720w, \/property\/gallery\/setting-rear-elevation-1440\.webp 1440w"/);
+  assert.match(arrivalImage, /alt="Rear elevation with covered porches and upper balcony\."/);
+  assert.match(arrivalImage, /width="1440"[^>]*height="1080"/);
+  assert.match(arrivalImage, /loading="lazy"/);
+  assert.match(arrivalImage, /decoding="async"/);
+
+  const grounds = html.slice(html.indexOf('id="grounds"'), html.indexOf('id="interior"'));
+  const groundsImage = grounds.match(/<img[^>]+src="\/property\/gallery\/grounds-rear-across-pond-1440\.webp"[^>]*>/)?.[0] ?? "";
+  assert.match(groundsImage, /srcSet="\/property\/gallery\/grounds-rear-across-pond-720\.webp 720w, \/property\/gallery\/grounds-rear-across-pond-1440\.webp 1440w"/);
+  assert.match(groundsImage, /alt="Rear exterior viewed across the pond garden\."/);
+  assert.match(groundsImage, /width="1440"[^>]*height="1080"/);
+  assert.match(groundsImage, /loading="lazy"/);
+  assert.match(groundsImage, /decoding="async"/);
+
+  const suite = html.slice(html.indexOf('class="suite-band"'), html.indexOf('id="details"'));
+  const primary = suite.match(/<figure class="story-image suite-primary"[\s\S]*?<\/figure>/)?.[0] ?? "";
+  assert.match(primary, /src="\/property\/story\/primary-bedroom-wide-1920\.webp"/);
+  assert.match(primary, /srcSet="\/property\/story\/primary-bedroom-wide-960\.webp 960w, \/property\/story\/primary-bedroom-wide-1920\.webp 1920w"/);
+  assert.match(suite, /\/property\/story\/primary-bedroom-1920\.webp/);
+  assert.match(suite, /\/property\/story\/primary-bedroom-porch-view-1920\.webp/);
+  assert.match(css, /\.suite-primary \{[^}]*background:\s*var\(--tobacco\)/);
+  assert.match(css, /\.suite-primary img \{[^}]*object-fit:\s*contain/);
+  assert.match(css, /\.suite-primary img \{[^}]*object-position:\s*center/);
+
+  const serene = html.slice(html.indexOf('id="quiet-gallery-title"'), html.indexOf('id="inquire"'));
+  assert.equal((serene.match(/class="gallery-item landscape/g) ?? []).length, 6);
+  assert.equal((serene.match(/class="gallery-item portrait/g) ?? []).length, 0);
+  assert.equal((serene.match(/class="gallery-item landscape feature/g) ?? []).length, 0);
+
+  const expectedGroups = new Map([
+    ["setting-gallery-title", 9],
+    ["grounds-gallery-title", 9],
+    ["living-gallery-title", 5],
+    ["craft-gallery-title", 9],
+    ["rooms-gallery-title", 6],
+    ["quiet-gallery-title", 6],
+  ]);
+  for (const [headingId, count] of expectedGroups) {
+    const start = html.indexOf(`id="${headingId}"`);
+    const end = html.indexOf('class="gallery-group"', start + 1);
+    const block = html.slice(start, end === -1 ? html.indexOf('id="inquire"') : end);
+    assert.equal((block.match(/class="gallery-item /g) ?? []).length, count, headingId);
+  }
+
+  for (const name of ["kitchen", "copper-sink"]) {
+    assert.match(html, new RegExp(`/property/story/${name}-1920\\.webp`));
+    assert.doesNotMatch(html, new RegExp(`/property/gallery/${name}-`));
+  }
+});
+
 test("exposes video controls as plain buttons rather than toggle buttons", async () => {
   const html = await (await render()).text();
   // The label already carries the state, so aria-pressed would announce it twice, and invert it.
@@ -250,6 +357,17 @@ test("gives every text control a 44px touch target", async () => {
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.match(css, /\.text-link \{[^}]*min-height: 44px/);
   assert.match(css, /footer a \{[^}]*min-height: 44px/);
+  assert.match(css, /nav a \{[^}]*min-height: 44px/);
+});
+
+test("uses a native copper underline for the viewing link", async () => {
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  const navInquire = css.match(/\.nav-inquire \{([^}]*)\}/)?.[1] ?? "";
+  assert.match(navInquire, /text-decoration:\s*underline/);
+  assert.match(navInquire, /text-decoration-color:\s*var\(--copper\)/);
+  assert.match(navInquire, /text-decoration-thickness:\s*1px/);
+  assert.match(navInquire, /text-underline-offset:\s*4px/);
+  assert.doesNotMatch(navInquire, /border-bottom|padding/);
   assert.match(css, /nav a \{[^}]*min-height: 44px/);
 });
 
@@ -318,7 +436,7 @@ test("ships only the approved web media within budget", async () => {
     ["video/setting-high-establishing-poster.webp", 160 * 1024],
     ["video/grounds-pool-pond.mp4", 1.4 * 1024 * 1024],
     ["video/grounds-pool-pond-poster.webp", 250 * 1024],
-    ["video/front-driveway-arrival.mp4", 1.8 * 1024 * 1024],
+    ["video/front-driveway-arrival.mp4", 6.8 * 1024 * 1024],
     ["video/front-driveway-arrival-poster.webp", 160 * 1024],
     ["video/setting-street-approach.mp4", 1.8 * 1024 * 1024],
     ["video/setting-street-approach-poster.webp", 160 * 1024],
@@ -359,8 +477,8 @@ test("renders the approved Casa Marrone section order", async () => {
     'id="grounds"',
     'id="interior"',
     'class="suite-band"',
-    'id="gallery"',
     'id="details"',
+    'id="gallery"',
     'id="inquire"',
     "<footer",
   ]) {
@@ -373,6 +491,10 @@ test("renders the approved Casa Marrone section order", async () => {
 
 test("publishes the private-sale terms and confirmed property facts", async () => {
   const html = await (await render()).text();
+  const page = html.match(/<main[\s\S]*?<\/main>/)?.[0] ?? html;
+  const detailedClaim = "one natural swimming pool/pond, plus a separate natural pond";
+  const grounds = page.match(/<section id="grounds"[\s\S]*?<\/section>/)?.[0] ?? "";
+  const details = page.match(/<section id="details"[\s\S]*?<\/section>/)?.[0] ?? "";
 
   assert.match(html, /<title>[^<]*Casa Marrone[^<]*<\/title>/);
   assert.match(html, /class="facts"[\s\S]*?CAD \$1,895,000[\s\S]*?<\/section>/);
@@ -386,7 +508,7 @@ test("publishes the private-sale terms and confirmed property facts", async () =
     "2,062.57 sq. ft. below grade",
     "Five bedrooms and four bathrooms",
     "Five covered porches",
-    "Two natural swimming pools",
+    detailedClaim,
     "Municipal services remain current",
     "Chimneys and flues reconstructed in May 2019",
     "60,000 lb",
@@ -395,6 +517,11 @@ test("publishes the private-sale terms and confirmed property facts", async () =
   ]) {
     assert.equal(html.includes(phrase), true, `missing ${phrase}`);
   }
+  assert.doesNotMatch(page, /two natural swimming pools/i);
+  assert.match(page, /<span>Natural water features<\/span><strong>2<\/strong>/);
+  assert.equal(grounds.includes(detailedClaim), true);
+  assert.equal(details.includes(detailedClaim), true);
+  assert.equal((page.match(new RegExp(detailedClaim, "g")) ?? []).length, 3);
 
   const factStrip = html.match(/class="facts"[\s\S]*?<\/section>/)[0];
   let factCursor = -1;
