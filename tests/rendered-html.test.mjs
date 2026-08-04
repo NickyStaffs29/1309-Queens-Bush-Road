@@ -194,13 +194,60 @@ test("sets manual scroll restoration before any page content renders", async () 
 
 test("renders the responsive hero video with still-image fallbacks", async () => {
   const html = await (await render()).text();
+  const video = html.match(/<video[^>]+class="hero-video"[\s\S]*?<\/video>/)?.[0] ?? "";
+  const descriptors = JSON.parse((video.match(/data-hero-clips="([^"]+)"/)?.[1] ?? "[]").replaceAll("&quot;", '"'));
+  assert.deepEqual(descriptors, [
+    {
+      desktop: "/property/video/property-overview-desktop.mp4",
+      mobile: "/property/video/property-overview-mobile.mp4",
+      mobileObjectPosition: "center",
+    },
+    {
+      desktop: "/property/video/hero-front-driveway-arrival-desktop.mp4",
+      mobile: "/property/video/front-driveway-arrival.mp4",
+      mobileObjectPosition: "38% 52%",
+    },
+    {
+      desktop: "/property/video/hero-setting-street-approach-desktop.mp4",
+      mobile: "/property/video/setting-street-approach.mp4",
+      mobileObjectPosition: "35% 48%",
+    },
+  ]);
   assert.match(html, /\/property\/video\/property-overview-desktop\.mp4/);
   assert.match(html, /\/property\/video\/property-overview-mobile\.mp4/);
+  assert.match(html, /\/property\/video\/hero-front-driveway-arrival-desktop\.mp4/);
+  assert.match(html, /\/property\/video\/front-driveway-arrival\.mp4/);
+  assert.match(html, /\/property\/video\/hero-setting-street-approach-desktop\.mp4/);
+  assert.match(html, /\/property\/video\/setting-street-approach\.mp4/);
   assert.match(html, /media="\(max-width: 640px\)"/);
   assert.match(html, /poster="\/property\/video\/property-overview-desktop-poster\.webp"/);
   assert.match(html, /muted=""[^>]*playsInline=""|playsInline=""[^>]*muted=""/);
+  assert.match(video, /preload="none"/);
+  assert.doesNotMatch(video, /\sloop(?:="")?(?:\s|>)/);
+  assert.match(video, /aria-hidden="true"/);
+  assert.equal((video.match(/<source\b/g) ?? []).length, 2);
   assert.match(html, />Pause video</);
   assert.match(html, /class="hero-video-fallback"/);
+});
+
+test("preserves the hero source bytes and approved generated video ceilings", async () => {
+  const exactBytes = new Map([
+    ["video/property-overview-desktop.mp4", 5520924],
+    ["video/property-overview-mobile.mp4", 3283385],
+    ["video/setting-street-approach.mp4", 1756445],
+  ]);
+  for (const [file, expected] of exactBytes) {
+    assert.equal((await stat(new URL(`../public/property/${file}`, import.meta.url))).size, expected, file);
+  }
+
+  const ceilings = new Map([
+    ["video/hero-front-driveway-arrival-desktop.mp4", 12 * 1024 * 1024],
+    ["video/front-driveway-arrival.mp4", 6.8 * 1024 * 1024],
+    ["video/hero-setting-street-approach-desktop.mp4", 11.5 * 1024 * 1024],
+  ]);
+  for (const [file, maxBytes] of ceilings) {
+    assert.equal((await stat(new URL(`../public/property/${file}`, import.meta.url))).size <= maxBytes, true, file);
+  }
 });
 
 test("renders scroll-gated property video tiles with poster fallbacks", async () => {
@@ -386,7 +433,7 @@ test("ships only the approved web media within budget", async () => {
     ["video/setting-high-establishing-poster.webp", 160 * 1024],
     ["video/grounds-pool-pond.mp4", 1.4 * 1024 * 1024],
     ["video/grounds-pool-pond-poster.webp", 250 * 1024],
-    ["video/front-driveway-arrival.mp4", 1.8 * 1024 * 1024],
+    ["video/front-driveway-arrival.mp4", 6.8 * 1024 * 1024],
     ["video/front-driveway-arrival-poster.webp", 160 * 1024],
     ["video/setting-street-approach.mp4", 1.8 * 1024 * 1024],
     ["video/setting-street-approach-poster.webp", 160 * 1024],
