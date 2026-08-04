@@ -94,7 +94,7 @@ const galleryGroups: { title: string; slug: string; images: GalleryImage[] }[] =
     ],
   },
   {
-    title: "Serene Corners",
+    title: "Serene corners",
     slug: "quiet",
     images: [
       { name: "quiet-pool-clearing", alt: "Natural pool and lawn clearing viewed from the deck, framed by maples and evergreens." },

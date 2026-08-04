@@ -160,10 +160,18 @@ test("server-renders the approved six-part property gallery", async () => {
   assert.match(html, /id="gallery"/);
   assert.equal((html.match(/class="gallery-group"/g) ?? []).length, 6);
   assert.equal((html.match(/class="gallery-item /g) ?? []).length, galleryImages.length + galleryVideos.length);
-  for (const heading of ["The setting", "The grounds", "Living &amp; kitchen", "Craft", "Rooms", "Serene Corners"]) {
+  for (const heading of ["The setting", "The grounds", "Living &amp; kitchen", "Craft", "Rooms", "Serene corners"]) {
     assert.match(html, new RegExp(`>${heading}<`));
   }
+  // Sentence case, matching the other five headings. Title case is the old wording.
+  assert.doesNotMatch(html, />Serene Corners</);
   assert.doesNotMatch(html, />Quiet views</);
+  // The slugs are the group IDs, the anchor targets and the media prefixes, so their
+  // identity and their order are part of the contract, not just their count.
+  assert.deepEqual(
+    [...html.matchAll(/id="([a-z]+)-gallery-title"/g)].map(([, slug]) => slug),
+    ["setting", "grounds", "living", "craft", "rooms", "quiet"],
+  );
   for (const image of galleryImages) {
     assert.match(html, new RegExp(`/property/gallery/${image}-1440\\.webp`));
   }
@@ -420,8 +428,21 @@ test("exposes video controls as plain buttons rather than toggle buttons", async
   const html = await (await render()).text();
   // The label already carries the state, so aria-pressed would announce it twice, and invert it.
   assert.doesNotMatch(html, /aria-pressed/);
-  assert.match(html, /class="hero-video-control"/);
-  assert.match(html, /class="property-video-control"/);
+
+  // Exact counts, not mere presence: one hero control, six secondary controls, and seven
+  // independently operable controls in total, each with its own server-rendered label.
+  assert.equal((html.match(/class="hero-video-control"/g) ?? []).length, 1);
+  assert.equal((html.match(/class="property-video-control"/g) ?? []).length, 6);
+  assert.equal((html.match(/>Pause video</g) ?? []).length, 7);
+
+  // Every one of the seven is a plain button, so nothing submits or toggles implicitly.
+  const buttons = html.match(/<button[^>]*>/g) ?? [];
+  const videoButtons = buttons.filter((button) => /hero-video-control|property-video-control/.test(button));
+  assert.equal(videoButtons.length, 7);
+  for (const button of videoButtons) {
+    assert.match(button, /type="button"/);
+    assert.doesNotMatch(button, /aria-pressed/);
+  }
 });
 
 // Returns the inner text of a brace-balanced at-rule so a mobile assertion cannot
@@ -456,6 +477,9 @@ test("gives every text control a 44px touch target and locks the mobile interfac
   assert.match(css, /footer a \{[^}]*min-height: 44px/);
   assert.match(css, /nav a \{[^}]*min-height: 44px/);
   assert.match(css, /\.wordmark \{[^}]*min-height: 44px/);
+  // The seven video controls are touch targets too, at every width.
+  assert.match(css, /\.hero-video-control \{[^}]*min-height: 44px/);
+  assert.match(css, /\.property-video-control \{[^}]*min-height: 44px/);
 
   const mobile = cssBlock(css, "@media (max-width: 900px)");
   const small = cssBlock(css, "@media (max-width: 640px)");
@@ -463,7 +487,7 @@ test("gives every text control a 44px touch target and locks the mobile interfac
   // No small-screen override may shrink a target back under the contract.
   for (const block of [mobile, small]) {
     for (const [, selector, body] of block.matchAll(/(?:^|\n)\s*([^\n{}]+)\{([^}]*)\}/g)) {
-      if (!/\.wordmark|nav a|footer a|\.text-link/.test(selector)) continue;
+      if (!/\.wordmark|nav a|footer a|\.text-link|video-control/.test(selector)) continue;
       const minHeight = body.match(/min-height:\s*([^;]+)/)?.[1]?.trim();
       if (minHeight) assert.equal(minHeight, "44px", selector.trim());
     }
@@ -482,6 +506,103 @@ test("gives every text control a 44px touch target and locks the mobile interfac
   // The 640 block must not re-tighten or re-shrink what the 900 block just set.
   assert.equal(/(?:^|\n)\s*nav a \{/.test(small), false, "640 re-sets nav type");
   assert.doesNotMatch(small, /\.hero h1 \{[^}]*line-height/, "640 re-sets the hero display line-height");
+});
+
+test("standardises the mobile placement and type size of every video control", async () => {
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  const desktop = desktopBlock(css);
+  const mobile = cssBlock(css, "@media (max-width: 900px)");
+  const small = cssBlock(css, "@media (max-width: 640px)");
+
+  // One combined rule, so the hero control and the six secondary controls cannot drift
+  // apart on mobile the way their distinct desktop offsets do.
+  const combined = cssRule(mobile, ".hero-video-control, .property-video-control");
+  assert.match(combined, /bottom: 16px/);
+  assert.match(combined, /right: 16px/);
+  assert.match(combined, /font-size: 11px/);
+  assert.match(combined, /min-height: 44px/);
+  assert.match(combined, /padding-inline: 16px/);
+
+  // Combined means combined: neither family may also be placed on its own below 900px.
+  for (const [block, label] of [[mobile, "900"], [small, "640"]]) {
+    for (const selector of [".hero-video-control", ".property-video-control"]) {
+      assert.equal(
+        new RegExp(`(?:^|\\n)\\s*\\${selector} \\{`).test(block),
+        false,
+        `${label} places ${selector} on its own instead of using the combined rule`,
+      );
+    }
+  }
+
+  // The two desktop placements are deliberately different and stay untouched.
+  const hero = cssRule(desktop, ".hero-video-control");
+  assert.match(hero, /bottom: 28px/);
+  assert.match(hero, /right: 30px/);
+  const property = cssRule(desktop, ".property-video-control");
+  assert.match(property, /bottom: 10px/);
+  assert.match(property, /right: 10px/);
+
+  // Presentation, state and reduced-motion handling all survive the mobile placement.
+  assert.match(css, /\.hero-video-control\[hidden\] \{[^}]*display: none/);
+  assert.match(css, /\.property-video-control\[hidden\] \{[^}]*display: none/);
+  assert.match(css, /\.property-video-control:focus-visible \{[^}]*outline: 2px solid var\(--gold\)/);
+  assert.match(hero, /position: absolute/);
+  assert.match(property, /position: absolute/);
+});
+
+test("gives every mobile gallery group a complete, intentional rhythm", async () => {
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  const mobile = cssBlock(css, "@media (max-width: 900px)");
+  const small = cssBlock(css, "@media (max-width: 640px)");
+
+  // 24 / 48 / 72: the same rhythm the rest of the mobile shell already uses.
+  assert.match(cssRule(mobile, ".gallery-heading"), /margin-bottom: 48px/);
+  assert.match(cssRule(mobile, ".gallery-group + .gallery-group"), /margin-top: 72px/);
+  const groupHeading = cssRule(mobile, ".gallery-group h3");
+  assert.match(groupHeading, /margin-bottom: 24px/);
+  assert.match(groupHeading, /padding-bottom: 16px/);
+  assert.match(cssRule(mobile, ".gallery-group-grid"), /gap: 24px/);
+
+  // The 640 block already owns the stacked heading, so the stacked spacing belongs there.
+  assert.match(cssRule(small, ".gallery-heading"), /display: block/);
+  assert.match(cssRule(small, ".gallery-heading h2"), /margin-top: 24px/);
+
+  // Rhythm only. Every column, span and ratio contract is left exactly as it was.
+  assert.match(cssRule(mobile, ".gallery-group-grid"), /grid-template-columns: repeat\(2, 1fr\)/);
+  assert.match(
+    mobile,
+    /\.gallery-item\.landscape, \.gallery-item\.portrait, \.gallery-item\.feature \{[^}]*grid-column: span 1/,
+  );
+  assert.match(mobile, /\.gallery-item:last-child:nth-child\(odd\) \{[^}]*grid-column: 1 \/ -1/);
+  assert.match(cssRule(small, ".gallery-item.landscape"), /grid-column: 1 \/ -1/);
+  assert.match(cssRule(small, ".gallery-item.portrait"), /grid-column: span 1/);
+  assert.match(css, /\.gallery-item\.landscape \{[^}]*aspect-ratio: 4 \/ 3/);
+  assert.match(css, /\.gallery-item\.portrait \{[^}]*aspect-ratio: 2 \/ 3/);
+  assert.match(css, /\.gallery-item\.feature \{[^}]*grid-column: span 6/);
+
+  // Desktop rhythm keeps its fluid clamps; the fixed steps are mobile-only.
+  const desktop = desktopBlock(css);
+  assert.match(cssRule(desktop, ".gallery-heading"), /margin-bottom: clamp\(54px, 8vw, 110px\)/);
+  assert.match(cssRule(desktop, ".gallery-group + .gallery-group"), /margin-top: clamp\(70px, 9vw, 130px\)/);
+  assert.match(cssRule(desktop, ".gallery-group-grid"), /gap: clamp\(12px, 2vw, 28px\)/);
+  assert.match(cssRule(desktop, ".gallery-group-grid"), /grid-template-columns: repeat\(12, 1fr\)/);
+});
+
+test("drops every moving image and its control under reduced motion", async () => {
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  const reduced = cssBlock(css, "@media (prefers-reduced-motion: reduce)");
+
+  // Both media elements and both control families go; nothing animated is left running.
+  assert.match(cssRule(reduced, ".hero-video"), /display: none/);
+  assert.match(cssRule(reduced, ".hero-video-control"), /display: none/);
+  assert.match(cssRule(reduced, ".property-video-media, .property-video-control"), /display: none/);
+
+  // The posters are what remains visible, so nothing may hide the fallbacks.
+  assert.doesNotMatch(reduced, /\.hero-video-fallback[^{}]*\{[^}]*display: none/);
+  assert.doesNotMatch(reduced, /\.property-video-fallback[^{}]*\{[^}]*display: none/);
+
+  assert.match(cssRule(reduced, "html"), /scroll-behavior: auto/);
+  assert.match(reduced, /\*, \*::before, \*::after \{[^}]*scroll-behavior: auto !important/);
 });
 
 test("uses a native copper underline for the viewing link", async () => {
