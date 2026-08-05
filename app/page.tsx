@@ -225,7 +225,7 @@ export default function Home() {
             className="grounds-secondary"
             src="/property/gallery/grounds-rear-across-pond-1440.webp"
             srcSet="/property/gallery/grounds-rear-across-pond-720.webp 720w, /property/gallery/grounds-rear-across-pond-1440.webp 1440w"
-            sizes="(max-width: 640px) 72vw, (max-width: 900px) 70vw, 30vw"
+            sizes="(max-width: 900px) calc(100vw - 48px), 30vw"
             alt="Rear exterior viewed across the pond garden."
             width="1440"
             height="1080"

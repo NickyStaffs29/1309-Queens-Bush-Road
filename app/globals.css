@@ -252,7 +252,9 @@ a:focus-visible { outline: 2px solid var(--gold); outline-offset: 5px; }
   /* Grid gap plus this padding is the 48px copy-to-media separation. */
   .grounds-copy { grid-column: 1 / -1; padding-bottom: 24px; }
   .grounds-main { grid-column: 1 / -1; }
-  .grounds-secondary { grid-column: 1 / -1; grid-row: 3; width: 70%; }
+  /* Full content width: a partial width left an empty band of the section colour
+     beside the photograph, since the grid row is the full gutter-to-gutter span. */
+  .grounds-secondary { grid-column: 1 / -1; grid-row: 3; }
   .grounds-note { grid-row: 4; margin-top: 0; }
   .feature-columns { gap: 48px; }
   .feature-columns h3 { font-size: 11px; }
@@ -270,7 +272,10 @@ a:focus-visible { outline: 2px solid var(--gold); outline-offset: 5px; }
   .suite-band > div { padding: 72px var(--mobile-gutter); }
   /* `.suite-band > div` also selects the gallery, so undoing the band padding and the
      desktop collage here needs the extra class to outweigh it. */
-  .suite-band > .suite-gallery { align-self: stretch; gap: 24px; grid-template-columns: 1fr; grid-template-rows: none; height: auto; padding: 0; }
+  /* `order` moves the collage below the copy on one axis of the grid the band already
+     is — the source order is what desktop needs, and nothing here is focusable, so
+     reading order and tab order stay in step. */
+  .suite-band > .suite-gallery { align-self: stretch; gap: 24px; grid-template-columns: 1fr; grid-template-rows: none; height: auto; order: 1; padding: 0; }
   .suite-gallery .story-image { aspect-ratio: 4 / 3; }
   .suite-gallery .story-image:first-child { grid-row: auto; }
   /* Full-width now, so the primary fills its figure instead of letterboxing on tobacco. */
@@ -309,7 +314,7 @@ a:focus-visible { outline: 2px solid var(--gold); outline-offset: 5px; }
   .grounds { display: block; }
   .grounds-copy { padding-bottom: 48px; }
   .grounds-main { height: 430px; }
-  .grounds-secondary { height: 280px; margin: 24px 0 0 auto; width: 72%; }
+  .grounds-secondary { height: 280px; margin-top: 24px; }
   .grounds-note { margin-top: 24px; }
   .interior-main { height: 450px; }
   .interior-detail { height: 200px; }
