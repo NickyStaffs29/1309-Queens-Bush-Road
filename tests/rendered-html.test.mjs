@@ -438,6 +438,56 @@ test("stacks all primary-suite images at full mobile width", async () => {
   assert.doesNotMatch(small, /\.suite-band > div \{[^}]*padding-block/, "640 re-sets the band padding");
 });
 
+test("fills the mobile grounds photograph to the full content width", async () => {
+  const [css, html] = await Promise.all([
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+    (async () => (await render()).text())(),
+  ]);
+  const desktop = desktopBlock(css);
+  const mobile = cssBlock(css, "@media (max-width: 900px)");
+  const small = cssBlock(css, "@media (max-width: 640px)");
+
+  // A partial width is what left the brown column beside the photograph, and the `auto`
+  // left margin is what pushed that gap to one side. Neither may survive on mobile.
+  for (const [name, block] of [["900", mobile], ["640", small]]) {
+    const rule = cssRule(block, ".grounds-secondary");
+    assert.doesNotMatch(rule, /(?:^|[\s;{])width:/, `${name} block still sets a partial width`);
+    assert.doesNotMatch(rule, /margin[^;]*auto/, `${name} block still right-aligns the photograph`);
+  }
+
+  // The figure spans gutter to gutter now, so `sizes` has to say so — otherwise the
+  // browser keeps picking a candidate for a box narrower than the one it paints.
+  const grounds = html.slice(html.indexOf('id="grounds"'), html.indexOf('id="interior"'));
+  const groundsImage = grounds.match(/<img[^>]+src="\/property\/gallery\/grounds-rear-across-pond-1440\.webp"[^>]*>/)?.[0] ?? "";
+  assert.match(groundsImage, /sizes="\(max-width: 900px\) calc\(100vw - 48px\), 30vw"/);
+  // Intrinsic dimensions, alt text and lazy loading are untouched by the width change.
+  assert.match(groundsImage, /alt="Rear exterior viewed across the pond garden\."/);
+  assert.match(groundsImage, /width="1440"[^>]*height="1080"/);
+  assert.match(groundsImage, /loading="lazy"/);
+
+  // Desktop keeps the narrow right-hand column of the two-column grounds grid.
+  assert.match(cssRule(desktop, ".grounds"), /grid-template-columns: 1\.25fr \.75fr/);
+  assert.match(cssRule(desktop, ".grounds-secondary"), /grid-column: 2/);
+  assert.match(cssRule(desktop, ".grounds-secondary"), /grid-row: 1 \/ 3/);
+});
+
+test("puts the primary-suite copy above its photographs on mobile", async () => {
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  const desktop = desktopBlock(css);
+  const mobile = cssBlock(css, "@media (max-width: 900px)");
+
+  // Source order paints the collage first, which is what the desktop band wants. Mobile
+  // reorders the single-column grid it already has rather than restating the markup.
+  // `border:` contains the substring, so every probe here has to be boundary-anchored.
+  assert.match(cssRule(mobile, ".suite-band > .suite-gallery"), /(?:^|[\s;{])order: 1/);
+  // The copy keeps the initial order, so nothing has to be restated to stay ahead of it.
+  assert.doesNotMatch(cssRule(mobile, ".suite-band > div"), /(?:^|[\s;{])order:/);
+
+  // Desktop never orders the band: the 1.25fr/.75fr columns place copy beside collage.
+  assert.equal(/(?:^|[\s;{])order:/.test(desktop), false, "desktop introduces an order declaration");
+  assert.match(cssRule(desktop, ".suite-band"), /grid-template-columns: 1\.25fr \.75fr/);
+});
+
 test("exposes video controls as plain buttons rather than toggle buttons", async () => {
   const html = await (await render()).text();
   // The label already carries the state, so aria-pressed would announce it twice, and invert it.
@@ -703,7 +753,7 @@ test("uses one mobile gutter and aligns facts and footer safely", async () => {
   }
   // Below 640 the grounds grid collapses to blocks, so the same separations move onto margins.
   assert.match(cssRule(small, ".grounds-copy"), /padding-bottom: 48px/);
-  assert.match(cssRule(small, ".grounds-secondary"), /margin: 24px 0 0 auto/);
+  assert.match(cssRule(small, ".grounds-secondary"), /margin-top: 24px/);
   assert.match(cssRule(small, ".grounds-note"), /margin-top: 24px/);
 
   // The header is in flow now, so the first fold is the viewport minus its 64px.
