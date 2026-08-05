@@ -94,7 +94,7 @@ const galleryGroups: { title: string; slug: string; images: GalleryImage[] }[] =
     ],
   },
   {
-    title: "Serene Corners",
+    title: "Serene corners",
     slug: "quiet",
     images: [
       { name: "quiet-pool-clearing", alt: "Natural pool and lawn clearing viewed from the deck, framed by maples and evergreens." },
@@ -263,7 +263,7 @@ export default function Home() {
           </div>
           <div>
             <p className="eyebrow gold">The primary suite</p>
-            <h2>A house within<br />the house</h2>
+            <h2>A private<br />retreat</h2>
             <p>A fireplace, a walk-in closet, an ensuite and a covered porch, all of them belonging to this room alone.</p>
           </div>
         </section>
