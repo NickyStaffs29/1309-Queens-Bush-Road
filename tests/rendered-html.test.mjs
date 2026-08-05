@@ -203,47 +203,37 @@ test("sets manual scroll restoration before any page content renders", async () 
 test("renders the responsive hero video with still-image fallbacks", async () => {
   const html = await (await render()).text();
   const video = html.match(/<video[^>]+class="hero-video"[\s\S]*?<\/video>/)?.[0] ?? "";
-  const descriptors = JSON.parse((video.match(/data-hero-clips="([^"]+)"/)?.[1] ?? "[]").replaceAll("&quot;", '"'));
-  assert.deepEqual(descriptors, [
-    {
-      desktop: "/property/video/property-overview-desktop.mp4",
-      mobile: "/property/video/property-overview-mobile.mp4",
-      mobileObjectPosition: "center",
-    },
-    {
-      desktop: "/property/video/hero-front-driveway-arrival-desktop.mp4",
-      mobile: "/property/video/front-driveway-arrival.mp4",
-      mobileObjectPosition: "38% 52%",
-    },
-    {
-      desktop: "/property/video/hero-setting-street-approach-desktop.mp4",
-      mobile: "/property/video/setting-street-approach.mp4",
-      mobileObjectPosition: "35% 48%",
-    },
-  ]);
-  assert.match(html, /\/property\/video\/property-overview-desktop\.mp4/);
-  assert.match(html, /\/property\/video\/property-overview-mobile\.mp4/);
-  assert.match(html, /\/property\/video\/hero-front-driveway-arrival-desktop\.mp4/);
-  assert.match(html, /\/property\/video\/front-driveway-arrival\.mp4/);
-  assert.match(html, /\/property\/video\/hero-setting-street-approach-desktop\.mp4/);
-  assert.match(html, /\/property\/video\/setting-street-approach\.mp4/);
+
+  // One looping film, not a rotation: no clip descriptor and no rotating clip survives here.
+  assert.doesNotMatch(video, /data-hero-clips/);
+  assert.doesNotMatch(video, /hero-front-driveway-arrival-desktop\.mp4/);
+  assert.doesNotMatch(video, /hero-setting-street-approach-desktop\.mp4/);
+  assert.doesNotMatch(video, /front-driveway-arrival\.mp4/);
+  assert.doesNotMatch(video, /setting-street-approach\.mp4/);
+
+  // Exactly two responsive sources, mobile first, neither eagerly fetched during server rendering.
+  const sources = video.match(/<source\b[^>]*>/g) ?? [];
+  assert.equal(sources.length, 2);
+  assert.match(sources[0], /data-src="\/property\/video\/property-overview-mobile\.mp4"/);
+  assert.match(sources[0], /data-media="\(max-width: 640px\)"/);
+  assert.match(sources[1], /data-src="\/property\/video\/property-overview-desktop\.mp4"/);
+  assert.doesNotMatch(sources[1], /data-media=/);
+  assert.equal((video.match(/<source\b[^>]*\ssrc=/g) ?? []).length, 0);
+
   assert.match(html, /media="\(max-width: 640px\)"/);
   assert.match(html, /poster="\/property\/video\/property-overview-desktop-poster\.webp"/);
   assert.match(html, /muted=""[^>]*playsInline=""|playsInline=""[^>]*muted=""/);
   assert.match(video, /preload="none"/);
-  assert.doesNotMatch(video, /\sloop(?:="")?(?:\s|>)/);
+  assert.match(video, /\sloop=""/);
   assert.match(video, /aria-hidden="true"/);
   assert.match(video, /class="hero-video"/);
   assert.doesNotMatch(video, /class="hero-video is-ready"/);
-  assert.equal((video.match(/<source\b/g) ?? []).length, 2);
-  assert.equal((video.match(/<source\b[^>]*\ssrc=/g) ?? []).length, 0);
   assert.match(html, />Pause video</);
   assert.match(html, /class="hero-video-fallback"/);
 });
 
 test("preserves the hero source bytes and approved generated video ceilings", async () => {
   const exactBytes = new Map([
-    ["video/property-overview-desktop.mp4", 5520924],
     ["video/property-overview-mobile.mp4", 3283385],
     ["video/setting-street-approach.mp4", 1756445],
   ]);
@@ -252,9 +242,9 @@ test("preserves the hero source bytes and approved generated video ceilings", as
   }
 
   const ceilings = new Map([
-    ["video/hero-front-driveway-arrival-desktop.mp4", 12 * 1024 * 1024],
+    ["video/property-overview-desktop.mp4", 65_000_000],
+    ["video/property-overview-desktop-poster.webp", 300 * 1024],
     ["video/front-driveway-arrival.mp4", 6.8 * 1024 * 1024],
-    ["video/hero-setting-street-approach-desktop.mp4", 11.5 * 1024 * 1024],
   ]);
   for (const [file, maxBytes] of ceilings) {
     assert.equal((await stat(new URL(`../public/property/${file}`, import.meta.url))).size <= maxBytes, true, file);
@@ -830,7 +820,7 @@ test("ships only the approved web media within budget", async () => {
     ]),
     ["video/property-overview-desktop-poster.webp", 300 * 1024],
     ["video/property-overview-mobile-poster.webp", 300 * 1024],
-    ["video/property-overview-desktop.mp4", 7 * 1024 * 1024],
+    ["video/property-overview-desktop.mp4", 65_000_000],
     ["video/property-overview-mobile.mp4", 4.5 * 1024 * 1024],
     // Secondary clips are 1280x720 web cuts. These ceilings are deliberately tight:
     // the earlier budgets were loose enough to let master-bitrate files ship unnoticed.

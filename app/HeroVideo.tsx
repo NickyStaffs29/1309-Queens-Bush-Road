@@ -6,67 +6,28 @@ type NavigatorWithConnection = Navigator & {
   connection?: { saveData?: boolean };
 };
 
-const HERO_CLIPS = [
-  {
-    desktop: "/property/video/property-overview-desktop.mp4",
-    mobile: "/property/video/property-overview-mobile.mp4",
-    mobileObjectPosition: "center",
-  },
-  {
-    desktop: "/property/video/hero-front-driveway-arrival-desktop.mp4",
-    mobile: "/property/video/front-driveway-arrival.mp4",
-    mobileObjectPosition: "38% 52%",
-  },
-  {
-    desktop: "/property/video/hero-setting-street-approach-desktop.mp4",
-    mobile: "/property/video/setting-street-approach.mp4",
-    mobileObjectPosition: "35% 48%",
-  },
-] as const;
-
 export default function HeroVideo() {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const clipIndexRef = useRef(0);
   const userPausedRef = useRef(false);
-  const blockedRef = useRef(false);
-  const [clipIndex, setClipIndex] = useState(0);
   const [ready, setReady] = useState(false);
   const [paused, setPaused] = useState(false);
-
-  function loadClip(index: number, autoplay: boolean, hideUntilReady = false) {
-    const video = videoRef.current;
-    if (!video) return;
-    const clip = HERO_CLIPS[index];
-    const sources = video.querySelectorAll<HTMLSourceElement>("source[data-src]");
-    for (const source of sources) {
-      source.media = source.dataset.media ?? "";
-      source.dataset.src = source.dataset.media === "(max-width: 640px)" ? clip.mobile : clip.desktop;
-      source.src = source.dataset.src;
-    }
-    if (hideUntilReady) setReady(false);
-    video.load();
-    if (autoplay) {
-      void video.play().catch(() => {
-        if (!userPausedRef.current) setReady(false);
-      });
-    }
-  }
 
   useEffect(() => {
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const saveData = (navigator as NavigatorWithConnection).connection?.saveData;
-    blockedRef.current = Boolean(reducedMotion || saveData);
-    if (blockedRef.current) return;
-    loadClip(clipIndexRef.current, true, true);
+    if (reducedMotion || saveData) return;
+    const video = videoRef.current;
+    if (!video) return;
+    // Promote the deferred sources in the browser only, so server rendering never fetches a film.
+    for (const source of video.querySelectorAll<HTMLSourceElement>("source[data-src]")) {
+      source.media = source.dataset.media ?? "";
+      source.src = source.dataset.src ?? "";
+    }
+    video.load();
+    void video.play().catch(() => {
+      if (!userPausedRef.current) setReady(false);
+    });
   }, []);
-
-  function handleEnded() {
-    if (blockedRef.current || userPausedRef.current) return;
-    const next = (clipIndexRef.current + 1) % HERO_CLIPS.length;
-    clipIndexRef.current = next;
-    setClipIndex(next);
-    loadClip(next, true);
-  }
 
   async function togglePlayback() {
     const video = videoRef.current;
@@ -106,20 +67,18 @@ export default function HeroVideo() {
       <video
         ref={videoRef}
         className={`hero-video${ready ? " is-ready" : ""}`}
-        style={{ objectPosition: HERO_CLIPS[clipIndex].mobileObjectPosition }}
-        data-hero-clips={JSON.stringify(HERO_CLIPS)}
         poster="/property/video/property-overview-desktop-poster.webp"
         width="1920"
         height="1080"
         muted
         playsInline
+        loop
         preload="none"
         aria-hidden="true"
         onCanPlay={() => setReady(true)}
         onError={() => {
           if (!userPausedRef.current) setReady(false);
         }}
-        onEnded={handleEnded}
       >
         <source
           data-src="/property/video/property-overview-mobile.mp4"
