@@ -221,7 +221,15 @@ test("renders the responsive hero video with still-image fallbacks", async () =>
   assert.equal((video.match(/<source\b[^>]*\ssrc=/g) ?? []).length, 0);
 
   assert.match(html, /media="\(max-width: 640px\)"/);
-  assert.match(html, /poster="\/property\/video\/property-overview-desktop-poster\.webp"/);
+
+  // The hero still is served by the responsive <picture> alone. A video poster attribute would be a
+  // second, desktop-only still that phones download on top of the mobile poster and never display.
+  assert.doesNotMatch(video, /\sposter=/);
+  const fallback = html.match(/<picture[^>]*class="hero-video-fallback"[\s\S]*?<\/picture>/)?.[0] ?? "";
+  assert.match(fallback, /<source\b[^>]*media="\(max-width: 640px\)"/);
+  assert.match(fallback, /srcSet="\/property\/video\/property-overview-mobile-poster\.webp"/);
+  assert.match(fallback, /<img\b[^>]*src="\/property\/video\/property-overview-desktop-poster\.webp"/);
+
   assert.match(html, /muted=""[^>]*playsInline=""|playsInline=""[^>]*muted=""/);
   assert.match(video, /preload="none"/);
   assert.match(video, /\sloop=""/);
@@ -242,7 +250,7 @@ test("preserves the hero source bytes and approved generated video ceilings", as
   }
 
   const ceilings = new Map([
-    ["video/property-overview-desktop.mp4", 65_000_000],
+    ["video/property-overview-desktop.mp4", 50_000_000],
     ["video/property-overview-desktop-poster.webp", 300 * 1024],
     ["video/front-driveway-arrival.mp4", 6.8 * 1024 * 1024],
   ]);
@@ -820,7 +828,7 @@ test("ships only the approved web media within budget", async () => {
     ]),
     ["video/property-overview-desktop-poster.webp", 300 * 1024],
     ["video/property-overview-mobile-poster.webp", 300 * 1024],
-    ["video/property-overview-desktop.mp4", 65_000_000],
+    ["video/property-overview-desktop.mp4", 50_000_000],
     ["video/property-overview-mobile.mp4", 4.5 * 1024 * 1024],
     // Secondary clips are 1280x720 web cuts. These ceilings are deliberately tight:
     // the earlier budgets were loose enough to let master-bitrate files ship unnoticed.
