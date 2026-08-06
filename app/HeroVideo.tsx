@@ -67,7 +67,6 @@ export default function HeroVideo() {
       <video
         ref={videoRef}
         className={`hero-video${ready ? " is-ready" : ""}`}
-        poster="/property/video/property-overview-desktop-poster.webp"
         width="1920"
         height="1080"
         muted
