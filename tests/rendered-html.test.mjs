@@ -338,7 +338,7 @@ test("applies the approved still-image and gallery treatments", async () => {
   assert.match(suite, /<h2>A private<br\s*\/?>retreat<\/h2>/);
   assert.match(
     suite,
-    /<p>A fireplace, a walk-in closet, an ensuite and a covered porch, all of them belonging to this room alone\.<\/p>/,
+    /<p>A wood-burning stone fireplace, a walk-in closet, an ensuite and a covered porch, all of them belonging to this room alone\.<\/p>/,
   );
   // The superseded heading is gone in every form, including split across the line break.
   assert.doesNotMatch(suite, /A house within/);
@@ -773,8 +773,8 @@ test("uses one mobile gutter and aligns facts and footer safely", async () => {
   // Same words, same order, grouped so a line can only break between phrases.
   const footerParagraph = markup.match(/<footer[\s\S]*?<\/footer>/)?.[0]?.match(/<p[^>]*>[\s\S]*?<\/p>/)?.[0] ?? "";
   const groups = [...footerParagraph.matchAll(/<span>([^<]*)<\/span>/g)].map(([, text]) => text);
-  assert.deepEqual(groups, ["Casa Marrone ·", "1309 Queens Bush Road ·", "Wellesley, Ontario"]);
-  assert.equal(groups.join(" "), "Casa Marrone · 1309 Queens Bush Road · Wellesley, Ontario");
+  assert.deepEqual(groups, ["Casa Serenita ·", "1309 Queens Bush Road ·", "Wellesley, Ontario"]);
+  assert.equal(groups.join(" "), "Casa Serenita · 1309 Queens Bush Road · Wellesley, Ontario");
   assert.match(css, /footer p \{[^}]*display: flex/);
   assert.match(css, /footer p \{[^}]*flex-wrap: wrap/);
   assert.match(css, /footer p \{[^}]*row-gap: 8px/);
@@ -857,7 +857,7 @@ test("ships only the approved web media within budget", async () => {
 });
 
 const inquiryEmail = "cmchiarello@gmail.com";
-const inquiryHref = `mailto:${inquiryEmail}?subject=Casa%20Marrone%20private%20viewing%20request`;
+const inquiryHref = `mailto:${inquiryEmail}?subject=Casa%20Serenita%20private%20viewing%20request`;
 
 // Omission checks read the served markup only; inlined RSC payloads repeat the same copy.
 function markupOnly(html) {
@@ -866,7 +866,7 @@ function markupOnly(html) {
     .replace(/<style[\s\S]*?<\/style>/gi, "");
 }
 
-test("renders the approved Casa Marrone section order", async () => {
+test("renders the approved Casa Serenita section order", async () => {
   const html = await (await render()).text();
   let cursor = -1;
   for (const marker of [
@@ -893,61 +893,106 @@ test("renders the approved Casa Marrone section order", async () => {
   }
 });
 
-test("publishes only the approved rounded area and confirmed property facts", async () => {
+test("publishes the approved Casa Serenita copy and confirmed property facts", async () => {
   const html = await (await render()).text();
   const page = html.match(/<main[\s\S]*?<\/main>/)?.[0] ?? html;
-  const detailedClaim = "one natural swimming pool/pond, plus a separate natural pond";
-  const area = "6,553 sq. ft. total";
+  const waterFeatureClaim = "the natural swimming pond, plus a separate lower pond";
   const grounds = page.match(/<section id="grounds"[\s\S]*?<\/section>/)?.[0] ?? "";
   const details = page.match(/<section id="details"[\s\S]*?<\/section>/)?.[0] ?? "";
   const story = page.match(/<section id="story"[\s\S]*?<\/section>/)?.[0] ?? "";
+  const interior = page.match(/<section id="interior"[\s\S]*?<\/section>/)?.[0] ?? "";
+  const suite = page.match(/<section class="suite-band"[\s\S]*?<\/section>/)?.[0] ?? "";
 
-  assert.match(html, /<title>[^<]*Casa Marrone[^<]*<\/title>/);
-  assert.match(html, /class="facts"[\s\S]*?CAD \$1,895,000[\s\S]*?<\/section>/);
+  assert.match(html, /<title>Casa Serenita \| 1309 Queens Bush Road, Wellesley<\/title>/);
+  assert.match(html, /aria-label="Casa Serenita, top of page"/);
+  assert.match(html, /<span>Casa<\/span> Serenita/);
 
   for (const phrase of [
     "Private sale",
-    "CAD $1,895,000",
+    "CAD $1,944,888",
     "1835",
-    area,
-    "Five bedrooms and four bathrooms",
+    "4,956 sq. ft.",
+    "4,122 sq. ft. above grade",
+    "834 sq. ft. below grade",
+    "Six bedrooms: five above grade, one below",
+    "Five bathrooms: three full and two half",
+    "Three fireplaces, including natural-stone wood-burning fireplaces in the living room and primary bedroom",
     "Five covered porches",
-    detailedClaim,
-    "Municipal services remain current",
+    waterFeatureClaim,
+    "Municipal water and sewer",
     "Chimneys and flues reconstructed in May 2019",
     "60,000 lb",
-    "50-amp service",
-    "Hard- and soft-water connections",
+    "50-amp RV service",
+    "hard- and soft-water connections",
+    "22 kW automatic natural-gas standby generator serving the whole property",
   ]) {
     assert.equal(html.includes(phrase), true, `missing ${phrase}`);
   }
-  // Whole document, not just <main>: the stale claim survived in the metadata description
-  // once already because the visible-copy check stopped at the page body.
-  assert.doesNotMatch(html, /two natural swimming pools/i);
+
   const metaDescription = html.match(/<meta name="description" content="([^"]*)"/)?.[1] ?? "";
-  assert.match(metaDescription, /natural swimming pool\/pond/);
-  assert.match(metaDescription, /separate natural pond/);
-  assert.match(page, /<span>Natural water features<\/span><strong>2<\/strong>/);
-  assert.equal(grounds.includes(detailedClaim), true);
-  assert.equal(details.includes(detailedClaim), true);
-  assert.equal((page.match(new RegExp(detailedClaim, "g")) ?? []).length, 3);
+  assert.equal(
+    metaDescription,
+    "Casa Serenita is an 1835 six-bedroom house on a secluded 3.05-acre property in Wellesley, Ontario, offered by private sale at CAD $1,944,888, with 4,956 sq. ft. of finished space, five covered porches, a natural swimming pond and a separate lower pond.",
+  );
 
   const factStrip = html.match(/class="facts"[\s\S]*?<\/section>/)[0];
   let factCursor = -1;
-  for (const value of ["CAD $1,895,000", ">5<", ">4<", area, ">5<", ">2<"]) {
-    const index = factStrip.indexOf(value, factCursor + 1);
-    assert.notEqual(index, -1, `fact strip missing ${value}`);
+  for (const cell of [
+    "<span>Private sale</span><strong>CAD $1,944,888</strong>",
+    "<span>Bedrooms</span><strong>6</strong>",
+    "<span>Bathrooms</span><strong>5</strong>",
+    "<span>Finished interior</span><strong>4,956 sq. ft.</strong>",
+    "<span>Grounds</span><strong>3.05 acres</strong>",
+    "<span>Natural water features</span><strong>2</strong>",
+  ]) {
+    const index = factStrip.indexOf(cell, factCursor + 1);
+    assert.notEqual(index, -1, `fact strip missing ${cell}`);
+    assert.equal(index > factCursor, true, `fact strip out of order: ${cell}`);
     factCursor = index;
   }
 
-  // The rounded total is the only area figure published, in all four surfaces that carry one.
-  assert.equal(story.includes(`Inside there is ${area}`), true, "story copy missing the rounded total");
-  assert.equal(details.includes(`<li>${area}</li>`), true, "details list missing the rounded total");
-  assert.equal((details.match(/6,553 sq\. ft\. total/g) ?? []).length, 1, "details list repeats the total");
-  assert.equal(metaDescription.includes(area), true, "metadata description missing the rounded total");
+  assert.equal(
+    story.includes("Nothing of the house shows from the road. The drive turns in past mature trees and runs on for some distance before the house settles into view"),
+    true,
+  );
+  assert.equal(story.includes("Inside there is 4,956 sq. ft. of finished space, 4,122 above grade and 834 below"), true);
+  assert.equal(
+    grounds.includes("The natural swimming pond is lined, aerated and filtered through aquatic planting."),
+    true,
+  );
+  assert.equal((page.match(new RegExp(waterFeatureClaim, "g")) ?? []).length, 2);
+  assert.equal((page.match(/3\.05 acres/g) ?? []).length, 5);
+  assert.equal(
+    interior.includes("old-pine sills, doorway beams and ceiling beams cut for the rooms they sit in"),
+    true,
+  );
+  assert.equal(
+    interior.includes("Custom rustic hardwood runs through the dining and living rooms, with ceramic tile in the kitchen, foyer, laundry and bathrooms."),
+    true,
+  );
+  assert.equal(
+    suite.includes("A wood-burning stone fireplace, a walk-in closet, an ensuite and a covered porch"),
+    true,
+  );
 
-  // Whole document: no decimal precision and no grade breakdown survives anywhere, head included.
-  for (const banned of [/6,553\.32/, /4,490\.75/, /2,062\.57/, /above grade/i, /below grade/i]) {
+  const detailLists = [...details.matchAll(/<ul>([\s\S]*?)<\/ul>/g)].map(([, list]) => list);
+  assert.equal(detailLists.length, 2);
+  assert.equal((detailLists[0].match(/<li>/g) ?? []).length, 10);
+  assert.equal((detailLists[1].match(/<li>/g) ?? []).length, 10);
+  for (const item of ["4,956 sq. ft. finished in total", "4,122 sq. ft. above grade", "834 sq. ft. below grade"]) {
+    assert.equal((details.match(new RegExp(item.replaceAll(".", "\\."), "g")) ?? []).length, 1, item);
+  }
+
+  assert.match(page, /<span>Natural water features<\/span><strong>2<\/strong>/);
+
+  for (const banned of [
+    /Casa Marro[n]e/,
+    /CAD \$1,895,000|1895000/,
+    /6,553|6553/,
+    /Five bedrooms and four bathrooms/i,
+    /Two fireplaces/i,
+    /one natural swimming pool\/pond|separate natural pond/i,
+  ]) {
     assert.doesNotMatch(html, banned, `still publishes ${banned}`);
   }
 });
@@ -1050,11 +1095,10 @@ test("omits everything outside the approved private-sale disclosure", async () =
     ["historic wording", /historic/i],
     ["heritage wording", /heritage/i],
     ["postal code", /\b[A-Z]\d[A-Z] ?\d[A-Z]\d\b/],
-    ["lot size", /lot size|\b\d+(?:\.\d+)?\s*(?:acres?|hectares?)\b/i],
     ["iGuide", /iguide/i],
     ["floor plan", /floor\s?plans?\b/i],
     ["MLS", /\bMLS\b/i],
-    ["agent or brokerage", /\bagents?\b|\bbrokers?\b|brokerage|realtor|lambert/i],
+    ["agent or brokerage", /\bagents?\b|\bbrokers?\b|brokerage|realto[r]|lambert/i],
     ["telephone", /\btel:|telephone|\bphones?\b|\b\d{3}[.\- ]\d{3}[.\- ]\d{4}\b/i],
     ["contact form", /<form\b|<input\b/i],
     ["access or security procedure", /lockbox|\bsecurity\b|\balarm\b|accompan|access code|entry code|key ?code|showing instructions/i],
@@ -1063,6 +1107,8 @@ test("omits everything outside the approved private-sale disclosure", async () =
     ["unverified renovation", /renovat|fully updated|newly remodel|recently redone/i],
     ["maintenance or running cost", /maintenance cost|utility cost|running cost|\$[\d,]+ (?:per|a) (?:year|month)/i],
     ["business-use suggestion", /bed and breakfast|wedding venue|event space|rental income|air ?bnb|commercial use/i],
+    ["parking count", /\bparking\b|spaces? for (?:six|nine)|(?:six|nine) parking spaces?/i],
+    ["water purification", /water purif(?:ier|ication)|purified water/i],
   ]) {
     assert.doesNotMatch(markup, pattern, label);
   }
@@ -1200,20 +1246,26 @@ test("builds a truthful, internally consistent property graph for launch", async
 
   // `offers` is a CreativeWork property; SingleFamilyResidence is a Place.
   assert.equal("offers" in residence, false);
-  assert.equal(listing.offers.price, 1895000);
+  assert.equal(listing.name, "Casa Serenita | 1309 Queens Bush Road, Wellesley");
+  assert.equal(listing.description, "An 1835 six-bedroom house in Wellesley, Ontario, offered by private sale.");
+  assert.equal(listing.offers.price, 1944888);
   assert.equal(listing.offers.priceCurrency, "CAD");
   assert.equal(listing.offers.availability, "https://schema.org/InStock");
 
   assert.equal(residence.yearBuilt, 1835);
-  assert.equal(residence.numberOfBedrooms, 5);
-  assert.equal(residence.numberOfBathroomsTotal, 4);
+  assert.equal(residence.name, "Casa Serenita");
+  assert.equal(residence.numberOfBedrooms, 6);
+  assert.equal(residence.numberOfBathroomsTotal, 5);
+  assert.equal(residence.numberOfFullBathrooms, 3);
+  assert.equal(residence.numberOfPartialBathrooms, 2);
   assert.deepEqual(residence.floorSize, {
     "@type": "QuantitativeValue",
-    value: 6553,
+    value: 4956,
     unitCode: "FTK",
   });
   assert.equal(residence.address.postalCode, undefined);
   assert.equal(image.contentUrl, `${LAUNCH_ORIGIN}/property/video/property-overview-desktop-poster.webp`);
+  assert.equal(image.caption, "Aerial view of Casa Serenita and its surrounding grounds");
 
   const flattened = JSON.stringify(graph);
   for (const banned of [

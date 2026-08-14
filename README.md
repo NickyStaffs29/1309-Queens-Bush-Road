@@ -1,4 +1,4 @@
-# Casa Marrone
+# Casa Serenita
 
 Single-property website for 1309 Queens Bush Road in Wellesley, Ontario.
 

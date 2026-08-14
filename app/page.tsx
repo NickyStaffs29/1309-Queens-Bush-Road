@@ -4,14 +4,14 @@ import PropertyVideo from "./PropertyVideo";
 import { getSiteUrl, propertyGraphFor } from "./site-url";
 
 const inquiryEmail = "cmchiarello@gmail.com";
-const inquiryHref = `mailto:${inquiryEmail}?subject=Casa%20Marrone%20private%20viewing%20request`;
+const inquiryHref = `mailto:${inquiryEmail}?subject=Casa%20Serenita%20private%20viewing%20request`;
 
 const facts = [
-  ["Private sale", "CAD $1,895,000"],
-  ["Bedrooms", "5"],
-  ["Bathrooms", "4"],
-  ["Measured interior", "6,553 sq. ft. total"],
-  ["Covered porches", "5"],
+  ["Private sale", "CAD $1,944,888"],
+  ["Bedrooms", "6"],
+  ["Bathrooms", "5"],
+  ["Finished interior", "4,956 sq. ft."],
+  ["Grounds", "3.05 acres"],
   ["Natural water features", "2"],
 ];
 
@@ -152,8 +152,8 @@ export default function Home() {
       {siteUrl ? <PropertyJsonLd siteUrl={siteUrl} /> : null}
 
       <header className="site-header">
-        <a className="wordmark" href="#top" aria-label="Casa Marrone, top of page">
-          <span>Casa</span> Marrone
+        <a className="wordmark" href="#top" aria-label="Casa Serenita, top of page">
+          <span>Casa</span> Serenita
         </a>
         <nav aria-label="Main navigation">
           <a href="#story">The house</a>
@@ -170,8 +170,8 @@ export default function Home() {
           <div className="hero-content">
             <p className="eyebrow">Wellesley, Ontario</p>
             <h1 id="property-title">1309 Queens<br />Bush Road</h1>
-            <p className="hero-price">Private sale · CAD $1,895,000</p>
-            <p className="hero-line">An 1835 house of timber and stone, set among water, lawn and five covered porches.</p>
+            <p className="hero-price">Private sale · CAD $1,944,888</p>
+            <p className="hero-line">An 1835 house of timber and stone, set out of sight of the road on 3.05 acres with two ponds and five covered porches.</p>
             <a className="text-link light" href="#story">Read the house <span aria-hidden="true">↓</span></a>
           </div>
         </section>
@@ -186,7 +186,7 @@ export default function Home() {
           <div className="section-intro">
             <p className="eyebrow copper">The house and the arrival</p>
             <h2 id="story-title">Standing here<br />since 1835</h2>
-            <p>The drive turns in past mature trees and settles in front of a house that has held this ground for nearly two centuries. Inside there is 6,553 sq. ft. total, and the plan spends it well: rooms wide enough to take a crowd, quiet enough to sit in alone, and windows that keep the grounds in view from most of them.</p>
+            <p>Nothing of the house shows from the road. The drive turns in past mature trees and runs on for some distance before the house settles into view — seclusion is the first thing the property offers, and the sense of being well inside its own land. Inside there is 4,956 sq. ft. of finished space, 4,122 above grade and 834 below, and the plan spends it well: rooms wide enough to take a crowd, quiet enough to sit in alone, and windows that keep the grounds in view from most of them.</p>
           </div>
           <figure className="story-image story-aerial">
             <StoryImage name="property-plan" alt="Top-down aerial view of the residence and grounds" />
@@ -217,8 +217,8 @@ export default function Home() {
         <section id="grounds" className="grounds section dark" aria-labelledby="grounds-title">
           <div className="grounds-copy">
             <p className="eyebrow gold">The grounds</p>
-            <h2 id="grounds-title">Water, lawn<br />and five porches</h2>
-            <p>The grounds include one natural swimming pool/pond, plus a separate natural pond. The lawn runs past a fountain and the deck at its edge. Five covered porches follow the sun around the house, so there is always somewhere shaded to sit and somewhere to watch the light go.</p>
+            <h2 id="grounds-title">A natural pond<br />and five porches</h2>
+            <p>The grounds run to 3.05 acres and hold two bodies of water: the natural swimming pond, plus a separate lower pond. The natural swimming pond is lined, aerated and filtered through aquatic planting. A waterfall feeds it at one end, a diving rock sits at its edge, and an expansive composite deck cantilevers out over the water. Beyond the deck the lawn runs past a fountain, and after dark inlaid lighting picks out the perimeter, the stairs, the pond and the waterfall. The land is graded and tiled for drainage, with roof water directed to the ponds. Five covered porches follow the sun around the house, so there is always somewhere shaded to sit and somewhere to watch the light go.</p>
           </div>
           <PropertyVideo className="grounds-main" name="grounds-pool-pond" alt="Aerial view descending toward the natural pool and rear deck" />
           <img
@@ -232,7 +232,7 @@ export default function Home() {
             loading="lazy"
             decoding="async"
           />
-          <p className="grounds-note">Water features: one natural swimming pool/pond, plus a separate natural pond<br />Five covered porches</p>
+          <p className="grounds-note">Water features: the natural swimming pond, plus a separate lower pond<br />Five covered porches<br />3.05 acres</p>
         </section>
 
         <section id="interior" className="interior section" aria-labelledby="interior-title">
@@ -243,7 +243,7 @@ export default function Home() {
           <StoryImage className="interior-main" name="kitchen" alt="Kitchen island and range viewed from across the room, with the oval leaded-glass window and stairwell visible beyond." />
           <div className="interior-copy">
             <p>The chef&apos;s kitchen is the working centre of the house: a granite island, a commercial range with double ovens and warming drawers, multiple sinks, a pantry and a beverage bar. It is built to cook properly in, not to be looked at.</p>
-            <p>What surrounds it is the kind of detail that has to be made rather than ordered — hammered copper sinks, leaded glass beside the stair, curved brick steps rising to a custom timber door.</p>
+            <p>What surrounds it is the kind of detail that has to be made rather than ordered — hammered copper sinks, leaded glass beside the stair, curved brick steps rising to a custom timber door, and old-pine sills, doorway beams and ceiling beams cut for the rooms they sit in. Custom rustic hardwood runs through the dining and living rooms, with ceramic tile in the kitchen, foyer, laundry and bathrooms.</p>
             <a className="text-link" href="#gallery">View the gallery <span aria-hidden="true">→</span></a>
           </div>
           <StoryImage className="interior-detail" name="copper-sink" alt="Hammered copper sink and dark countertop" />
@@ -264,7 +264,7 @@ export default function Home() {
           <div>
             <p className="eyebrow gold">The primary suite</p>
             <h2>A private<br />retreat</h2>
-            <p>A fireplace, a walk-in closet, an ensuite and a covered porch, all of them belonging to this room alone.</p>
+            <p>A wood-burning stone fireplace, a walk-in closet, an ensuite and a covered porch, all of them belonging to this room alone.</p>
           </div>
         </section>
 
@@ -277,23 +277,31 @@ export default function Home() {
             <div>
               <h3>Space and rooms</h3>
               <ul>
-                <li>6,553 sq. ft. total</li>
-                <li>Five bedrooms and four bathrooms</li>
-                <li>Two fireplaces</li>
+                <li>4,956 sq. ft. finished in total</li>
+                <li>4,122 sq. ft. above grade</li>
+                <li>834 sq. ft. below grade</li>
+                <li>Six bedrooms: five above grade, one below</li>
+                <li>Five bathrooms: three full and two half</li>
+                <li>Three fireplaces, including natural-stone wood-burning fireplaces in the living room and primary bedroom</li>
+                <li>Finished lower level with its own walk-up entrance</li>
                 <li>Pool-side three-piece bathroom</li>
+                <li>Heated triple garage with an infrared sauna</li>
+                <li>Natural stone and vinyl siding</li>
               </ul>
             </div>
             <div>
               <h3>Grounds and services</h3>
               <ul>
-                <li>Five covered porches</li>
-                <li>Water features: one natural swimming pool/pond, plus a separate natural pond</li>
-                <li>Heated triple garage</li>
-                <li>Municipal services remain current</li>
+                <li>3.05 acres</li>
+                <li>Five covered porches with composite decking and railings</li>
+                <li>Hot tub on a reinforced concrete slab, and a natural-gas connection at the back deck</li>
+                <li>Asphalt driveway with a reinforced RV pad rated for 60,000 lb</li>
+                <li>50-amp RV service, hard- and soft-water connections and frost-free taps</li>
+                <li>Municipal water and sewer</li>
+                <li>200-amp service, plus a 30-amp subpanel at the lower pond</li>
+                <li>22 kW automatic natural-gas standby generator serving the whole property</li>
                 <li>Chimneys and flues reconstructed in May 2019</li>
-                <li>Driveway rated for 60,000 lb</li>
-                <li>50-amp service in the driveway area</li>
-                <li>Hard- and soft-water connections available</li>
+                <li>Multi-room audio and television wiring, including the porches and back yard</li>
               </ul>
             </div>
           </div>
@@ -343,7 +351,7 @@ export default function Home() {
           <div className="inquire-content">
             <p className="eyebrow gold">Private sale</p>
             <h2 id="inquire-title">Arrange a private viewing</h2>
-            <p className="inquire-lead">Casa Marrone is offered privately at CAD $1,895,000. Viewings are available by confirmed appointment, arranged by email.</p>
+            <p className="inquire-lead">Casa Serenita is offered privately at CAD $1,944,888. Viewings are available by confirmed appointment, arranged by email.</p>
             <p className="inquire-lead">Please include your name, preferred day and time windows, and how many people will attend.</p>
             <a className="cta-button" href={inquiryHref}>Email to request a private viewing</a>
             <p className="inquire-email">
@@ -355,7 +363,7 @@ export default function Home() {
 
       <footer>
         <p>
-          <span>Casa Marrone ·</span>
+          <span>Casa Serenita ·</span>
           <span>1309 Queens Bush Road ·</span>
           <span>Wellesley, Ontario</span>
         </p>
