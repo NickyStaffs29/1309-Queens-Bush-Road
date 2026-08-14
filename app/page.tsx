@@ -77,7 +77,7 @@ const galleryGroups: { title: string; slug: string; images: GalleryImage[] }[] =
       { name: "craft-brick-stair-detail", alt: "Curved brick steps and timber wall detail", portrait: true },
       { name: "craft-copper-sink-edge", alt: "Carved copper sink edge and custom metalwork", portrait: true },
       { name: "craft-timber-stair-barrel", alt: "Timber staircase and a wrought-iron-strapped barrel table.", portrait: true },
-      { name: "craft-stone-porch-bench", alt: "Wagon-wheel bench against a stone porch wall", feature: true },
+      { name: "craft-stone-porch-bench", alt: "Stained wagon-wheel bench against the stone wall of a covered porch, with a fern beside it on composite decking.", portrait: true },
       { name: "craft-brick-steps-timber-door", alt: "Curved brick steps leading to a custom timber door", feature: true },
     ],
   },

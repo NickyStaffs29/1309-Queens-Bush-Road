@@ -175,6 +175,11 @@ test("server-renders the approved six-part property gallery", async () => {
   for (const image of galleryImages) {
     assert.match(html, new RegExp(`/property/gallery/${image}-1440\\.webp`));
   }
+  const craftBlock = html.slice(html.indexOf('id="craft-gallery-title"'), html.indexOf('id="rooms-gallery-title"'));
+  assert.match(
+    craftBlock,
+    /class="gallery-item portrait"><img[^>]*src="\/property\/gallery\/craft-stone-porch-bench-1440\.webp"[^>]*alt="Stained wagon-wheel bench against the stone wall of a covered porch, with a fern beside it on composite decking\."[^>]*width="960" height="1440"/,
+  );
   for (const name of [
     "property-plan",
     "front-through-trees",
