@@ -62,7 +62,7 @@ export function propertyGraphFor(siteUrl: string) {
         primaryImageOfPage: { "@id": image },
         offers: {
           "@type": "Offer",
-          price: 1944888,
+          price: 1895000,
           priceCurrency: "CAD",
           availability: "https://schema.org/InStock",
           itemOffered: { "@id": residence },

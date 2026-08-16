@@ -918,7 +918,7 @@ test("publishes the approved Casa Serenita copy and confirmed property facts", a
 
   for (const phrase of [
     "Private sale",
-    "CAD $1,944,888",
+    "CAD $1,895,000",
     "1835",
     "4,956 sq. ft.",
     "4,122 sq. ft. above grade",
@@ -941,13 +941,13 @@ test("publishes the approved Casa Serenita copy and confirmed property facts", a
   const metaDescription = html.match(/<meta name="description" content="([^"]*)"/)?.[1] ?? "";
   assert.equal(
     metaDescription,
-    "Casa Serenita is an 1835 six-bedroom house on a secluded 3.05-acre property in Wellesley, Ontario, offered by private sale at CAD $1,944,888, with 4,956 sq. ft. of finished space, five covered porches, a natural swimming pond and a separate lower pond.",
+    "Casa Serenita is an 1835 six-bedroom house on a secluded 3.05-acre property in Wellesley, Ontario, offered by private sale at CAD $1,895,000, with 4,956 sq. ft. of finished space, five covered porches, a natural swimming pond and a separate lower pond.",
   );
 
   const factStrip = html.match(/class="facts"[\s\S]*?<\/section>/)[0];
   let factCursor = -1;
   for (const cell of [
-    "<span>Private sale</span><strong>CAD $1,944,888</strong>",
+    "<span>Private sale</span><strong>CAD $1,895,000</strong>",
     "<span>Bedrooms</span><strong>6</strong>",
     "<span>Bathrooms</span><strong>5</strong>",
     "<span>Finished interior</span><strong>4,956 sq. ft.</strong>",
@@ -996,7 +996,7 @@ test("publishes the approved Casa Serenita copy and confirmed property facts", a
 
   for (const banned of [
     /Casa Marro[n]e/,
-    /CAD \$1,895,000|1895000/,
+    /CAD \$1,944,888|1944888/,
     /6,553|6553/,
     /Five bedrooms and four bathrooms/i,
     /Two fireplaces/i,
@@ -1257,7 +1257,7 @@ test("builds a truthful, internally consistent property graph for launch", async
   assert.equal("offers" in residence, false);
   assert.equal(listing.name, "Casa Serenita | 1309 Queens Bush Road, Wellesley");
   assert.equal(listing.description, "An 1835 six-bedroom house in Wellesley, Ontario, offered by private sale.");
-  assert.equal(listing.offers.price, 1944888);
+  assert.equal(listing.offers.price, 1895000);
   assert.equal(listing.offers.priceCurrency, "CAD");
   assert.equal(listing.offers.availability, "https://schema.org/InStock");
 

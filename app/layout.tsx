@@ -3,7 +3,7 @@ import { getSiteUrl } from "./site-url";
 import "./globals.css";
 
 const title = "Casa Serenita | 1309 Queens Bush Road, Wellesley";
-const description = "Casa Serenita is an 1835 six-bedroom house on a secluded 3.05-acre property in Wellesley, Ontario, offered by private sale at CAD $1,944,888, with 4,956 sq. ft. of finished space, five covered porches, a natural swimming pond and a separate lower pond.";
+const description = "Casa Serenita is an 1835 six-bedroom house on a secluded 3.05-acre property in Wellesley, Ontario, offered by private sale at CAD $1,895,000, with 4,956 sq. ft. of finished space, five covered porches, a natural swimming pond and a separate lower pond.";
 const socialImage = "/property/video/property-overview-desktop-poster.webp";
 
 const siteUrl = getSiteUrl();
