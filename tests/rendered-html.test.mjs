@@ -643,6 +643,10 @@ test("gives every mobile gallery group a complete, intentional rhythm", async ()
   assert.match(mobile, /\.gallery-item:last-child:nth-child\(odd\) \{[^}]*grid-column: 1 \/ -1/);
   assert.match(cssRule(small, ".gallery-item.landscape"), /grid-column: 1 \/ -1/);
   assert.match(cssRule(small, ".gallery-item.portrait"), /grid-column: span 1/);
+  assert.match(
+    cssRule(small, "#craft-gallery-title + .gallery-group-grid .gallery-item:nth-child(3)"),
+    /grid-column: span 1/,
+  );
   assert.match(css, /\.gallery-item\.landscape \{[^}]*aspect-ratio: 4 \/ 3/);
   assert.match(css, /\.gallery-item\.portrait \{[^}]*aspect-ratio: 2 \/ 3/);
   assert.match(css, /\.gallery-item\.feature \{[^}]*grid-column: span 6/);
