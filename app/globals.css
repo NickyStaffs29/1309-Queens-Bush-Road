@@ -323,7 +323,6 @@ a:focus-visible { outline: 2px solid var(--gold); outline-offset: 5px; }
   .gallery-group-grid { grid-template-columns: repeat(2, 1fr); }
   .gallery-item.landscape { grid-column: 1 / -1; }
   .gallery-item.portrait { grid-column: span 1; }
-  #craft-gallery-title + .gallery-group-grid .gallery-item:nth-child(3) { grid-column: span 1; }
   .feature-columns { grid-template-columns: 1fr; }
   .inquire { min-height: 650px; }
   .inquire-content { right: 24px; }

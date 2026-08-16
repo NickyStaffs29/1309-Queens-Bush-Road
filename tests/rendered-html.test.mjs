@@ -135,6 +135,7 @@ const galleryImages = [
   "craft-timber-stair-barrel",
   "craft-stone-porch-bench",
   "craft-brick-steps-timber-door",
+  "craft-hearth-bellows",
   "rooms-timber-entry",
   "rooms-office-library",
   "rooms-sitting-room",
@@ -365,7 +366,7 @@ test("applies the approved still-image and gallery treatments", async () => {
     ["setting-gallery-title", 9],
     ["grounds-gallery-title", 9],
     ["living-gallery-title", 5],
-    ["craft-gallery-title", 9],
+    ["craft-gallery-title", 10],
     ["rooms-gallery-title", 6],
     ["quiet-gallery-title", 6],
   ]);
@@ -643,10 +644,9 @@ test("gives every mobile gallery group a complete, intentional rhythm", async ()
   assert.match(mobile, /\.gallery-item:last-child:nth-child\(odd\) \{[^}]*grid-column: 1 \/ -1/);
   assert.match(cssRule(small, ".gallery-item.landscape"), /grid-column: 1 \/ -1/);
   assert.match(cssRule(small, ".gallery-item.portrait"), /grid-column: span 1/);
-  assert.match(
-    cssRule(small, "#craft-gallery-title + .gallery-group-grid .gallery-item:nth-child(3)"),
-    /grid-column: span 1/,
-  );
+  // Craft's tenth image restores even pairing on its own, so the nth-child(3) special
+  // case that used to carry it is gone.
+  assert.doesNotMatch(small, /#craft-gallery-title \+ \.gallery-group-grid/);
   assert.match(css, /\.gallery-item\.landscape \{[^}]*aspect-ratio: 4 \/ 3/);
   assert.match(css, /\.gallery-item\.portrait \{[^}]*aspect-ratio: 2 \/ 3/);
   assert.match(css, /\.gallery-item\.feature \{[^}]*grid-column: span 6/);
