@@ -7,7 +7,7 @@ const inquiryEmail = "cmchiarello@gmail.com";
 const inquiryHref = `mailto:${inquiryEmail}?subject=Casa%20Serenita%20private%20viewing%20request`;
 
 const facts = [
-  ["Private sale", "CAD $1,944,888"],
+  ["Private sale", "CAD $1,895,000"],
   ["Bedrooms", "6"],
   ["Bathrooms", "5"],
   ["Finished interior", "4,956 sq. ft."],
@@ -171,7 +171,7 @@ export default function Home() {
           <div className="hero-content">
             <p className="eyebrow">Wellesley, Ontario</p>
             <h1 id="property-title">1309 Queens<br />Bush Road</h1>
-            <p className="hero-price">Private sale · CAD $1,944,888</p>
+            <p className="hero-price">Private sale · CAD $1,895,000</p>
             <p className="hero-line">An 1835 house of timber and stone, set out of sight of the road on 3.05 acres with two ponds and five covered porches.</p>
             <a className="text-link light" href="#story">Read the house <span aria-hidden="true">↓</span></a>
           </div>
@@ -352,7 +352,7 @@ export default function Home() {
           <div className="inquire-content">
             <p className="eyebrow gold">Private sale</p>
             <h2 id="inquire-title">Arrange a private viewing</h2>
-            <p className="inquire-lead">Casa Serenita is offered privately at CAD $1,944,888. Viewings are available by confirmed appointment, arranged by email.</p>
+            <p className="inquire-lead">Casa Serenita is offered privately at CAD $1,895,000. Viewings are available by confirmed appointment, arranged by email.</p>
             <p className="inquire-lead">Please include your name, preferred day and time windows, and how many people will attend.</p>
             <a className="cta-button" href={inquiryHref}>Email to request a private viewing</a>
             <p className="inquire-email">
