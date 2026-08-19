@@ -171,8 +171,9 @@ export default function Home() {
           <div className="hero-content">
             <p className="eyebrow">Wellesley, Ontario</p>
             <h1 id="property-title">1309 Queens<br />Bush Road</h1>
+            <p className="hero-line">Cannot be seen from the road</p>
             <p className="hero-price">Private sale · CAD $1,895,000</p>
-            <p className="hero-line">An 1835 house of timber and stone, set out of sight of the road on 3.05 acres with two ponds and five covered porches.</p>
+            <p className="hero-line">Just up the driveway to your right, serenity awaits you. Settled quietly beyond a long line of trees, nestled on 3.05 manicured acres with two ponds &amp; five porches.</p>
             <a className="text-link light" href="#story">Read the house <span aria-hidden="true">↓</span></a>
           </div>
         </section>
@@ -187,7 +188,8 @@ export default function Home() {
           <div className="section-intro">
             <p className="eyebrow copper">The house and the arrival</p>
             <h2 id="story-title">Standing here<br />since 1835</h2>
-            <p>Nothing of the house shows from the road. The drive turns in past mature trees and runs on for some distance before the house settles into view — seclusion is the first thing the property offers, and the sense of being well inside its own land. Inside there is 4,956 sq. ft. of finished space, 4,122 above grade and 834 below, and the plan spends it well: rooms wide enough to take a crowd, quiet enough to sit in alone, and windows that keep the grounds in view from most of them.</p>
+            <p>Fully Restored and standing strong since 1835. This 4,956 sq. ft. century home is full of enchantment &amp; character. It has been custom restored with care and detail, preserving the natural characteristics of the home with all of its incredible history and stories.</p>
+            <p>The welcoming layout spends it well. With multiple rooms generous enough to comfortably host and accommodate a large crowd and quiet enough for everyone to find their own private space to just &quot;be&quot; and sit in the peace &amp; quiet alone. Regardless of your purpose, you can always look forward to the views from any room, any time of day or night.</p>
           </div>
           <figure className="story-image story-aerial">
             <StoryImage name="property-plan" alt="Top-down aerial view of the residence and grounds" />
@@ -219,7 +221,12 @@ export default function Home() {
           <div className="grounds-copy">
             <p className="eyebrow gold">The grounds</p>
             <h2 id="grounds-title">A natural pond<br />and five porches</h2>
-            <p>The grounds run to 3.05 acres and hold two bodies of water: the natural swimming pond, plus a separate lower pond. The natural swimming pond is lined, aerated and filtered through aquatic planting. A waterfall feeds it at one end, a diving rock sits at its edge, and an expansive composite deck cantilevers out over the water. Beyond the deck the lawn runs past a fountain, and after dark inlaid lighting picks out the perimeter, the stairs, the pond and the waterfall. The land is graded and tiled for drainage, with roof water directed to the ponds. Five covered porches follow the sun around the house, so there is always somewhere shaded to sit and somewhere to watch the light go.</p>
+            <p>Two natural water features</p>
+            <p>An engineered Natural Swimming Pond (NSP). Fully lined, lighted &amp; aerated. Completing the ambiance is a flowing rock waterfall and diving rock. Designed in Europe and modelled after an Alpine lake, you have never felt cleaner and silky soft so naturally. This stunning water feature is entirely filtered by plants. No maintenance and no chemicals. The plants do it all.</p>
+            <p>The hot tub sits securely on the expansive composite deck which rests on a poured, rebar reinforced concrete slab. The deck cantilevers over the pond with the perimeter &amp; stairs being accented with inlaid lighting for ambiance and safety.</p>
+            <p>The grounds were professionally graded for water drainage and beauty. It was designed to keep water away from the house and yet effectively capture naturally all rain water from eavestroughs and downspouts directly into the ponds.</p>
+            <p>Absolutely perfect for hosting weddings, large events and endless outdoor activities.</p>
+            <p>Feel at ease and secure with the Generac 22 kW built-in generator. Powerful enough to run the entire property. No blackouts for you.</p>
           </div>
           <PropertyVideo className="grounds-main" name="grounds-pool-pond" alt="Aerial view descending toward the natural pool and rear deck" />
           <img
@@ -243,8 +250,12 @@ export default function Home() {
           </div>
           <StoryImage className="interior-main" name="kitchen" alt="Kitchen island and range viewed from across the room, with the oval leaded-glass window and stairwell visible beyond." />
           <div className="interior-copy">
-            <p>The chef&apos;s kitchen is the working centre of the house: a granite island, a commercial range with double ovens and warming drawers, multiple sinks, a pantry and a beverage bar. It is built to cook properly in, not to be looked at.</p>
-            <p>What surrounds it is the kind of detail that has to be made rather than ordered — hammered copper sinks, leaded glass beside the stair, curved brick steps rising to a custom timber door, and old-pine sills, doorway beams and ceiling beams cut for the rooms they sit in. Custom rustic hardwood runs through the dining and living rooms, with ceramic tile in the kitchen, foyer, laundry and bathrooms.</p>
+            <p>The kitchen is always the heart of the home and this chef&apos;s kitchen is certainly no exception. The oversized expansive granite island is surrounded by reclaimed wood beams and old pine window sills.</p>
+            <p>An original natural stone chimney from 1835 is showcased in the kitchen adding intrigue and nostalgia to every experience enjoyed around the island. Ceramic tile flows tastefully throughout kitchen, foyer, laundry and bathroom. Rare and unique custom cut reclaimed hardwood floor throughout dining and living room.</p>
+            <p>With the commercial double ovens, large hammered copper double and prep sinks, generous pantry and a beverage bar, your culinary possibilities are endless.</p>
+            <p>Cook and be a part of the party as the functionality allows for free movement for you and your family and friends to chat and move about comfortably without restriction. So many stories are shared and problems solved &quot;around the island&quot;.</p>
+            <p>The natural wood burning fireplace in the living room, not only warms the room and hearts of those around it, but it is also visible from the piano room, kitchen and the outside deck and hot tub.</p>
+            <p>The custom oval leaded glass window leads you up the curved staircase to the second floor of the home. Which boasts the stunning view of the expansive grounds from the generous executive office.</p>
             <a className="text-link" href="#gallery">View the gallery <span aria-hidden="true">→</span></a>
           </div>
           <StoryImage className="interior-detail" name="copper-sink" alt="Hammered copper sink and dark countertop" />
@@ -265,7 +276,8 @@ export default function Home() {
           <div>
             <p className="eyebrow gold">The primary suite</p>
             <h2>A private<br />retreat</h2>
-            <p>A wood-burning stone fireplace, a walk-in closet, an ensuite and a covered porch, all of them belonging to this room alone.</p>
+            <p>Ascend to your private sanctuary, complete with private wood burning fireplace, covered balcony overlooking the magnificent willow tree or a breathtaking view of the grounds, lighted upper natural swimming pond and the lower pond with lighted fountain. It is a truly spectacular, peaceful and calming experience at night. Especially when accompanied with the gentle rains and the symphony sounds of nature.</p>
+            <p>Take a deep breath my friends. You&apos;re home.</p>
           </div>
         </section>
 

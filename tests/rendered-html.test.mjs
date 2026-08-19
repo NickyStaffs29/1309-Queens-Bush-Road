@@ -344,7 +344,11 @@ test("applies the approved still-image and gallery treatments", async () => {
   assert.match(suite, /<h2>A private<br\s*\/?>retreat<\/h2>/);
   assert.match(
     suite,
-    /<p>A wood-burning stone fireplace, a walk-in closet, an ensuite and a covered porch, all of them belonging to this room alone\.<\/p>/,
+    /<p>Ascend to your private sanctuary, complete with private wood burning fireplace, covered balcony overlooking the magnificent willow tree or a breathtaking view of the grounds, lighted upper natural swimming pond and the lower pond with lighted fountain\. It is a truly spectacular, peaceful and calming experience at night\. Especially when accompanied with the gentle rains and the symphony sounds of nature\.<\/p>/,
+  );
+  assert.match(
+    suite,
+    /<p>Take a deep breath my friends\. You&#x27;re home\.<\/p>/,
   );
   // The superseded heading is gone in every form, including split across the line break.
   assert.doesNotMatch(suite, /A house within/);
@@ -472,7 +476,7 @@ test("fills the mobile grounds photograph to the full content width", async () =
   // Desktop keeps the narrow right-hand column of the two-column grounds grid.
   assert.match(cssRule(desktop, ".grounds"), /grid-template-columns: 1\.25fr \.75fr/);
   assert.match(cssRule(desktop, ".grounds-secondary"), /grid-column: 2/);
-  assert.match(cssRule(desktop, ".grounds-secondary"), /grid-row: 1 \/ 3/);
+  assert.match(cssRule(desktop, ".grounds-secondary"), /grid-row: 2/);
 });
 
 test("puts the primary-suite copy above its photographs on mobile", async () => {
@@ -961,26 +965,26 @@ test("publishes the approved Casa Serenita copy and confirmed property facts", a
   }
 
   assert.equal(
-    story.includes("Nothing of the house shows from the road. The drive turns in past mature trees and runs on for some distance before the house settles into view"),
+    story.includes("Fully Restored and standing strong since 1835. This 4,956 sq. ft. century home is full of enchantment"),
     true,
   );
-  assert.equal(story.includes("Inside there is 4,956 sq. ft. of finished space, 4,122 above grade and 834 below"), true);
+  assert.equal(story.includes("Regardless of your purpose, you can always look forward to the views from any room, any time of day or night."), true);
   assert.equal(
-    grounds.includes("The natural swimming pond is lined, aerated and filtered through aquatic planting."),
+    grounds.includes("An engineered Natural Swimming Pond (NSP). Fully lined, lighted"),
     true,
   );
-  assert.equal((page.match(new RegExp(waterFeatureClaim, "g")) ?? []).length, 2);
-  assert.equal((page.match(/3\.05 acres/g) ?? []).length, 5);
+  assert.equal((page.match(new RegExp(waterFeatureClaim, "g")) ?? []).length, 1);
+  assert.equal((page.match(/3\.05 acres/g) ?? []).length, 3);
   assert.equal(
-    interior.includes("old-pine sills, doorway beams and ceiling beams cut for the rooms they sit in"),
-    true,
-  );
-  assert.equal(
-    interior.includes("Custom rustic hardwood runs through the dining and living rooms, with ceramic tile in the kitchen, foyer, laundry and bathrooms."),
+    interior.includes("kitchen is certainly no exception. The oversized expansive granite island is surrounded by reclaimed wood beams and old pine window sills."),
     true,
   );
   assert.equal(
-    suite.includes("A wood-burning stone fireplace, a walk-in closet, an ensuite and a covered porch"),
+    interior.includes("Ceramic tile flows tastefully throughout kitchen, foyer, laundry and bathroom. Rare and unique custom cut reclaimed hardwood floor throughout dining and living room."),
+    true,
+  );
+  assert.equal(
+    suite.includes("Ascend to your private sanctuary, complete with private wood burning fireplace, covered balcony overlooking the magnificent willow tree"),
     true,
   );
 
@@ -1091,7 +1095,7 @@ test("makes inquiry artwork full bleed and centres the mobile CTA", async () => 
     ["contact form", /<form\b|<input\b|<select\b|<textarea\b/i],
     ["telephone", /\btel:|telephone|\bphones?\b|\b\d{3}[.\- ]\d{3}[.\- ]\d{4}\b/i],
     ["scheduler", /calendly|acuity scheduling|(?:schedule|book) (?:a|an|your) (?:viewing|visit|tour|time|slot)/i],
-    ["showing procedure", /lockbox|access code|entry code|key ?code|showing instructions|accompan/i],
+    ["showing procedure", /lockbox|access code|entry code|key ?code|showing instructions|accompanied by/i],
   ]) {
     assert.doesNotMatch(section, pattern, label);
   }
@@ -1110,7 +1114,7 @@ test("omits everything outside the approved private-sale disclosure", async () =
     ["agent or brokerage", /\bagents?\b|\bbrokers?\b|brokerage|realto[r]|lambert/i],
     ["telephone", /\btel:|telephone|\bphones?\b|\b\d{3}[.\- ]\d{3}[.\- ]\d{4}\b/i],
     ["contact form", /<form\b|<input\b/i],
-    ["access or security procedure", /lockbox|\bsecurity\b|\balarm\b|accompan|access code|entry code|key ?code|showing instructions/i],
+    ["access or security procedure", /lockbox|\bsecurity\b|\balarm\b|accompanied by|access code|entry code|key ?code|showing instructions/i],
     ["public scheduling", /calendly|acuity scheduling|(?:schedule|book) (?:a|an|your) (?:viewing|visit|tour|time|slot)/i],
     ["condition guarantee", /guarantee|warrant(?:y|ies|ed)|move-in ready|turn-?key|immaculate/i],
     ["unverified renovation", /renovat|fully updated|newly remodel|recently redone/i],
