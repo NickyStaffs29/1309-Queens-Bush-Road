@@ -225,8 +225,29 @@ export default function Home() {
             <p>An engineered Natural Swimming Pond (NSP). Fully lined, lighted &amp; aerated. Completing the ambiance is a flowing rock waterfall and diving rock. Designed in Europe and modelled after an Alpine lake, you have never felt cleaner and silky soft so naturally. This stunning water feature is entirely filtered by plants. No maintenance and no chemicals. The plants do it all.</p>
             <p>The hot tub sits securely on the expansive composite deck which rests on a poured, rebar reinforced concrete slab. The deck cantilevers over the pond with the perimeter &amp; stairs being accented with inlaid lighting for ambiance and safety.</p>
             <p>The grounds were professionally graded for water drainage and beauty. It was designed to keep water away from the house and yet effectively capture naturally all rain water from eavestroughs and downspouts directly into the ponds.</p>
-            <p>Absolutely perfect for hosting weddings, large events and endless outdoor activities.</p>
             <p>Feel at ease and secure with the Generac 22 kW built-in generator. Powerful enough to run the entire property. No blackouts for you.</p>
+          </div>
+          <div className="grounds-gallery">
+            <img
+              src="/property/gallery/grounds-willow-tree-1440.webp"
+              srcSet="/property/gallery/grounds-willow-tree-720.webp 720w, /property/gallery/grounds-willow-tree-1440.webp 1440w"
+              sizes="(max-width: 900px) calc(100vw - 48px), 30vw"
+              alt="Mature willow tree on the lawn"
+              width="960"
+              height="1440"
+              loading="lazy"
+              decoding="async"
+            />
+            <img
+              src="/property/gallery/grounds-pool-natural-1440.webp"
+              srcSet="/property/gallery/grounds-pool-natural-720.webp 720w, /property/gallery/grounds-pool-natural-1440.webp 1440w"
+              sizes="(max-width: 900px) calc(100vw - 48px), 30vw"
+              alt="Rock-edged natural pool with a stepping stone, grasses and a red maple"
+              width="960"
+              height="1440"
+              loading="lazy"
+              decoding="async"
+            />
           </div>
           <PropertyVideo className="grounds-main" name="grounds-pool-pond" alt="Aerial view descending toward the natural pool and rear deck" />
           <img
@@ -258,7 +279,20 @@ export default function Home() {
             <p>The custom oval leaded glass window leads you up the curved staircase to the second floor of the home. Which boasts the stunning view of the expansive grounds from the generous executive office.</p>
             <a className="text-link" href="#gallery">View the gallery <span aria-hidden="true">→</span></a>
           </div>
-          <StoryImage className="interior-detail" name="copper-sink" alt="Hammered copper sink and dark countertop" />
+          <div className="interior-secondary">
+            <StoryImage className="interior-photo" name="copper-sink" alt="Hammered copper sink and dark countertop" />
+            <img
+              className="interior-photo"
+              src="/property/gallery/craft-hearth-bellows-1440.webp"
+              srcSet="/property/gallery/craft-hearth-bellows-720.webp 720w, /property/gallery/craft-hearth-bellows-1440.webp 1440w"
+              sizes="(max-width: 900px) 100vw, 66vw"
+              alt="Riveted leather-and-brass bellows against the fieldstone hearth, beside a hand-carved candlestick."
+              width="960"
+              height="1440"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
         </section>
 
         <section className="suite-band" aria-label="Primary suite">

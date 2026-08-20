@@ -114,21 +114,41 @@ nav a { align-items: center; display: inline-flex; font-size: 11px; letter-spaci
 .dark { background: var(--umber); color: var(--plaster); }
 #grounds { padding-block: clamp(60px, 7vw, 110px); }
 .grounds { display: grid; gap: 26px; grid-template-columns: 1.25fr .75fr; grid-template-rows: auto 540px auto; }
-.grounds-copy { align-self: end; max-width: 620px; padding: 0 0 55px; }
+.grounds-copy { align-self: end; grid-column: 1; grid-row: 1; max-width: 620px; padding: 0 0 55px; }
 .grounds-copy > p:not(.eyebrow) { color: #dbcdb9; margin: 38px 0 0; }
+.grounds-gallery { display: grid; gap: clamp(12px, 2vw, 28px); grid-column: 2; grid-row: 1; grid-template-columns: 1fr; grid-template-rows: repeat(2, minmax(0, 1fr)); }
 .grounds-main { grid-column: 1; grid-row: 2; }
 .grounds-secondary { grid-column: 2; grid-row: 2; }
 .grounds-note { border-top: 1px solid var(--copper); color: var(--gold); font: italic 16px/1.6 var(--serif); grid-column: 1; margin: 8px 0 0; padding-top: 18px; width: 250px; }
+.grounds-gallery img { height: 260px; min-height: 0; width: 100%; }
+/* Row 1 sizes to .grounds-copy's real content on desktop, so .grounds-gallery fills it instead of
+   leaving dead space beside the copy. A stacked pair of portrait photos is naturally taller than
+   the copy needs, so the row ends up taller than .grounds-copy alone would be; the extra room lands
+   above the (bottom-aligned, dark-background) copy block, where it reads as ordinary section
+   whitespace rather than a gap — confirmed by screenshot, not assumed. minmax(0, 1fr) keeps the two
+   photos an exact, equal 1/2 share of that height regardless of their own aspect ratio. */
+@media (min-width: 901px) {
+  .grounds-gallery { height: 100%; }
+  .grounds-gallery img { height: 100%; }
+}
 
 .interior { display: grid; gap: clamp(24px, 4vw, 62px); grid-template-columns: .7fr 1.3fr; grid-template-rows: auto auto; }
-.interior-lead { align-self: center; }
-.interior-main { height: clamp(520px, 52vw, 720px); }
-.interior-copy { align-self: start; max-width: 490px; }
+.interior-lead { align-self: center; grid-column: 1; grid-row: 1; }
+.interior-main { grid-column: 2; grid-row: 1; height: clamp(520px, 52vw, 720px); }
+.interior-copy { align-self: start; grid-column: 1; grid-row: 2; max-width: 490px; }
 .interior-copy p { margin: 0 0 28px; }
-.interior-detail { height: 260px; justify-self: end; width: 100%; }
-/* Row 2 sizes to .interior-copy's real content on desktop, so .interior-detail fills it instead of leaving dead space. */
+.interior-secondary { display: grid; gap: clamp(12px, 2vw, 28px); grid-column: 2; grid-row: 2; grid-template-columns: 1fr; grid-template-rows: repeat(2, minmax(0, 1fr)); }
+.interior-photo { aspect-ratio: 4 / 3; height: 260px; min-height: 0; width: 100%; }
+/* Row 2 sizes to .interior-copy's real content on desktop (six paragraphs plus the link), so
+   .interior-secondary fills it instead of leaving dead space. .interior-main keeps its own
+   self-contained clamp() height in row 1, unrelated to either column's content, so it cannot
+   inflate row 2. Forcing both secondary photos to the same 4:3 aspect-ratio (matching kitchen's
+   own native ratio) keeps their combined natural height under .interior-copy's real height at
+   every width measured (375/768/1024/1280/1440), so row 2 stays driven by the copy exactly as it
+   already was for the single copper-sink image before this change. */
 @media (min-width: 901px) {
-  .interior-detail { height: 100%; }
+  .interior-secondary { height: 100%; }
+  .interior-photo { height: 100%; }
 }
 
 .suite-band { background: var(--tobacco); color: var(--plaster); display: grid; grid-template-columns: 1.25fr .75fr; }
@@ -256,14 +276,21 @@ a:focus-visible { outline: 2px solid var(--gold); outline-offset: 5px; }
   .section-intro { max-width: 670px; padding: 0; }
   .story-arrival-row { grid-template-columns: 1fr; gap: 24px; }
   #grounds { padding-block: 72px; }
-  .grounds { gap: 24px; grid-template-rows: auto 430px 350px auto; }
+  .grounds { gap: 24px; grid-template-rows: auto auto 430px 350px auto; }
   /* Grid gap plus this padding is the 48px copy-to-media separation. */
-  .grounds-copy { grid-column: 1 / -1; padding-bottom: 24px; }
-  .grounds-main { grid-column: 1 / -1; }
+  .grounds-copy { grid-column: 1 / -1; grid-row: 1; padding-bottom: 24px; }
+  /* The two grounds photos move directly under the copy, ahead of the pond video,
+     instead of beside it — there is no side column left once the grid is one wide. */
+  .grounds-gallery { grid-column: 1 / -1; grid-row: 2; }
+  .grounds-main { grid-column: 1 / -1; grid-row: 3; }
   /* Full content width: a partial width left an empty band of the section colour
      beside the photograph, since the grid row is the full gutter-to-gutter span. */
-  .grounds-secondary { grid-column: 1 / -1; grid-row: 3; }
-  .grounds-note { grid-row: 4; margin-top: 0; }
+  .grounds-secondary { grid-column: 1 / -1; grid-row: 4; }
+  .grounds-note { grid-row: 5; margin-top: 0; }
+  .interior-lead { grid-column: 1 / -1; }
+  .interior-main { grid-column: 1 / -1; grid-row: 2; }
+  .interior-copy { grid-column: 1 / -1; grid-row: 3; }
+  .interior-secondary { gap: 24px; grid-column: 1 / -1; grid-row: 4; }
   .feature-columns { gap: 48px; }
   .feature-columns h3 { font-size: 11px; }
   /* The same 24/48/72 rhythm the rest of the mobile shell uses, so each group reads as a
@@ -321,11 +348,14 @@ a:focus-visible { outline: 2px solid var(--gold); outline-offset: 5px; }
   /* The grid collapses to blocks here, so the same separations move onto margins. */
   .grounds { display: block; }
   .grounds-copy { padding-bottom: 48px; }
-  .grounds-main { height: 430px; }
+  .grounds-gallery { gap: 16px; }
+  .grounds-gallery img { height: 220px; }
+  .grounds-main { height: 430px; margin-top: 24px; }
   .grounds-secondary { height: 280px; margin-top: 24px; }
   .grounds-note { margin-top: 24px; }
   .interior-main { height: 450px; }
-  .interior-detail { height: 200px; }
+  .interior-secondary { gap: 16px; }
+  .interior-photo { height: 220px; }
   .gallery-heading { display: block; }
   .gallery-heading h2 { margin-top: 24px; }
   .gallery-group-grid { grid-template-columns: repeat(2, 1fr); }
