@@ -356,3 +356,118 @@ None. Both ambiguities Recon flagged (B3's verbatim-vs-precedent-period question
 Implemented the PM's spec exactly, byte-for-byte against the diffs given: (1) deleted the weddings `<p>` from `.grounds-copy` and inserted the `.grounds-gallery` `<div>` (willow + pool `<img>`s, `.grounds-secondary`'s attribute pattern, alt text verbatim from the manifest with no added period, per the PM's B3 decision) immediately before `<PropertyVideo className="grounds-main" .../>`; (2) replaced the lone `.interior-detail` `StoryImage` with the `.interior-secondary` wrapper holding `copper-sink` (`StoryImage`) + `craft-hearth-bellows` (raw `<img>`, alt verbatim with its existing manifest period); (3) applied all four CSS diffs verbatim in `app/globals.css` — the desktop `.grounds`/`.grounds-copy`/`.grounds-gallery` block, the desktop `.interior`/`.interior-secondary`/`.interior-photo` block, the `@media (max-width:900px)` row-renumbering plus four new `.interior-*` lines, and the `@media (max-width:640px)` block. Verification: `npm run lint` — clean, zero output. `npm test` (`next build` + `node --test`) — **33/33 pass, 0 fail**, run twice (once mid-work, once fresh after cleanup) with identical results; no test file was touched or needed retargeting, confirming the PM's claim. `git diff --stat` touches only `app/globals.css` (+58/-16... net which is the CSS diffs) and `app/page.tsx` (the JSX diffs), plus this log — no other files. `grep -c "weddings"` against the built `.next/server/app/index.html` returns 0 — the sentence is gone from the rendered output. All 18 banned-term-guard assertions pass because `tests/rendered-html.test.mjs` is byte-identical (not in the diff) and the full suite (which includes those assertions) is green. Visual/DOM verification per B11 was done empirically, not assumed: built and ran this branch on `next start -p 4173`, and separately built/ran the unmodified `HEAD` commit in a disposable `git worktree` (symlinked `node_modules`, since Turbopack rejects a `/private/tmp`-rooted worktree with an out-of-filesystem-root symlink error — resolved by placing the worktree under the repo's own parent directory instead) on `next start -p 4174`, then drove both with Playwright (`chromium@1.61.1` resolved from the cached `~/.npm/_npx/705bc6b22212b352` install, using the already-installed `~/Library/Caches/ms-playwright` Chromium) at 375/768/1024/1280/1440, reading `getBoundingClientRect()` for every element the PM's plan named plus `scrollWidth`/`clientWidth`, and capturing before/after element screenshots of `#grounds` and `#interior` at all five widths. My independently measured numbers match the PM's reported table to within ~1px rounding at every cell (e.g. 1280w: `.grounds-copy` 1003.875 vs PM's 1004, `.grounds-gallery` 1234.78 vs 1235, each image 604.59 vs 605; `.interior-secondary` 1354.19 vs `.interior-copy` 1354.19 — an exact match, confirming zero dead band). `document.body.scrollWidth === document.documentElement.clientWidth` at all five widths, both before and after (no horizontal overflow, B6). No element overlaps any sibling in the same column at any width; gaps between stacked elements match the CSS-declared values exactly (e.g. 24px/48px margins at ≤640/641–900). Screenshots confirm: the willow tree and natural pool are both fully recognizable at every width (only cropped to a wide strip at 641–900, as the PM flagged); the three interior photos (kitchen/copper-sink/hearth-bellows) read as one deliberate, evenly sized set at ≥901px with the copper-sink defect visibly and completely resolved (before: kitchen 665.59px vs copper-sink 1354.19px at 1280w, an unrecognizably tall crop filling most of the viewport; after: kitchen 665.59px vs each of two photos at 664.30px, a ~0.2% difference); and the previously-blank grid cell beside `.grounds-copy` is now visibly filled by the stacked willow/pool pair with no dead space, confirmed against the "before" screenshot which shows nothing but the section's dark background in that cell.
 
 No deviations from the plan — every JSX/CSS diff was applied exactly as specified, and I confirmed this by diffing my working tree against the plan's literal diff text before running any tests. One finding for the PM's acceptance review to scrutinize, surfaced honestly rather than glossed over per my verification mandate: at the **641–900px tier**, `.interior-main` (measured 520px) is still **exactly 2× the height of each `.interior-photo`** (measured 260px, identical to `.interior-detail`'s pre-existing 260px at that same tier) — the PM's own measured table captured this number (768w row: 520/260) but its prose only characterizes the ≥901px ratios and the "widest gap" at 1024w; the CSS diffs add no height override for `.interior-main` or `.interior-photo` in the `@media (max-width:900px)` block (only `grid-column`/`grid-row` placement), so this tier's disparity is numerically **unchanged from before the fix**, despite the Stage-0-Amendment Recon's explicit blocker note demanding the Plan "specify exact target height(s) per breakpoint (901+, 641-900, ≤640) since the three breakpoints currently disagree on which image is bigger." At ≤640px the ratio improves only marginally (450:200 → 450:220, i.e. 2.25× → 2.05×). I did not treat this as a BLOCKER or attempt to fix it myself — the plan is fully, exactly implementable as written (verified by diff comparison), lint/tests are green, and the originally-reported desktop defect (the "enormous" copper-sink) is genuinely and precisely resolved (2.03×→~1.003× at 1280/1440, ~21% at 1024, screenshot-confirmed); unilaterally adding a breakpoint-specific height override would be improvising a design the plan didn't specify. Screenshots at 768/375 (`after-interior-768.png`, `after-interior-375.png` vs `before-interior-768.png`, `before-interior-375.png` in the session scratchpad) show this plainly: three images are shown at every width and nothing is broken or clipped, but at 641–900px specifically the "evenly sized" bar (C2) is not actually met — it inherited the pre-existing single-image proportions unchanged. Also note per the PM's own flagged, accepted tradeoff: the 641–900px grounds tier crops both new portrait photos to a wide ~2.77:1 strip (confirmed identical crop behavior via screenshot), a real but previously-disclosed visual compromise, not a new finding.
+## PM — Plan (cont.)
+2026-08-19 21:15 EDT — mobile gap supplement for `#interior` (C2), plus a required `#grounds` mobile-evenness check
+
+Scope: this entry covers ONLY the gap the Executor's own entry flagged — no height override existed for the two mobile tiers (641–900px and <=640px), so `.interior-main` vs `.interior-photo` stayed at the pre-existing, untouched 2.00x/2.05x ratio through this whole round. The desktop fix (>=901px) is confirmed GOOD and is UNCHANGED by anything below. B/grounds is UNCHANGED except for the verification in section 1, which found no defect there.
+
+Method: built and measured empirically in a disposable git worktree (`git worktree add --detach <parent-dir>/carm-mobile-worktree e4b831c`, symlinked `node_modules`, removed after use — same technique the original Plan used, for the same Turbopack-symlink reason the Executor documented). `next build` + `next start -p 4180` (unmodified baseline) and `-p 4181` (candidate), driven by Playwright (`chromium@1.61.1`, cached `~/Library/Caches/ms-playwright`) at 375 and 768px, reading `getBoundingClientRect()` and `document.body.scrollHeight`, plus element screenshots of `#interior` and `#grounds` at both widths, before and after. Desktop invariance (1024/1280/1440) was checked the same way. The worktree is gone; the real working tree was never touched (`git status --short` before and after this session is identical — only the four pre-existing untracked items).
+
+### 1. `.grounds-gallery` mobile evenness — CHECKED, NO DEFECT, NO CHANGE
+
+Measured on the unmodified branch (both mobile tiers use the same rule today — `.grounds-gallery img { height: 260px }` base rule at 641–900px, `.grounds-gallery img { height: 220px }` override at <=640px, `globals.css:123` and `:352`):
+
+| tier | willow h | pool h | gap | ratio |
+|---|---|---|---|---|
+| 768w (641–900) | 260 | 260 | 15.36px (single `gap` value) | 1.00 (identical) |
+| 375w (<=640) | 220 | 220 | 16px (single `gap` value) | 1.00 (identical) |
+
+Both images are exactly equal height, share one consistent gap, and screenshot-confirmed both remain recognizable (willow canopy against sky; rock-edged pool with plantings) at both widths — the same wide-strip crop the original Plan already disclosed and the user accepted (~2.77:1 at 768w, ~1.49:1 at 375w). `.grounds-gallery` already satisfies "evenly sized and evenly spaced" at both mobile tiers exactly as it does at desktop. **No CSS change proposed or needed here.**
+
+### 2. `#interior` mobile tiers — FIX (not no-change), with reasoning
+
+**What "even" means at these widths, and why:** at both mobile tiers the three images are never on screen together — `.interior-main` sits above roughly 1200px of six-paragraph copy before the two `.interior-photo` elements appear, so unlike desktop (where the three are one simultaneous right-column glance and near-numeric-parity is what makes them read as "one set"), the relevant same-frame comparison here is only between the two stacked `.interior-photo` elements to each other — and those were ALREADY exactly equal (260/260, 220/220) before this supplement, same mechanism as `.grounds-gallery`. Because they're not viewed side-by-side with `.interior-main`, strict 1:1 parity between main and the photos is not required for "even" to hold, and I did not target it.
+
+However, C2's own text — "the three images should read as a deliberate, consistent set... not one giant plus two small" — is not scoped to simultaneous viewing, and a 2.00x/2.05x ratio is materially outside the variance this same round already accepted as "evenly sized" at desktop (its own stated ceiling was ~21% at 1024w, explicitly called "still far inside 'evenly sized'"; 100%+ is double that ceiling). I looked at the actual rendering before touching anything (`before-interior-768.png`, `before-interior-375.png` in this session's scratchpad): it is not broken, clipped, or overlapping — it reads as a competent lead-photo-then-detail-shots layout, and a reasonable case for "no change" exists. But it is also not a deliberately tuned hierarchy — it's simply whatever fell out of never assigning the mobile tiers their own values, which is exactly Recon's original, unaddressed blocker note ("specify exact target height(s) per breakpoint... since the three breakpoints currently disagree"). Given the round already established and accepted a much tighter band at desktop, leaving mobile at more than double that variance is the "convenient no-change," not the defensible one. I am recommending a fix.
+
+**Design choice:** keep `.interior-main` as the visible lead (do not shrink it to match the photos — it is treated as the section's premier shot at every other breakpoint, including desktop, and collapsing it to thumbnail scale to force numeric equality would be a worse visual trade than the disproportion it fixes). Instead, split the adjustment: trim `.interior-main` modestly and raise `.interior-photo` substantially, landing both mobile tiers at essentially the same ~1.29x ratio the desktop 1024w gap already validated as acceptable (532/676 = 0.79, i.e. ~27% either direction) — this makes `.interior-main` deliberately, consistently ~29% larger than each detail photo at both tiers (not equal, not 2x — a stated, chosen hierarchy), and the ~29% figure is nearly identical at both tiers (1.294 at 768w, 1.286 at 375w), so nothing jars crossing the 640px boundary. Screenshot-confirmed (`candidate1-interior-768.png`, `candidate1-interior-375.png`, this session's scratchpad): both detail photos are now visibly bigger and easier to read as real images rather than thumbnails, the kitchen photo still unmistakably leads the section, and nothing overflows or collides.
+
+**Bonus, measured, not the reason for the change but worth recording:** raising `.interior-photo`'s height also reduces its own object-fit:cover crop severity (less of each photo is cut away) — 768w: ~2.77:1 crop becomes ~2.12:1; 375w: ~1.49:1 crop becomes ~1.17:1 (closer to the images' native framing either way).
+
+### Exact CSS diff (`app/globals.css`, the ONLY file touched)
+
+In the `@media (max-width: 900px)` block, at the existing `.interior-*` lines (currently lines 290–293):
+
+```diff
+   .interior-lead { grid-column: 1 / -1; }
+-  .interior-main { grid-column: 1 / -1; grid-row: 2; }
++  /* Interior-main stays the visual lead at both mobile tiers, but at a deliberate ~1.29x
++     over each interior-photo rather than the previous unset 2.00x/2.05x, which read as
++     "one giant plus two small" — exactly what C2 forbids. */
++  .interior-main { grid-column: 1 / -1; grid-row: 2; height: 440px; }
+   .interior-copy { grid-column: 1 / -1; grid-row: 3; }
+   .interior-secondary { gap: 24px; grid-column: 1 / -1; grid-row: 4; }
++  .interior-photo { height: 340px; }
+```
+
+In the `@media (max-width: 640px)` block, at the existing `.interior-*` lines (currently lines 356–358):
+
+```diff
+-  .interior-main { height: 450px; }
++  .interior-main { height: 360px; }
+   .interior-secondary { gap: 16px; }
+-  .interior-photo { height: 220px; }
++  .interior-photo { height: 280px; }
+```
+
+Net diff: 2 lines changed, 2 lines added (one is a comment), inside the two already-existing mobile media-query blocks. `.grounds-*` rules are untouched (section 1 above — no defect found). No change to `app/page.tsx` or `tests/rendered-html.test.mjs`.
+
+### Measured results (real numbers, headless Chromium, both tiers)
+
+| width | tier | `.interior-main` h (before → after) | `.interior-photo` h each (before → after) | ratio (before → after) |
+|---|---|---|---|---|
+| 768 | 641–900 | 520 → 440 | 260 → 340 | 2.000 → 1.294 |
+| 375 | <=640 | 450 → 360 | 220 → 280 | 2.045 → 1.286 |
+
+No horizontal overflow at either width, before or after (`scrollWidth === clientWidth` in both cases). No overlap between any stacked elements; gaps between `.interior-main`/`.interior-copy`/`.interior-secondary` remain exactly the pre-existing 48px (900px tier) rhythm, unchanged.
+
+### 3. Desktop invariance (901+ px) — CONFIRMED UNCHANGED
+
+Measured `.interior-main`, `.interior-copy`, `.interior-secondary`, `.grounds-gallery`, `.grounds-copy` rects at 1024/1280/1440 on the unmodified build and on the candidate build: **byte-for-byte identical** at every width (e.g. 1280w interior-secondary/interior-copy both 1354.19 in both builds). Expected and by construction — every changed declaration lives inside `@media (max-width: 900px)` or `@media (max-width: 640px)`, neither of which ever applies at >=901px.
+
+### 4. Tests and lint
+
+Ran against the candidate build in the worktree: `npm run lint` — clean, zero output. `npm test` (`next build` + `node --test`) — **33/33 pass, 0 fail**, no retargeting, no test file touched (none of the existing assertions read CSS pixel heights for `.interior-*`, confirmed by the original Recon and unaffected by this supplement). `git diff --stat` in the worktree showed exactly `app/globals.css`, 4 insertions(+), 3 deletions(-) — matches the diff above once the added comment line is counted.
+
+### 5. Tradeoff, with numbers
+
+Full-page `scrollHeight` (i.e. how much longer the page scrolls), measured before/after on the same builds:
+
+| width | before | after | delta |
+|---|---|---|---|
+| 375 | 25451px | 25481px | +30px (+0.12%) |
+| 768 | 23726px | 23806px | +80px (+0.34%) |
+
+`.interior-main` shrinks (−80 to −90px) while the two `.interior-photo` elements grow more (+120 to +160px combined), for a small net increase in page length — under 0.4% at both widths, not a meaningful scroll-length cost for a materially better proportion.
+
+### Ordered task list (zero judgment calls)
+
+1. In `app/globals.css`, inside `@media (max-width: 900px)`, add `height: 440px;` to the existing `.interior-main` declaration and add a new `.interior-photo { height: 340px; }` line immediately after `.interior-secondary`, exactly as diffed above (comment optional but recommended, exact text given).
+2. In `app/globals.css`, inside `@media (max-width: 640px)`, change `.interior-main`'s height from `450px` to `360px` and `.interior-photo`'s height from `220px` to `280px`, exactly as diffed above.
+3. Do not touch any `.grounds-*` rule — section 1 found no defect.
+4. Do not touch `app/page.tsx` or `tests/rendered-html.test.mjs`.
+5. Run `npm run lint` — expect clean. Run `npm test` — expect 33/33, unchanged.
+6. Re-measure `.interior-main`/`.interior-photo` at 375/768 — expect 440/340 and 360/280 respectively (±1px). Re-measure at 1024/1280/1440 — expect byte-identical to the pre-supplement branch.
+
+### Classification: MECHANICAL
+
+Every value is chosen, tested, and pinned; the change is two small, non-interacting blocks in one file with no cross-file coordination and no remaining design judgment. Transcription-grade.
+
+### Risks
+
+- The ~1.29x target is a deliberate design choice (this PM's judgment call, not a formula) — if `.interior-copy`'s text ever changes length, nothing here recomputes automatically (these are fixed px values, same as the pre-existing `.grounds-gallery img`/`.interior-main` mobile pattern), so Accept should treat 440/340/360/280 as intended constants, not derived ones.
+- `.interior-photo`'s crop is still real (object-fit:cover on a fixed box) at both tiers, just less severe than before — not eliminated.
+
+### Non-goals
+
+No change to `.grounds-*` anywhere (confirmed even, section 1). No change to any desktop (>=901px) rule or rendering (confirmed identical, section 3). No change to `app/page.tsx` or `tests/rendered-html.test.mjs`. No change to `.interior-copy`'s content, the `View the gallery` link, the eyebrow/h2, or any color/font/type-scale token.
+
+### Blockers
+
+None. The two questions this supplement was asked to resolve (grounds-gallery mobile evenness; the interior mobile-tier fix-or-no-fix call) are both answered and justified above from actual rendered screenshots, not reasoned about — neither is product-level, irreversible, or cost-bearing.
+## Executor (cont.)
+2026-08-19 21:35 EDT
+
+Implemented the PM's `## PM — Plan (cont.)` mobile-supplement task list exactly, and only that: in `app/globals.css`, inside `@media (max-width: 900px)`, added `height: 440px;` to the existing `.interior-main` declaration (plus the PM's exact explanatory comment) and added a new `.interior-photo { height: 340px; }` line immediately after `.interior-secondary`; inside `@media (max-width: 640px)`, changed `.interior-main`'s height from `450px` to `360px` and `.interior-photo`'s height from `220px` to `280px`. No other line in either block was touched. `git diff app/globals.css` matches the PM's diff text byte-for-byte (7 insertions / 3 deletions, including the added comment). `app/page.tsx` and `tests/rendered-html.test.mjs` were not opened for editing. Verification: `npm run lint` — clean, zero output. `npm test` (`next build` + `node --test`) — 33/33 pass, 0 fail, run twice (once before, once after worktree cleanup) with identical results. `git diff --stat` touches only `app/globals.css` (plus this log) — confirmed via `git diff --stat -- app/globals.css` (1 file changed) and `git status --short` showing no other tracked-file changes (the four pre-existing untracked items — `CARM HOUSE PROJECT NOTES/`, `compute-squad-archive/`, and the two stray `craft-hearth-bellows-*-2.webp` duplicates — were left untouched throughout). Measured live with Playwright (cached Chromium at `~/Library/Caches/ms-playwright`, `playwright` package resolved from `~/.npm/_npx/705bc6b22212b352`) against two `next build && next start` servers: the current branch tip `e4b831c` unmodified in a disposable detached worktree (`git worktree add --detach ../carm-mobile-before-worktree e4b831c`, symlinked `node_modules`, removed after use — `git worktree list` and `git status --short` confirm the real working tree was never touched by it) on port 4191 as "before", and this candidate build on port 4190 as "after". Confirmed exactly the PM's pinned numbers: `.interior-main` 360px at 375w (before: 450px) and 440px at 768w (before: 520px); each `.interior-photo` 280px at 375w (before: 220px) and 340px at 768w (before: 260px); ratio main/photo = 1.2857 at 375w and 1.2941 at 768w, both ~1.29x as specified. `document.body.scrollWidth === document.documentElement.clientWidth` at all five widths (375/768/1024/1280/1440), both before and after — no horizontal overflow anywhere. Desktop invariance (901px+) confirmed by comparing every measured rect (`.interior-main`, `.interior-photo`, `.interior-copy`, `.interior-secondary`, `.grounds-gallery`, `.grounds-gallery img`, `.grounds-copy`) at 1024/1280/1440 between the before and after builds: byte-for-byte identical at every width — zero regression, exactly as expected since every changed declaration lives inside a `max-width: 900px` or `max-width: 640px` query. `.grounds-*` rects and screenshots were also captured at all five widths as an extra check (the plan said grounds is unchanged) and were identical file sizes/dimensions before vs after at every width, confirming no incidental grounds regression. Element-level screenshots of `#interior` at 375 and 768 (both before and after) confirm visually: the copper-sink and hearth-bellows photos are both noticeably larger and easier to read than before, the kitchen photo still unmistakably leads the section, and nothing overflows, clips, or collides with `.interior-copy`'s text.
+
+No deviations from the plan — every value (440/340/360/280) and every line placement was applied exactly as the PM's diff specified, confirmed by direct diff comparison against the plan's literal text before running any tests. No blockers. One thing worth the PM's/reviewer's attention, not a defect: this task's own scope explicitly excluded `.grounds-*`, and my independent re-check confirms the PM's section-1 finding (grounds mobile evenness) was correct — both `.grounds-gallery img` elements are already exactly equal height at 641–900px and at <=640px, so there was genuinely nothing to fix there, and I made no grounds edits. Screenshots and raw JSON measurements from this verification pass are in this session's scratchpad and were not committed (per the "no drive-by files" discipline); the numbers above are transcribed directly from that output.

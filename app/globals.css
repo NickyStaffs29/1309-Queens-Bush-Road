@@ -288,9 +288,13 @@ a:focus-visible { outline: 2px solid var(--gold); outline-offset: 5px; }
   .grounds-secondary { grid-column: 1 / -1; grid-row: 4; }
   .grounds-note { grid-row: 5; margin-top: 0; }
   .interior-lead { grid-column: 1 / -1; }
-  .interior-main { grid-column: 1 / -1; grid-row: 2; }
+  /* Interior-main stays the visual lead at both mobile tiers, but at a deliberate ~1.29x
+     over each interior-photo rather than the previous unset 2.00x/2.05x, which read as
+     "one giant plus two small" — exactly what C2 forbids. */
+  .interior-main { grid-column: 1 / -1; grid-row: 2; height: 440px; }
   .interior-copy { grid-column: 1 / -1; grid-row: 3; }
   .interior-secondary { gap: 24px; grid-column: 1 / -1; grid-row: 4; }
+  .interior-photo { height: 340px; }
   .feature-columns { gap: 48px; }
   .feature-columns h3 { font-size: 11px; }
   /* The same 24/48/72 rhythm the rest of the mobile shell uses, so each group reads as a
@@ -353,9 +357,9 @@ a:focus-visible { outline: 2px solid var(--gold); outline-offset: 5px; }
   .grounds-main { height: 430px; margin-top: 24px; }
   .grounds-secondary { height: 280px; margin-top: 24px; }
   .grounds-note { margin-top: 24px; }
-  .interior-main { height: 450px; }
+  .interior-main { height: 360px; }
   .interior-secondary { gap: 16px; }
-  .interior-photo { height: 220px; }
+  .interior-photo { height: 280px; }
   .gallery-heading { display: block; }
   .gallery-heading h2 { margin-top: 24px; }
   .gallery-group-grid { grid-template-columns: repeat(2, 1fr); }
