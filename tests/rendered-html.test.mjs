@@ -249,7 +249,6 @@ test("renders the responsive hero video with still-image fallbacks", async () =>
 test("preserves the hero source bytes and approved generated video ceilings", async () => {
   const exactBytes = new Map([
     ["video/property-overview-mobile.mp4", 3283385],
-    ["video/setting-street-approach.mp4", 1756445],
   ]);
   for (const [file, expected] of exactBytes) {
     assert.equal((await stat(new URL(`../public/property/${file}`, import.meta.url))).size, expected, file);
@@ -259,6 +258,9 @@ test("preserves the hero source bytes and approved generated video ceilings", as
     ["video/property-overview-desktop.mp4", 50_000_000],
     ["video/property-overview-desktop-poster.webp", 300 * 1024],
     ["video/front-driveway-arrival.mp4", 6.8 * 1024 * 1024],
+    // Re-cut from the 23.6s master after the 8s web cut shipped truncated; pinning exact
+    // bytes here blocked the fix, so this clip is a ceiling like its 17s sibling above.
+    ["video/setting-street-approach.mp4", 5.5 * 1024 * 1024],
   ]);
   for (const [file, maxBytes] of ceilings) {
     assert.equal((await stat(new URL(`../public/property/${file}`, import.meta.url))).size <= maxBytes, true, file);
@@ -855,7 +857,7 @@ test("ships only the approved web media within budget", async () => {
     ["video/grounds-pool-pond-poster.webp", 250 * 1024],
     ["video/front-driveway-arrival.mp4", 6.8 * 1024 * 1024],
     ["video/front-driveway-arrival-poster.webp", 160 * 1024],
-    ["video/setting-street-approach.mp4", 1.8 * 1024 * 1024],
+    ["video/setting-street-approach.mp4", 5.5 * 1024 * 1024],
     ["video/setting-street-approach-poster.webp", 160 * 1024],
   ];
   for (const [file, maxBytes] of files) {
