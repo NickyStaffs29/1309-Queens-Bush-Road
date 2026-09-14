@@ -267,6 +267,35 @@ test("preserves the hero source bytes and approved generated video ceilings", as
   }
 });
 
+test("ships a full-length retina-ready driveway reveal without unused audio", async () => {
+  const data = await readFile(
+    new URL("../public/property/video/front-driveway-arrival.mp4", import.meta.url),
+  );
+  const box = (type) => {
+    const typeOffset = data.indexOf(Buffer.from(type));
+    assert.ok(typeOffset >= 4, `${type} box is missing`);
+    const start = typeOffset - 4;
+    return { start, data: typeOffset + 4, end: start + data.readUInt32BE(start) };
+  };
+
+  assert.ok(box("moov").start < box("mdat").start, "video must use fast start");
+  const mvhd = box("mvhd");
+  const version = data[mvhd.data];
+  const timescale = data.readUInt32BE(mvhd.data + (version === 1 ? 20 : 12));
+  const durationUnits = version === 1
+    ? Number(data.readBigUInt64BE(mvhd.data + 24))
+    : data.readUInt32BE(mvhd.data + 16);
+  assert.ok(Math.abs(durationUnits / timescale - 16.4498) < 0.15, "video must remain full length");
+
+  const tkhd = box("tkhd");
+  assert.deepEqual([
+    data.readUInt32BE(tkhd.end - 8) / 65536,
+    data.readUInt32BE(tkhd.end - 4) / 65536,
+  ], [1280, 720]);
+  assert.equal(data.includes(Buffer.from("avc1")), true);
+  assert.equal(data.includes(Buffer.from("soun")), false);
+});
+
 test("renders scroll-gated property video tiles with poster fallbacks", async () => {
   const html = await (await render()).text();
   for (const name of [...galleryVideos, "grounds-pool-pond", "front-driveway-arrival"]) {
